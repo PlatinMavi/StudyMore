@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="mainLayout" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="StudyMore.Controller">
+   
+   <left>
+      <VBox prefHeight="600.0" prefWidth="200.0" style="-fx-background-color: #DDDDDD;" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#handleStudy" prefWidth="200.0" text="Study" />
+            <Button mnemonicParsing="false" onAction="#handleProfile" prefWidth="200.0" text="Profile" />
+            <Button mnemonicParsing="false" onAction="#handleFriends" prefWidth="200.0" text="Friends" />
+            <Button mnemonicParsing="false" onAction="#handleInventory" prefWidth="200.0" text="Inventory" />
+            <Button mnemonicParsing="false" onAction="#handleAchievements" prefWidth="200.0" text="Achievements" />
+            <Button mnemonicParsing="false" onAction="#handleSettings" prefWidth="200.0" text="Settings" />
+         </children>
+      </VBox>
+   </left>
+
+   <center>
+      <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Select Menu" />
+         </children>
+      </StackPane>
+   </center>
+
+</BorderPane>
