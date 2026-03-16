@@ -15,6 +15,7 @@ public class StudyController {
     @FXML private Button timerControlButton;
     @FXML private Button longBreakButton;
     @FXML private Button shortBreakButton;
+    @FXML private Label multiplierLabel;
 
     private static final int LONG_BREAK_SECONDS  = 1200; // 20 min
     private static final int SHORT_BREAK_SECONDS = 600;  // 10 min
@@ -135,5 +136,7 @@ public class StudyController {
         timerLabel.setText(text);
     }
 
-    private void updateMultiplier(double val) {}
+    private void updateMultiplier(double val) {
+        multiplierLabel.setText(String.format("%.1fx", val));
+    }
 }

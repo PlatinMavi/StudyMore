@@ -65,7 +65,7 @@
                               <Label text="MULTIPLIER" textFill="#737373">
                                  <font><Font size="10.0" /></font>
                               </Label>
-                              <Label text="1.3x" textFill="WHITE">
+                              <Label text="1.0x" textFill="WHITE" fx:id="multiplierLabel">
                                  <font><Font name="System Bold" size="20.0" /></font>
                               </Label>
                            </children>

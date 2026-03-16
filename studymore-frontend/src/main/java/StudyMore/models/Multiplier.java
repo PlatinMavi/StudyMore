@@ -24,7 +24,7 @@ public class Multiplier {
     }
 
     public void increment() {
-        if(!checkIncrementDuration()) {
+        if(checkIncrementDuration()) {
             incrementIntervalDuration--;
             return; // returns if the duration is not 0
         }
@@ -39,7 +39,7 @@ public class Multiplier {
     }
 
     public void applyCooldown() {
-        if (!checkCooldownDuration()) {
+        if (checkCooldownDuration()) {
             cooldownIntervalDuration--;
             return; // returns if the duration is not 0
         }
