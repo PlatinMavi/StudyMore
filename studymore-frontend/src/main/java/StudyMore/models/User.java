@@ -1,6 +1,7 @@
 package StudyMore.models;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class User {
 
@@ -35,27 +36,92 @@ public class User {
         this.studyStreak = 0;
         this.totalStudyTime = 0L;
         this.dailyStudyTime = 0L;
-        this.mascotCat = new MascotCat();
-        this.inventory = new Inventory();
+        this.mascotCat = new MascotCat(this.userId);
+        this.inventory = new Inventory(this.userId, this);
         this.friends = new java.util.ArrayList<>();
         this.tasks = new java.util.ArrayList<>();
     }
 
     public void login() {
-        // TODO
+        System.out.println("User " + username + " logged in.");
     }
 
     public void register() {
-        // TODO
+        System.out.println("User " + username + " registered.");
     }
 
-    public void updateProfile() {
-        // TODO
+    public void updateProfile(String newUsername, String newEmail) {
+        this.username = newUsername;
+        this.email = newEmail;
+        System.out.println("Profile updated for " + username);
     }
 
     //public Stats getStats() {
     //    // TODO
     //    return null;
     //}
+
+    public Long getUserId() { 
+        return userId; 
+    }
+    
+    public String getUsername() { 
+        return username; 
+    }
+    public String getEmail() { 
+        return email; 
+    }
+    public String getPasswordHash() { 
+        return passwordHash; 
+    }
+    public Rank getRank() { 
+        return rank; 
+    }
+    public int getRating() { 
+        return rating; 
+    }
+    public int getCoinBalance() { 
+        return coinBalance; 
+    }
+    public int getStudyStreak() { 
+        return studyStreak; 
+    }
+    public long getTotalStudyTime() { 
+        return totalStudyTime; 
+    }
+    public long getDailyStudyTime() { 
+        return dailyStudyTime; 
+    }
+    public List<User> getFriends() { 
+        return friends; 
+    }
+
+    public void setUsername(String username) { 
+        this.username = username; 
+    }
+    public void setEmail(String email) { 
+        this.email = email; 
+    }
+    public void setPasswordHash(String passwordHash) { 
+        this.passwordHash = passwordHash; 
+    }
+    public void setRank(Rank rank) { 
+        this.rank = rank; 
+    }
+    public void setRating(int rating) { 
+        this.rating = rating; 
+    }
+    public void setCoinBalance(int coinBalance) { 
+        this.coinBalance = coinBalance; 
+    }
+    public void setStudyStreak(int studyStreak) { 
+        this.studyStreak = studyStreak; 
+    }
+    public void setTotalStudyTime(long totalStudyTime) { 
+        this.totalStudyTime = totalStudyTime; 
+    }
+    public void setDailyStudyTime(long dailyStudyTime) { 
+        this.dailyStudyTime = dailyStudyTime; 
+    }
 
 }
