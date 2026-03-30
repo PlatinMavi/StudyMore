@@ -36,4 +36,9 @@ public class Cosmetic {
     public String getDescription() { 
         return description; 
     }
+
+    //TO DO
+    public boolean obtain() {
+        return true; 
+    }
 }

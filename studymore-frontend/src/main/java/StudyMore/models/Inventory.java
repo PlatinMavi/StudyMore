@@ -40,8 +40,4 @@ public class Inventory {
         return equippedItems.get(type);
     }
 
-    //TO DO
-    public boolean obtain() {
-        return true; 
-    }
 }
