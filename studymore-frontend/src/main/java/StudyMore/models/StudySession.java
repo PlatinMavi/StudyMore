@@ -102,4 +102,14 @@ public class StudySession {
         // TODO
     }
 
+    // Database Management
+
+    public void registerSession() {
+
+    }
+
+    public void updateSession() {
+        
+    }
+
 }
