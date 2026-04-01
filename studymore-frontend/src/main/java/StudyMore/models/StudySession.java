@@ -26,7 +26,8 @@ public class StudySession {
         this.coinsEarned = 0;
         this.state = SessionState.IDLE;
 
-        StudySession existing = getTodaysSession(user.getUserId());
+        //StudySession existing = getTodaysSession(user.getUserId());
+        StudySession existing = null;
 
         if (existing != null) {
             this.sessionID = existing.sessionID;
