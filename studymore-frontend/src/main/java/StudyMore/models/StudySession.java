@@ -2,6 +2,8 @@ package StudyMore.models;
 
 import java.time.LocalDateTime;
 
+import StudyMore.Main;
+
 public class StudySession {
 
     private final long sessionID;
@@ -18,18 +20,28 @@ public class StudySession {
     private int breakTimeRemaining;
 
     public StudySession(User user) {
-        this.sessionID = SnowflakeIDGenerator.generate();
         this.user = user;
-        this.startTime = LocalDateTime.now();
         this.multiplier = new Multiplier();
         this.duration = 0;
         this.coinsEarned = 0;
         this.state = SessionState.IDLE;
 
-        System.out.println("LOG: Created ID: " + sessionID);
-    }
+        StudySession existing = getTodaysSession(user.getUserId());
 
-    // Session lifecycle
+        if (existing != null) {
+            this.sessionID = existing.sessionID;
+            this.startTime = existing.startTime;
+            this.endTime = existing.endTime;
+            this.duration = existing.duration;
+            this.coinsEarned = existing.coinsEarned;
+            this.multiplier = existing.multiplier;
+            System.out.println("LOG: Resumed session ID: " + this.sessionID);
+        } else {
+            this.sessionID = SnowflakeIDGenerator.generate();
+            this.startTime = LocalDateTime.now();
+            System.out.println("LOG: Created new session ID: " + this.sessionID);
+        }
+    }
 
     public void start() {
         state = SessionState.STUDYING;
@@ -43,8 +55,6 @@ public class StudySession {
         endTime = LocalDateTime.now();
     }
 
-    // Study timer
-
     public void incrementDuration() {
         duration++; // handles internal duration 
         multiplier.increment(); // handles multiplier
@@ -53,8 +63,6 @@ public class StudySession {
     public int getDuration() {
         return duration;
     }
-
-    // Break timer
 
     public void startBreak(int breakSeconds) {
         state = SessionState.ON_BREAK;
@@ -86,8 +94,6 @@ public class StudySession {
         return breakTimeRemaining;
     }
 
-    // State
-
     public SessionState getState() {
         return state;
     }
@@ -96,20 +102,16 @@ public class StudySession {
         return multiplier;
     }
 
-    // Calculation (TODO)
-
     public void calculateCoins() {
-        // TODO
-    }
-
-    // Database Management
-
-    public void registerSession() {
-
+        coinsEarned = (int)((duration / 60) * multiplier.getValue());
     }
 
     public void updateSession() {
-        
+        //TODO
     }
 
+    public StudySession getTodaysSession(long id) {
+        //TODO 
+        return null;
+    }
 }

@@ -49,3 +49,4 @@ out/
 .LSOverride
 .DS_Store
 studymore-frontend/app_database.db
+studymore-frontend/studymore_database.db
