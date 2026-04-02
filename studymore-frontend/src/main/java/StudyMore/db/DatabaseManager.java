@@ -67,28 +67,24 @@ public class DatabaseManager {
             );
         """;
 
-        String createInventoryItemsTable = """
-            CREATE TABLE IF NOT EXISTS inventory_items (
+        String createInventoryOwnedItemsTable = """
+            CREATE TABLE IF NOT EXISTS inventory_owned_items (
                 inventory_id INTEGER NOT NULL,
                 cosmetic_id INTEGER NOT NULL,
-                is_equipped INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (inventory_id, cosmetic_id),
                 FOREIGN KEY (inventory_id) REFERENCES inventory(id),
                 FOREIGN KEY (cosmetic_id) REFERENCES cosmetics(id)
             );
         """;
 
-        String createMascotCatsTable = """
-            CREATE TABLE IF NOT EXISTS mascot_cats (
-                id INTEGER PRIMARY KEY,
-                user_id INTEGER NOT NULL UNIQUE,
-                equipped_skin_id INTEGER,
-                equipped_house_id INTEGER,
-                equipped_hat_id INTEGER,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (equipped_skin_id) REFERENCES cosmetics(id),
-                FOREIGN KEY (equipped_house_id) REFERENCES cosmetics(id),
-                FOREIGN KEY (equipped_hat_id) REFERENCES cosmetics(id)
+        String createInventoryEquippedItemsTable = """
+            CREATE TABLE IF NOT EXISTS inventory_equipped_items (
+                inventory_id INTEGER NOT NULL,
+                cosmetic_type TEXT NOT NULL, 
+                cosmetic_id INTEGER NOT NULL,
+                PRIMARY KEY (inventory_id, cosmetic_type),
+                FOREIGN KEY (inventory_id) REFERENCES inventory(id),
+                FOREIGN KEY (cosmetic_id) REFERENCES cosmetics(id)
             );
         """;
 
@@ -228,8 +224,8 @@ public class DatabaseManager {
             stmt.execute(createMultipliersTable);
             stmt.execute(createCosmeticsTable);
             stmt.execute(createInventoryTable);
-            stmt.execute(createInventoryItemsTable);
-            stmt.execute(createMascotCatsTable);
+            stmt.execute(createInventoryOwnedItemsTable);
+            stmt.execute(createInventoryEquippedItemsTable);
             stmt.execute(createSettingsTable);
             stmt.execute(createAchievementsTable);
             stmt.execute(createUserAchievementsTable);
