@@ -1,6 +1,6 @@
 [
     {
-        "id" : 1,
+        "id" : 31,
         "name" : "brown",
         "type" : "CATHOUSE",
         "price" : 100,
@@ -8,7 +8,7 @@
         "description" : ""
     },
     {
-        "id" : 2,
+        "id" : 32,
         "name" : "gray",
         "type" : "CATHOUSE",
         "price" : 100,
@@ -16,7 +16,7 @@
         "description" : ""
     },
     {
-        "id" : 3,
+        "id" : 33,
         "name" : "minecraft",
         "type" : "CATHOUSE",
         "price" : 100,
@@ -24,7 +24,7 @@
         "description" : ""
     },
     {
-        "id" : 4,
+        "id" : 34,
         "name" : "pc",
         "type" : "CATHOUSE",
         "price" : 100,
@@ -32,7 +32,7 @@
         "description" : ""
     },
     {
-        "id" : 5,
+        "id" : 35,
         "name" : "stardew",
         "type" : "CATHOUSE",
         "price" : 100,
@@ -40,7 +40,7 @@
         "description" : ""
     },
     {
-        "id" : 6,
+        "id" : 36,
         "name" : "terraria",
         "type" : "CATHOUSE",
         "price" : 100,

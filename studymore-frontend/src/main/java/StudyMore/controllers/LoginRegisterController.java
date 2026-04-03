@@ -68,7 +68,10 @@ public class LoginRegisterController {
 
             System.out.println("INSERTED USER");
 
+            Main.mngr.initializeNewUserInventory(id);
+
             Main.user = Main.mngr.getUser(id);
+
 
             Parent root = FXMLLoader.load(getClass().getResource("../fxml/Index.fxml"));
             Main.primarStageStatic.setTitle("StudyMore");

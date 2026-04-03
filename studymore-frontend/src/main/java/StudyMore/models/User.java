@@ -95,6 +95,9 @@ public class User {
     public String getUsername() { 
         return username; 
     }
+    public Inventory getInventory() {
+        return inventory;
+    }
     public String getEmail() { 
         return email; 
     }

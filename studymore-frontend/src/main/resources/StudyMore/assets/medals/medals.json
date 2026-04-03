@@ -1,6 +1,6 @@
 [
     {
-        "id": 1,
+        "id": 51,
         "name": "bluecircle",
         "type": "MEDAL",
         "price": 100,
@@ -8,7 +8,7 @@
         "description": ""
     },
     {
-        "id": 2,
+        "id": 52,
         "name": "goldenstar",
         "type": "MEDAL",
         "price": 100,
@@ -16,7 +16,7 @@
         "description": ""
     },
     {
-        "id": 3,
+        "id": 53,
         "name": "graysquare",
         "type": "MEDAL",
         "price": 100,
@@ -24,7 +24,7 @@
         "description": ""
     },
     {
-        "id": 4,
+        "id": 54,
         "name": "graystar",
         "type": "MEDAL",
         "price": 100,
@@ -32,7 +32,7 @@
         "description": ""
     },
     {
-        "id": 5,
+        "id": 55,
         "name": "greencircle",
         "type": "MEDAL",
         "price": 100,
@@ -40,7 +40,7 @@
         "description": ""
     },
     {
-        "id": 6,
+        "id": 56,
         "name": "greenplus",
         "type": "MEDAL",
         "price": 100,
@@ -48,7 +48,7 @@
         "description": ""
     },
     {
-        "id": 7,
+        "id": 57,
         "name": "greenstar",
         "type": "MEDAL",
         "price": 100,
@@ -56,7 +56,7 @@
         "description": ""
     },
     {
-        "id": 8,
+        "id": 58,
         "name": "redarrow",
         "type": "MEDAL",
         "price": 100,
@@ -64,7 +64,7 @@
         "description": ""
     },
     {
-        "id": 9,
+        "id": 59,
         "name": "redcircle",
         "type": "MEDAL",
         "price": 100,
@@ -72,7 +72,7 @@
         "description": ""
     },
     {
-        "id": 10,
+        "id": 510,
         "name": "redoctagon",
         "type": "MEDAL",
         "price": 100,

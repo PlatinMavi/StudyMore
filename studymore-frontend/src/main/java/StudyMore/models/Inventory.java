@@ -30,6 +30,15 @@ public class Inventory {
         }
     }
 
+    public List<Cosmetic> getOwnedItems() {
+        //DEBUG
+        System.out.println("DEBUG");
+        for (Cosmetic c : ownedItems) {
+            System.out.println(c.getName());
+        }
+        return ownedItems;
+    }
+
     public void unequipItem(Cosmetic item) {
         if (equippedItems.containsValue(item)) {
             equippedItems.remove(item.getType());

@@ -1,6 +1,6 @@
 [
     {
-        "id" : 1,
+        "id" : 41,
         "name" : "chad",
         "type" : "MASCOT_SKIN",
         "price" : 100,
@@ -8,7 +8,7 @@
         "description" : ""
     },
     {
-        "id" : 2,
+        "id" : 42,
         "name" : "cry",
         "type" : "MASCOT_SKIN",
         "price" : 100,
@@ -16,7 +16,7 @@
         "description" : ""
     },
     {
-        "id" : 3,
+        "id" : 43,
         "name" : "cute",
         "type" : "MASCOT_SKIN",
         "price" : 100,
@@ -24,7 +24,7 @@
         "description" : ""
     },
     {
-        "id" : 4,
+        "id" : 44,
         "name" : "nerd",
         "type" : "MASCOT_SKIN",
         "price" : 100,
@@ -32,7 +32,7 @@
         "description" : ""
     },
     {
-        "id" : 5,
+        "id" : 45,
         "name" : "serious",
         "type" : "MASCOT_SKIN",
         "price" : 100,
@@ -40,7 +40,7 @@
         "description" : ""
     },
     {
-        "id" : 6,
+        "id" : 46,
         "name" : "silly",
         "type" : "MASCOT_SKIN",
         "price" : 100,
@@ -48,7 +48,7 @@
         "description" : ""
     },
     {
-        "id" : 7,
+        "id" : 47,
         "name" : "war",
         "type" : "MASCOT_SKIN",
         "price" : 100,

@@ -2,6 +2,8 @@ package StudyMore.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import StudyMore.Main;
 import StudyMore.models.Cosmetic;
 import StudyMore.models.CosmeticType;
 import javafx.event.ActionEvent;
@@ -176,15 +178,6 @@ public class InventoryController {
 
     //TO DO: Retrieve actual data from the databases. Using test data for now 
     private List<Cosmetic> getOwnedCosmeticsFromDatabase() {
-        List<Cosmetic> items = new ArrayList<>();
-        long id = 1;
-        items.add(new Cosmetic(id++, "Banner1", CosmeticType.BANNER, 500, "", ""));
-        items.add(new Cosmetic(id++, "Title1", CosmeticType.TITLE, 200, "", ""));
-        items.add(new Cosmetic(id++, "Medel1", CosmeticType.MEDAL, 1000, "", ""));
-        items.add(new Cosmetic(id++, "avatar1", CosmeticType.AVATAR, 0, "", ""));
-        items.add(new Cosmetic(id++, "cat1", CosmeticType.MASCOT_SKIN, 1500, "", ""));
-        items.add(new Cosmetic(id++, "house1", CosmeticType.MASCOT_HOUSE, 3000, "", ""));
-
-        return items;
+        return Main.user.getInventory().getOwnedItems();
     }
 }
