@@ -6,6 +6,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.*;
 
@@ -772,6 +773,30 @@ public class DatabaseManager {
                 e.printStackTrace();
             }
         }
+    }
+
+    public List<Cosmetic> getAllCosmetics() {
+        List<Cosmetic> allItems = new ArrayList<>();
+        String query = "SELECT id, name, type, price, image_path, description FROM cosmetics";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            
+            while (rs.next()) {
+                Cosmetic cosmetic = new Cosmetic(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        CosmeticType.valueOf(rs.getString("type")),
+                        rs.getInt("price"),
+                        rs.getString("image_path"),
+                        rs.getString("description")
+                );
+                allItems.add(cosmetic);
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to fetch all cosmetics: " + e.getMessage());
+        }
+        return allItems;
     }
 
 }

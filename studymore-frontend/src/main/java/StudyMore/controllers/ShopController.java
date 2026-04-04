@@ -1,5 +1,6 @@
 package StudyMore.controllers;
 
+import StudyMore.Main;
 import StudyMore.models.Cosmetic;
 import StudyMore.models.CosmeticType;
 import javafx.event.ActionEvent;
@@ -51,7 +52,25 @@ public class ShopController {
         card.setPrefWidth(220);
         card.setStyle("-fx-border-color: #262626; -fx-background-color: #0a0a0a; -fx-border-width: 1; -fx-background-radius: 4; -fx-border-radius: 4;");
 
-        StackPane imagePlaceholder = new StackPane();
+        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView();
+        imageView.setFitWidth(160);
+        imageView.setFitHeight(80);
+        imageView.setPreserveRatio(true);
+
+        try {
+            String imageResourcePath = "/StudyMore/" + item.getImagePath();
+            java.io.InputStream imageStream = getClass().getResourceAsStream(imageResourcePath);
+            if (imageStream != null) {
+                javafx.scene.image.Image img = new javafx.scene.image.Image(imageStream);
+                imageView.setImage(img);
+            } else {
+                System.out.println("COULD NOT FIND IMAGE: " + imageResourcePath); 
+            }
+        } catch (Exception e) {
+            System.out.println("Error loading image for " + item.getName());
+        }
+
+        StackPane imagePlaceholder = new StackPane(imageView);
         imagePlaceholder.setPrefSize(180, 100);
         imagePlaceholder.setMinSize(180, 100);
         imagePlaceholder.setStyle("-fx-background-color: #111111; -fx-border-color: #262626; -fx-border-style: dashed;");
@@ -79,15 +98,30 @@ private Button createBuyButton(Cosmetic item) {
         return btn;
     }
 
-    // TODO: Fetch data from database. Test data is used here for now 
     private List<Cosmetic> getShopItemsFromDatabase() {
-        List<Cosmetic> items = new ArrayList<>();
-        long id = 1; 
-        items.add(new Cosmetic(id++, "Cat1", CosmeticType.MASCOT_SKIN, 1000, "", ""));
-        items.add(new Cosmetic(id++, "house1", CosmeticType.MASCOT_HOUSE, 100, "", ""));
-        items.add(new Cosmetic(id++, "Banner1", CosmeticType.BANNER, 1000, "", ""));
-        items.add(new Cosmetic(id++, "Avatar1", CosmeticType.BANNER, 1000, "", ""));
+        List<Cosmetic> allItems = Main.mngr.getAllCosmetics();
         
-        return items;
+        //Get the items the user already owns
+        List<Cosmetic> ownedItems = Main.user.getInventory().getOwnedItems();
+        
+        //Create a empty list for the items we actually want to show in the shop
+        List<Cosmetic> unownedItems = new ArrayList<>();
+
+        // Remove the already owned items
+        for (Cosmetic catalogItem : allItems) {
+            boolean alreadyOwnsIt = false;
+            
+            for (Cosmetic ownedItem : ownedItems) {
+                if (ownedItem.getName().equals(catalogItem.getName())) {
+                    alreadyOwnsIt = true;
+                    break; 
+                }
+            }
+            if (!alreadyOwnsIt) {
+                unownedItems.add(catalogItem);
+            }
+        }
+        
+        return unownedItems;
     }
 }
