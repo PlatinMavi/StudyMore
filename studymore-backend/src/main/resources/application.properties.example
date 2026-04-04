@@ -1,7 +1,6 @@
-
 spring.datasource.url=jdbc:postgresql://ep-cold-glade-ag44emly-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require
 spring.datasource.username=neondb_owner
-spring.datasource.password=npg_geC4VDhtib7X
+spring.datasource.password=*********
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect

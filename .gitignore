@@ -1,3 +1,6 @@
+# Database Credentials
+studymore-backend/src/main/resources/application.properties
+
 # Compiled class file
 *.class
 
