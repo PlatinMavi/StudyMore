@@ -1,8 +1,11 @@
 package StudyMore.controllers;
 
 import StudyMore.Main;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -12,6 +15,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
+import javafx.util.Duration;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -208,11 +216,11 @@ public class AchievementsController {
             return;
         }
         String complete = """
-                SELECT ua.id, a.reward FROM user_achievements ua
-                JOIN achievements a ON ua.achievement_id = a.id
-                WHERE ua.user_id = ? AND a.type = ? AND ua.is_completed = 0
-                AND ua.progress >= a.target_value
-                """;
+            SELECT ua.id, a.reward, a.title FROM user_achievements ua
+            JOIN achievements a ON ua.achievement_id = a.id
+            WHERE ua.user_id = ? AND a.type = ? AND ua.is_completed = 0
+            AND ua.progress >= a.target_value
+            """;
 
         try (PreparedStatement stmt = Main.mngr.getConnection().prepareStatement(complete)) {
             stmt.setLong(1, userId);
@@ -222,6 +230,7 @@ public class AchievementsController {
                 while (rs.next()) {
                     long uaId  = rs.getLong("id");
                     int reward = rs.getInt("reward");
+                    String achTitle = rs.getString("title");
 
                     try (PreparedStatement upd = Main.mngr.getConnection().prepareStatement(
                             "UPDATE user_achievements SET is_completed = 1, completed_at = CURRENT_TIMESTAMP WHERE id = ?")) {
@@ -235,11 +244,68 @@ public class AchievementsController {
                         coins.executeUpdate();
                     }
                     Main.user.setCoinBalance(Main.user.getCoinBalance() + reward);
+                    showUnlockNotification(achTitle, reward);
                     System.out.println("Achievement unlocked! +" + reward + " coins.");
                 }
             }
         } catch (SQLException e) {
             System.err.println("completion check error: " + e.getMessage());
         }
+    }
+    private static void showUnlockNotification(String title, int reward) {
+        Platform.runLater(() -> {
+            Label trophy = new Label("🏆");
+            trophy.setFont(Font.font(28));
+
+            Label titleLbl = new Label("ACHIEVEMENT UNLOCKED");
+            titleLbl.setFont(Font.font("System", FontWeight.BOLD, 10));
+            titleLbl.setTextFill(Color.web("#a3a3a3"));
+
+            Label nameLbl = new Label(title.toUpperCase());
+            nameLbl.setFont(Font.font("System", FontWeight.BOLD, 14));
+            nameLbl.setTextFill(Color.WHITE);
+
+            Label rewardLbl = new Label("🪙 +" + reward + " COINS");
+            rewardLbl.setFont(Font.font("System", FontWeight.BOLD, 11));
+            rewardLbl.setTextFill(Color.GOLD);
+
+            VBox textBox = new VBox(3, titleLbl, nameLbl, rewardLbl);
+            textBox.setAlignment(Pos.CENTER_LEFT);
+
+            HBox card = new HBox(12, trophy, textBox);
+            card.setAlignment(Pos.CENTER_LEFT);
+            card.setPadding(new Insets(16, 20, 16, 16));
+            card.setStyle("-fx-background-color: #111111; " +
+                        "-fx-border-color: white; " +
+                        "-fx-border-width: 1; " +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0, 0, 4);");
+
+            StackPane root = new StackPane(card);
+            root.setStyle("-fx-background-color: transparent;");
+
+            Stage stage = new Stage();
+            stage.initStyle(StageStyle.TRANSPARENT);
+            stage.setAlwaysOnTop(true);
+            stage.setScene(new Scene(root, 320, 80));
+            stage.getScene().setFill(null);
+
+            javafx.geometry.Rectangle2D screen =
+                    javafx.stage.Screen.getPrimary().getVisualBounds();
+            stage.setX(screen.getMaxX() - 340);
+            stage.setY(screen.getMaxY() - 100);
+            stage.show();
+
+            TranslateTransition slideIn = new TranslateTransition(Duration.millis(300), card);
+            slideIn.setFromX(340);
+            slideIn.setToX(0);
+            slideIn.play();
+
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(600), root);
+            fadeOut.setDelay(Duration.seconds(3));
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(e -> stage.close());
+            fadeOut.play();
+        });
     }
 }
