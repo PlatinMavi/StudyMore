@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="overlayRoot" style="-fx-background-color: rgba(0, 0, 0, 0.7);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="400.0" spacing="20.0" style="-fx-background-color: #1a1a1a; -fx-background-radius: 15; -fx-border-color: #333; -fx-border-radius: 15;">
+         <children>
+            <Label style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18;" text="CREATE NEW TASK" />
+            
+            <VBox spacing="5.0">
+               <children>
+                  <Label style="-fx-text-fill: #888; -fx-font-size: 11;" text="TASK TITLE" />
+                  <TextField fx:id="titleInput" style="-fx-background-color: #0b0b0b; -fx-text-fill: white; -fx-border-color: #333; -fx-border-radius: 5;" />
+               </children>
+            </VBox>
+
+            <VBox spacing="5.0">
+               <children>
+                  <Label style="-fx-text-fill: #888; -fx-font-size: 11;" text="CONTENT" />
+                  <TextArea fx:id="contentInput" prefHeight="100.0" style="-fx-control-inner-background: #0b0b0b; -fx-text-fill: white; -fx-border-color: #333;" wrapText="true" />
+               </children>
+            </VBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <CheckBox fx:id="srsToggle" style="-fx-text-fill: white;" text="Enable SRS Tracking" />
+               </children>
+            </HBox>
+
+            <HBox alignment="CENTER_RIGHT" spacing="15.0">
+               <children>
+                  <Button onAction="#closeOverlay" style="-fx-background-color: transparent; -fx-text-fill: #888;" text="CANCEL" />
+                  <Button onAction="#saveTask" prefWidth="100.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="SAVE" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+         </padding>
+      </VBox>
+   </children>
+</StackPane>
