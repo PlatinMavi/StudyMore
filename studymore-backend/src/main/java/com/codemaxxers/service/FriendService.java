@@ -63,18 +63,16 @@ public class FriendService {
         req.deny();
         return friendRequestRepository.save(req);
     }
-    @Transactional(readOnly = true)
     public List<User> getFriends(Long userId) {
         return friendRequestRepository.findAcceptedByUserId(userId)
                 .stream()
-                .map(req -> req.getSender().getUserId().equals(userId)
+                .map(req -> req.getSender().getUserId().equals(userId)  // ← getUserId()
                         ? req.getReceiver()
                         : req.getSender())
                 .collect(Collectors.toList());
     }
-    @Transactional(readOnly = true)
     public List<FriendRequest> getPendingRequests(Long userId) {
-        return friendRequestRepository.findByReceiver_IdAndStatus(userId, RequestStatus.PENDING);
+        return friendRequestRepository.findByReceiver_UserIdAndStatus(userId, RequestStatus.PENDING); // ← UserId
     }
  
     // helper

@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import StudyMore.ApiClient;
 import StudyMore.Main;
 import StudyMore.models.SnowflakeIDGenerator;
 import javafx.event.ActionEvent;
@@ -72,6 +73,10 @@ public class LoginRegisterController {
             Main.mngr.insertAchievements(id);
 
             Main.user = Main.mngr.getUser(id);
+
+            String syncBody = "{\"username\":\"" + username + "\","
+                + "\"email\":\"" + email + "\"}";
+            ApiClient.post("/auth/users/sync", syncBody);
 
 
             Parent root = FXMLLoader.load(getClass().getResource("../fxml/Index.fxml"));

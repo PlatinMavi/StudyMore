@@ -1,6 +1,5 @@
 package com.codemaxxers.service;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +16,11 @@ public class StudyGroupService {
  
     private final StudyGroupRepository studyGroupRepository;
     private final UserRepository userRepository;
-    private final SimpMessagingTemplate messagingTemplate;
  
     public StudyGroupService(StudyGroupRepository studyGroupRepository,
-                             UserRepository userRepository,
-                             SimpMessagingTemplate messagingTemplate) {
+                             UserRepository userRepository) {
         this.studyGroupRepository = studyGroupRepository;
         this.userRepository = userRepository;
-        this.messagingTemplate = messagingTemplate;
     }
  
     //  CRUD
@@ -90,23 +86,7 @@ public class StudyGroupService {
  
     
     public void broadcastLeaderboard(StudyGroup group) {
-        String destination = "/topic/group/" + group.getGroupId() + "/leaderboard";
-
-        StringBuilder sb = new StringBuilder("[");
-        List<User> leaderboard = group.getLeaderboard();
-        for (int i = 0; i < leaderboard.size(); i++) {
-            User u = leaderboard.get(i);
-            sb.append("{")
-            .append("\"userId\":").append(u.getUserId()).append(",")
-            .append("\"username\":\"").append(u.getUsername()).append("\",")
-            .append("\"coinBalance\":").append(u.getCoinBalance()).append(",")
-            .append("\"rank\":\"").append(u.getRank().name()).append("\"")
-            .append("}");
-            if (i < leaderboard.size() - 1) sb.append(",");
-        }
-        sb.append("]");
-
-        messagingTemplate.convertAndSend(destination, sb.toString());
+        // websocket not used
     }
     // helpers
     private User findUser(Long userId) {

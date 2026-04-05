@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.codemaxxers.model.FriendRequest;
 import com.codemaxxers.model.User;
-import com.codemaxxers.service.AchievementService;
 import com.codemaxxers.service.FriendService;
 
 import java.util.List;
@@ -16,12 +15,9 @@ import java.util.Map;
 public class FriendController {
  
     private final FriendService friendService;
-    private final AchievementService achievementService;
  
-    public FriendController(FriendService friendService,
-                            AchievementService achievementService) {
+    public FriendController(FriendService friendService) {
         this.friendService = friendService;
-        this.achievementService = achievementService;
     }
  
     // GET /api/friends/{userId}
@@ -57,16 +53,12 @@ public class FriendController {
         }
     }
  
-    // PUT /api/friends/requests/{requestId}/accept?receiverId=
     @PutMapping("/requests/{requestId}/accept")
     public ResponseEntity<?> acceptRequest(
             @PathVariable Long requestId,
             @RequestParam Long receiverId) {
         try {
             FriendRequest req = friendService.acceptRequest(requestId, receiverId);
-            // Notify both users' achievement observers
-            achievementService.notifyFriendAdded(receiverId);
-            achievementService.notifyFriendAdded(req.getSender().getUserId());
             return ResponseEntity.ok(req);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
