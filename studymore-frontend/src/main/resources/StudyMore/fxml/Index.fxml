@@ -40,7 +40,7 @@
                   <Button alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleAchievements" style="-fx-background-color: transparent; -fx-text-fill: #a3a3a3; -fx-padding: 12 24;" text="Achievements">
                      <font><Font size="14.0" /></font>
                   </Button>
-                  <Button alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #a3a3a3; -fx-padding: 12 24;" text="Tasks">
+                  <Button alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleTasks" style="-fx-background-color: transparent; -fx-text-fill: #a3a3a3; -fx-padding: 12 24;" text="Tasks">
                      <font><Font size="14.0" /></font>
                   </Button>
                   <Button alignment="BASELINE_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #a3a3a3; -fx-padding: 12 24;" text="Shop">

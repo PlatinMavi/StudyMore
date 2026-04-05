@@ -37,6 +37,10 @@ public class Controller {
     private void handleAchievements() {
         loadFXML("../fxml/Achievements.fxml");
     }
+    @FXML
+    private void handleTasks() {
+        loadFXML("../fxml/Tasks.fxml");
+    }
 
     @FXML
     private void handleSettings() {
