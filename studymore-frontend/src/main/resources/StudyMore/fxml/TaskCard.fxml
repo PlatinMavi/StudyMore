@@ -10,7 +10,7 @@
          <children>
             <Label fx:id="taskTitle" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14;" text="TASK TITLE" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button style="-fx-background-color: transparent; -fx-text-fill: #555;" text="⋮" />
+            <Button fx:id="configBtn" style="-fx-background-color: transparent; -fx-text-fill: #555; -fx-cursor: hand;" text="⋮" />
          </children>
       </HBox>
       
@@ -22,8 +22,23 @@
          <children>
             <VBox fx:id="srsBadgeContainer" managed="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
                <children>
-                  <Label style="-fx-text-fill: #555; -fx-font-size: 9; -fx-font-weight: bold;" text="RECALL IN" />
-                  <Label fx:id="recallLabel" style="-fx-background-color: #333; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold; -fx-padding: 3 8 3 8; -fx-background-radius: 3;" text="4 DAYS" />
+                  <HBox spacing="15.0">
+                     <children>
+                        <VBox>
+                           <children>
+                              <Label style="-fx-text-fill: #555; -fx-font-size: 9; -fx-font-weight: bold;" text="RECALL IN" />
+                              <Label fx:id="recallLabel" style="-fx-background-color: #333; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold; -fx-padding: 3 8 3 8; -fx-background-radius: 3;" text="4 DAYS" />
+                           </children>
+                        </VBox>
+                        
+                        <VBox>
+                           <children>
+                              <Label style="-fx-text-fill: #555; -fx-font-size: 9; -fx-font-weight: bold;" text="INTENSITY" />
+                              <Label fx:id="intensityLabel" style="-fx-background-color: #333; -fx-text-fill: white; -fx-font-size: 10; -fx-font-weight: bold; -fx-padding: 3 8 3 8; -fx-background-radius: 3;" text="STANDARD" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
                </children>
             </VBox>
             
