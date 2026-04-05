@@ -13,6 +13,10 @@ public class Task {
     private boolean srsEnabled;
     private SRSMetadata srsData;
     private LocalDate nextRecallDate;
+    
+    public Task(String title, String content, boolean srsEnabled){
+        this(title, content, srsEnabled, null);
+    }
 
     public Task(String title, String content, boolean srsEnabled, ReviewIntensity intensity){
         this.taskId = SnowflakeIDGenerator.generate(); // TODO: temporary id generator
@@ -20,7 +24,11 @@ public class Task {
         this.content = content;
         this.srsEnabled = srsEnabled;
         if (srsEnabled){
-            this.srsData = new SRSMetadata(intensity);
+            if (intensity != null){
+                this.srsData = new SRSMetadata(intensity);
+            } else {
+                this.srsData = new SRSMetadata(ReviewIntensity.STANDARD);
+            }
         }
         this.completed = false;
         this.createdAt = LocalDateTime.now();
@@ -115,6 +123,14 @@ public class Task {
     public SRSMetadata getSrsData(){
         return this.srsData;
     }
+
+    public void setTitle(String title){
+        this.title = title;
+    }
+
+    public void setContent(String content){
+        this.content = content;
+    }    
 
 
 }
