@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -30,12 +32,35 @@
                </children>
             </HBox>
 
+            <VBox spacing="5.0">
+               <children>
+                  <Label style="-fx-text-fill: #888; -fx-font-size: 11;" text="REVIEW INTENSITY" />
+                  <ComboBox fx:id="intensityDropdown" disable="${!srsToggle.selected}" prefWidth="400.0" style="-fx-background-color: #0b0b0b; -fx-border-color: #333; -fx-border-radius: 5; -fx-text-fill: white;">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Intense" />
+                           <String fx:value="Standard" />
+                           <String fx:value="Relaxed" />
+                        </FXCollections>
+                     </items>
+                     <value>
+                        <String fx:value="Standard" />
+                     </value>
+                  </ComboBox>
+               </children>
+            </VBox>
+
             <HBox alignment="CENTER_RIGHT" spacing="15.0">
                <children>
+                  <Button fx:id="deleteTaskBtn" onAction="#deleteTask" style="-fx-background-color: transparent; -fx-text-fill: #d9534f; -fx-font-weight: bold;" text="DELETE TASK" visible="false" managed="false" />
+                  
+                  <Region HBox.hgrow="ALWAYS" />
+                  
                   <Button onAction="#closeOverlay" style="-fx-background-color: transparent; -fx-text-fill: #888;" text="CANCEL" />
-                  <Button onAction="#saveTask" prefWidth="100.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="SAVE" />
+                  <Button fx:id="saveTaskBtn" onAction="#saveTask" prefWidth="100.0" style="-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;" text="SAVE" />
                </children>
             </HBox>
+            
          </children>
          <padding>
             <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
