@@ -6,7 +6,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 
 public class ApiClient {
 
-    private static final String BASE = "http://localhost:8080/api";
+    private static final String BASE = "https://studymore-production.up.railway.app/api";
     private static final HttpClient HTTP = HttpClient.newHttpClient();
 
     public static String get(String path) {
