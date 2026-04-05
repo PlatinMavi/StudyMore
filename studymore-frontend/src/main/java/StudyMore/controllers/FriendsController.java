@@ -170,6 +170,7 @@ public class FriendsController {
                             + "\"maxMembers\":10}";
                 ApiClient.post("/groups", body);
                 setStatus("Group created!");
+                AchievementsController.updateProgress(Main.user.getUserId(), "SOCIAL", 1);
                 loadGroupLeaderboard();
             });
         });
