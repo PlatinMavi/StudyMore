@@ -10,6 +10,7 @@ import javafx.scene.layout.*;
 import javafx.scene.Parent;
 
 public class Controller {
+    public static Controller instance;
 
     @FXML 
     private StackPane contentArea;
@@ -38,9 +39,14 @@ public class Controller {
     private final String INACTIVE_STYLE = "-fx-background-color: transparent; -fx-text-fill: #a3a3a3; -fx-padding: 12 24;";
 
     public void initialize() {
-        Cosmetic equippedBg = Main.user.getInventory().getEquipped(CosmeticType.BACKGROUND);
-        mainLayout.setStyle("-fx-background-image: url('/StudyMore/" + equippedBg.getImagePath() + "'); -fx-background-size: cover; -fx-background-position: center; -fx-background-repeat: no-repeat;");
+        instance = this; 
+        refreshBackground(); 
         handleStudy(); 
+    }
+
+    public void refreshBackground() {
+        Cosmetic equippedBg = Main.user.getInventory().getEquipped(CosmeticType.BACKGROUND);
+        mainLayout.setStyle("-fx-background-image: url('/StudyMore/" + equippedBg.getImagePath() + "'); -fx-background-size: cover; -fx-background-position: center; -fx-background-repeat: no-repeat;");  
     }
 
     // helper method to reset all buttons and highlight the active one

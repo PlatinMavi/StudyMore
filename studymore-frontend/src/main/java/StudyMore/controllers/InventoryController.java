@@ -248,6 +248,10 @@ public class InventoryController {
                 Main.user.getInventory().equipItem(item);
                 Main.mngr.equipCosmetic(Main.user.getUserId(), item);
                 loadInventoryUI(); 
+                if (item.getType() == CosmeticType.BACKGROUND) {
+                    Controller.instance.refreshBackground();
+                }
+                //TODO: IMPLEMENT EQUIP FOR BANNERS, CAT, HOUSE, TITLE, BANNER
             }
         }); 
         return btn;
