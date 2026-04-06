@@ -74,9 +74,11 @@ public class Main extends Application {
 
     private void startSyncLoop() {
         JSONObject payload = Main.mngr.loadSyncPayload(user.getUserId());
-        System.out.println(payload.toString(1));
-        //JSONObject response = ApiClient.sync(user.getUserId(), payload);
-        // TODO: sync the response to the database.
+        //System.out.println(payload.toString(1));
+        try{
+            JSONObject response = ApiClient.sync(user.getUserId(), payload);
+            System.out.println(response.toString(1));
+        } catch (Exception e) {System.out.println("ERROR SYNC");}
     }
 }
     
