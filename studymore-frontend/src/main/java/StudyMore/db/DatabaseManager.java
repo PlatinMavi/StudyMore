@@ -955,8 +955,8 @@ public class DatabaseManager {
         String sql = """
             INSERT INTO tasks (id, user_id, title, content, created_at, srs_enabled, 
                             repetition_count, ease_factor, current_interval, 
-                            review_intensity, is_complete) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                            review_intensity, is_complete, next_recall_date) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
         """;
 
 
@@ -967,6 +967,7 @@ public class DatabaseManager {
             stmt.setString(4, task.getContent());
             stmt.setString(5, task.getCreatedAtAsString());
             stmt.setInt(6, task.isSrsEnabled() ? 1 : 0);
+            stmt.setString(12, task.getNextRecallDateAsString());
 
             if (task.isSrsEnabled() && task.getSrsData() != null) {
                 SRSMetadata data = task.getSrsData();
@@ -994,7 +995,8 @@ public class DatabaseManager {
             UPDATE tasks SET 
                 title = ?, 
                 content = ?,
-                is_complete = ?
+                is_complete = ?,
+                next_recall_date = ?
             WHERE id = ?
         """;
 
@@ -1002,7 +1004,8 @@ public class DatabaseManager {
             stmt.setString(1, task.getTitle());
             stmt.setString(2, task.getContent());
             stmt.setInt(3, task.isCompleted() ? 1 : 0);
-            stmt.setLong(4, task.getID());
+            stmt.setString(4, task.getNextRecallDateAsString());
+            stmt.setLong(5, task.getID());
 
             stmt.executeUpdate();
             System.out.println("Task updated in database!");
@@ -1027,6 +1030,25 @@ public class DatabaseManager {
             System.out.println("Task and its history deleted from the database!");
         } catch (SQLException e) {
             System.err.println("Failed to delete task: " + e.getMessage());
+        }
+    }
+
+    public void insertTaskHistory(long taskId, SRSHistoryEntry entry) {
+        String sql = """
+            INSERT INTO task_srs_history (task_id, ease_factor_at_time, interval_at_time, quality_score, timestamp)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, taskId);
+            stmt.setDouble(2, entry.getEaseFactorAtTime());
+            stmt.setInt(3, entry.getIntervalAtTime());
+            stmt.setInt(4, entry.getQualityScore());
+
+            stmt.executeUpdate();
+            System.out.println("SRS History logged successfully!");
+        } catch (SQLException e) {
+            System.err.println("Failed to log SRS history: " + e.getMessage());
         }
     }
 
