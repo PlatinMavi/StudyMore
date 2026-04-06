@@ -72,8 +72,6 @@ public class DatabaseManager {
                     );
                 """;
 
-        
-
         String createMultipliersTable = """
                     CREATE TABLE IF NOT EXISTS multipliers (
                         id INTEGER PRIMARY KEY,
@@ -319,7 +317,7 @@ public class DatabaseManager {
                 """;
 
         String tasksQuery = """
-                SELECT id, title, content, srs_enabled, is_complete, next_recall_date, created_at, 
+                SELECT id, title, content, srs_enabled, is_complete, next_recall_date, created_at,
                     repetition_count, ease_factor, current_interval, review_intensity
                 FROM tasks WHERE user_id = ?
                 """;
@@ -386,15 +384,15 @@ public class DatabaseManager {
                     try (ResultSet tasksRs = tasksStmt.executeQuery()) {
                         while (tasksRs.next()) {
                             String intensityStr = tasksRs.getString("review_intensity");
-                            ReviewIntensity intensity = (intensityStr != null) ? ReviewIntensity.valueOf(intensityStr) : ReviewIntensity.STANDARD;
+                            ReviewIntensity intensity = (intensityStr != null) ? ReviewIntensity.valueOf(intensityStr)
+                                    : ReviewIntensity.STANDARD;
                             String createdAtStr = tasksRs.getString("created_at");
 
                             Task task = new Task(
                                     tasksRs.getString("title"),
                                     tasksRs.getString("content"),
                                     tasksRs.getInt("srs_enabled") == 1,
-                                    intensity
-                            );
+                                    intensity);
 
                             task.setCompleted(tasksRs.getInt("is_complete") == 1);
                             task.setTaskId(tasksRs.getLong("id"));
@@ -405,7 +403,6 @@ public class DatabaseManager {
                                 task.getSrsData().setCurrentEaseFactor(tasksRs.getDouble("ease_factor"));
                                 task.getSrsData().setCurrentInterval(tasksRs.getInt("current_interval"));
                             }
-
 
                             tasks.add(task);
                         }
@@ -452,7 +449,8 @@ public class DatabaseManager {
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setLong(1, user.getUserId());
 
-            // I left your debug block intact so you can still track timezone weirdness if needed!
+            // I left your debug block intact so you can still track timezone weirdness if
+            // needed!
             try (PreparedStatement debugStmt = connection.prepareStatement(
                     "SELECT id, user_id, start_time, DATE(start_time), DATE('now'), DATE('now','localtime') FROM sessions")) {
                 try (ResultSet debugRs = debugStmt.executeQuery()) {
@@ -504,7 +502,7 @@ public class DatabaseManager {
         ArrayList<StudySession> sessionsList = new ArrayList<>();
         // Use the exact same formatter you used in StudySession.java
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        
+
         String query = """
                 SELECT s.id, s.start_time, s.end_time, s.multiplier_value, s.coins_earned, s.duration
                 FROM sessions s
@@ -543,7 +541,7 @@ public class DatabaseManager {
             System.err.println("Database fetch failed: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         return sessionsList;
     }
 
@@ -604,7 +602,7 @@ public class DatabaseManager {
         String equipSQL = "INSERT INTO inventory_equipped_items (inventory_id, cosmetic_type, cosmetic_id) VALUES (?, ?, ?) ON CONFLICT DO NOTHING";
 
         try {
-            //Create the inventory row for the new user
+            // Create the inventory row for the new user
             try (PreparedStatement createStmt = connection.prepareStatement(createInventorySQL)) {
                 createStmt.setLong(1, userId);
                 createStmt.executeUpdate();
@@ -614,21 +612,21 @@ public class DatabaseManager {
             try (PreparedStatement getInvStmt = connection.prepareStatement(getInventoryId)) {
                 getInvStmt.setLong(1, userId);
                 ResultSet rsInv = getInvStmt.executeQuery();
-                
+
                 if (!rsInv.next()) {
                     System.err.println("Inventory creation failed for user: " + userId);
-                    return; 
+                    return;
                 }
                 long inventoryId = rsInv.getLong("id");
 
                 try (PreparedStatement firstItem = connection.prepareStatement(firstCosmeticSQL);
-                    PreparedStatement owned = connection.prepareStatement(insertOwnedSQL);
-                    PreparedStatement equip = connection.prepareStatement(equipSQL)) {
+                        PreparedStatement owned = connection.prepareStatement(insertOwnedSQL);
+                        PreparedStatement equip = connection.prepareStatement(equipSQL)) {
 
                     for (CosmeticType type : CosmeticType.values()) {
                         firstItem.setString(1, type.name());
                         ResultSet rsItem = firstItem.executeQuery();
-                        
+
                         if (rsItem.next()) {
                             long defaultCosmeticId = rsItem.getLong("id");
 
@@ -674,7 +672,7 @@ public class DatabaseManager {
             connection.setAutoCommit(false);
 
             try (PreparedStatement stmt = connection.prepareStatement(upsertSQL)) {
-                
+
                 for (String[] entry : assetFiles) {
                     String resourcePath = entry[0];
                     String typeOverride = entry[1]; // may be null
@@ -764,7 +762,7 @@ public class DatabaseManager {
             connection.setAutoCommit(false);
 
             try (PreparedStatement achStmt = connection.prepareStatement(upsertAchievementSQL);
-                 PreparedStatement userAchStmt = connection.prepareStatement(insertUserAchievementSQL)) {
+                    PreparedStatement userAchStmt = connection.prepareStatement(insertUserAchievementSQL)) {
 
                 for (int i = 0; i < achievements.length(); i++) {
                     JSONObject obj = achievements.getJSONObject(i);
@@ -816,8 +814,8 @@ public class DatabaseManager {
         String query = "SELECT id, name, type, price, image_path, description FROM cosmetics";
 
         try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            
+                ResultSet rs = stmt.executeQuery(query)) {
+
             while (rs.next()) {
                 Cosmetic cosmetic = new Cosmetic(
                         rs.getLong("id"),
@@ -825,8 +823,7 @@ public class DatabaseManager {
                         CosmeticType.valueOf(rs.getString("type")),
                         rs.getInt("price"),
                         rs.getString("image_path"),
-                        rs.getString("description")
-                );
+                        rs.getString("description"));
                 allItems.add(cosmetic);
             }
         } catch (SQLException e) {
@@ -834,17 +831,18 @@ public class DatabaseManager {
         }
         return allItems;
     }
+
     public void updateUserCoinBalance(long userId, int newBalance) {
         // Add a new row if empty or else update the already made row.
         String query = """
-                INSERT INTO user_stats (user_id, coin_balance) 
+                INSERT INTO user_stats (user_id, coin_balance)
                 VALUES (?, ?)
                 ON CONFLICT(user_id) DO UPDATE SET coin_balance = excluded.coin_balance
                 """;
-        
+
         try (java.sql.PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, newBalance);
-            stmt.setLong(2, userId);    
+            stmt.setLong(2, userId);
             stmt.executeUpdate();
         } catch (java.sql.SQLException e) {
             System.err.println("Failed to save new coin balance: " + e.getMessage());
@@ -864,7 +862,7 @@ public class DatabaseManager {
             try (ResultSet rs = invStmt.executeQuery()) {
                 if (rs.next()) {
                     long inventoryId = rs.getLong("id");
-                    
+
                     try (PreparedStatement equipStmt = connection.prepareStatement(upsertEquipped)) {
                         equipStmt.setLong(1, inventoryId);
                         equipStmt.setString(2, item.getType().name());
@@ -878,7 +876,7 @@ public class DatabaseManager {
             System.err.println("Failed to save equipped item: " + e.getMessage());
         }
     }
-    
+
     public void saveSettings(long userId, Settings settings) {
         String sql = """
                 INSERT INTO settings (
@@ -955,10 +953,9 @@ public class DatabaseManager {
         String sql = """
             INSERT INTO tasks (id, user_id, title, content, created_at, srs_enabled, 
                             repetition_count, ease_factor, current_interval, 
-                            review_intensity, is_complete, next_recall_date) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                            review_intensity, is_complete) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
         """;
-
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, task.getID());
@@ -992,13 +989,13 @@ public class DatabaseManager {
 
     public void updateTask(Task task) {
         String sql = """
-            UPDATE tasks SET 
-                title = ?, 
-                content = ?,
-                is_complete = ?,
-                next_recall_date = ?
-            WHERE id = ?
-        """;
+                    UPDATE tasks SET
+                        title = ?,
+                        content = ?,
+                        is_complete = ?,
+                        next_recall_date = ?
+                    WHERE id = ?
+                """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, task.getTitle());
@@ -1013,26 +1010,119 @@ public class DatabaseManager {
             System.err.println("Failed to update task: " + e.getMessage());
         }
     }
-    
+
     public void deleteTask(Task task) {
         String deleteHistorySql = "DELETE FROM task_srs_history WHERE task_id = ?";
         String deleteTaskSql = "DELETE FROM tasks WHERE id = ?";
 
         try (PreparedStatement historyStmt = connection.prepareStatement(deleteHistorySql);
-            PreparedStatement taskStmt = connection.prepareStatement(deleteTaskSql)) {
+                PreparedStatement taskStmt = connection.prepareStatement(deleteTaskSql)) {
 
             historyStmt.setLong(1, task.getID());
             historyStmt.executeUpdate();
 
             taskStmt.setLong(1, task.getID());
             taskStmt.executeUpdate();
-            
+
             System.out.println("Task and its history deleted from the database!");
         } catch (SQLException e) {
             System.err.println("Failed to delete task: " + e.getMessage());
         }
     }
 
+    public JSONObject loadSyncPayload(long userId) {
+        JSONObject payload = new JSONObject();
+
+        try {
+            // Base User Data (1-to-1 relationships)
+            payload.put("user", fetchSingleRow("SELECT * FROM users WHERE id = ?", userId));
+            payload.put("user_stats", fetchSingleRow("SELECT * FROM user_stats WHERE user_id = ?", userId));
+            payload.put("settings", fetchSingleRow("SELECT * FROM settings WHERE user_id = ?", userId));
+            payload.put("multipliers", fetchSingleRow("SELECT * FROM multipliers WHERE user_id = ?", userId));
+            payload.put("inventory", fetchSingleRow("SELECT * FROM inventory WHERE user_id = ?", userId));
+
+            // User Data Collections (1-to-Many relationships)
+            payload.put("sessions", fetchArray("SELECT * FROM sessions WHERE user_id = ?", userId));
+            payload.put("tasks", fetchArray("SELECT * FROM tasks WHERE user_id = ?", userId));
+            payload.put("user_achievements", fetchArray("SELECT * FROM user_achievements WHERE user_id = ?", userId));
+            
+            // Nested Relationships (Joining tables to verify ownership)
+            payload.put("task_srs_history", fetchArray(
+                "SELECT tsh.* FROM task_srs_history tsh JOIN tasks t ON tsh.task_id = t.id WHERE t.user_id = ?", 
+                userId));
+                
+            payload.put("inventory_owned_items", fetchArray(
+                "SELECT ioi.* FROM inventory_owned_items ioi JOIN inventory i ON ioi.inventory_id = i.id WHERE i.user_id = ?", 
+                userId));
+                
+            payload.put("inventory_equipped_items", fetchArray(
+                "SELECT iei.* FROM inventory_equipped_items iei JOIN inventory i ON iei.inventory_id = i.id WHERE i.user_id = ?", 
+                userId));
+
+            // Social & Study Groups
+            payload.put("friends", fetchArray(
+                "SELECT * FROM friends WHERE user_id = ? OR friend_id = ?", 
+                userId, userId));
+                
+            payload.put("friend_requests", fetchArray(
+                "SELECT * FROM friend_requests WHERE sender_id = ? OR receiver_id = ?", 
+                userId, userId));
+
+            // Pull study groups where the user is either the host OR a member
+            payload.put("study_groups", fetchArray(
+                "SELECT DISTINCT sg.* FROM study_groups sg LEFT JOIN study_group_members sgm ON sg.id = sgm.group_id WHERE sg.host_id = ? OR sgm.user_id = ?", 
+                userId, userId));
+
+        } catch (SQLException e) {
+            System.err.println("Error building sync payload: " + e.getMessage());
+        }
+
+        return payload;
+    }
+
+
+    private JSONObject fetchSingleRow(String query, Object... params) throws SQLException {
+        JSONArray array = fetchArray(query, params);
+        // Return the first object if it exists, otherwise return an empty object
+        return array.length() > 0 ? array.getJSONObject(0) : new JSONObject();
+    }
+
+    private JSONArray fetchArray(String query, Object... params) throws SQLException {
+        JSONArray jsonArray = new JSONArray();
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    JSONObject jsonObject = new JSONObject();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object columnValue = rs.getObject(i);
+                        
+                        // Handle nulls
+                        if (columnValue == null) {
+                            jsonObject.put(columnName, JSONObject.NULL);
+                        } else {
+                            jsonObject.put(columnName, columnValue);
+                        }
+                    }
+                    jsonArray.put(jsonObject);
+                }
+            }
+        }
+        return jsonArray;
+    }
+
+    public static void debugDatabase() {
+        System.out.println("DEBUG");
+        // TODO
+    }
     public void insertTaskHistory(long taskId, SRSHistoryEntry entry) {
         String sql = """
             INSERT INTO task_srs_history (task_id, ease_factor_at_time, interval_at_time, quality_score, timestamp)
