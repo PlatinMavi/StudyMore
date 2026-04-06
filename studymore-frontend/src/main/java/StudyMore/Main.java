@@ -7,6 +7,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.sql.*;
+
+import org.json.JSONObject;
+
 import StudyMore.models.User;
 
 public class Main extends Application {
@@ -21,6 +24,7 @@ public class Main extends Application {
 
         if(check != -1) {
             user = mngr.getUser(check);
+            startSyncLoop();
 
             Parent root = FXMLLoader.load(getClass().getResource("fxml/Index.fxml"));
             primaryStage.setTitle("StudyMore");
@@ -66,6 +70,13 @@ public class Main extends Application {
         }
 
         return -1;
+    }
+
+    private void startSyncLoop() {
+        JSONObject payload = Main.mngr.loadSyncPayload(user.getUserId());
+        System.out.println(payload.toString(1));
+        //JSONObject response = ApiClient.sync(user.getUserId(), payload);
+        // TODO: sync the response to the database.
     }
 }
     
