@@ -3,6 +3,7 @@ package StudyMore.models;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import StudyMore.Main;
 import StudyMore.controllers.AchievementsController;
@@ -10,6 +11,7 @@ import StudyMore.controllers.AchievementsController;
 public class Task {
     // Standard SQL format: "2026-04-05 22:49:53"
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private long taskId;
     private String title;
@@ -108,6 +110,46 @@ public class Task {
     private LocalDate nextRecallDate;
      */
 
+    /**
+     * Calculates exactly what state the task should be in right now.
+     * Returns 0 = ACTIVE (Due), 1 = INACTIVE (Waiting), 2 = COMPLETED (Done today or permanently)
+     */
+    public int getCurrentState() {
+        // Scenario: Normal task
+        if (!isSrsEnabled()) {
+            return isCompleted() ? 2 : 0;
+        }
+
+        LocalDate today = LocalDate.now();
+
+        // Scenario: Due today or due date was in the past
+        if (this.nextRecallDate == null || !this.nextRecallDate.isAfter(today)) {
+            this.completed = false; // Reset the flag so it's "Incomplete" again
+            return 0; // ACTIVE (Bright & Clickable)
+        }
+
+        // Scenario: Recall date is in the future
+        if (this.nextRecallDate.isAfter(today)) {            
+            if (isCompleted()) { // Finished the task recently, will display it as completed for a while
+                return 2; // COMPLETED (Vibrant Green)
+            } else { // Finished the task earlier, waiting for the next recall date
+                return 1; // INACTIVE (Gray/Locked)
+            }
+        
+        } else {
+            // Fail-safe, should not trigger unless an error occurs
+            return 0;
+        }
+    }
+
+    public String getDaysUntilRecall() {
+        if (nextRecallDate == null || nextRecallDate.isBefore(LocalDate.now()) || nextRecallDate.isEqual(LocalDate.now())) {
+            return "DUE NOW";
+        }
+        long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), nextRecallDate);
+        return daysBetween + (daysBetween == 1 ? " DAY" : " DAYS");
+    }
+
     public String getTitle(){
         return this.title;
     }
@@ -143,6 +185,15 @@ public class Task {
         return this.srsData;
     }
 
+    public LocalDate getNextRecallDate() {
+        return this.nextRecallDate;
+    }
+
+    public String getNextRecallDateAsString() {
+        if (this.nextRecallDate == null) return null;
+        return this.nextRecallDate.format(DATE_FORMAT);
+    }   
+
     public void setTitle(String title){
         this.title = title;
     }
@@ -161,6 +212,16 @@ public class Task {
 
     public void setCompleted(boolean isCompleted) {
         this.completed = isCompleted;
+    }
+
+    public void setNextRecallDate(LocalDate date) {
+        this.nextRecallDate = date;
+    }
+
+    public void setNextRecallDateFromString(String dateStr) {
+        if (dateStr != null && !dateStr.isEmpty() && !dateStr.equals("null")) {
+            this.nextRecallDate = LocalDate.parse(dateStr, DATE_FORMAT);
+        }
     }
 
 

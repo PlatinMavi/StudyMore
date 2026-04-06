@@ -37,6 +37,10 @@ public class SRSMetadata {
     public ReviewIntensity getIntensity(){
         return this.reviewIntensity;
     }
+
+    public SRSHistoryEntry getLatestHistoryEntry(){
+        return this.history.getLast();
+    }
     
     // SETTERS
 
