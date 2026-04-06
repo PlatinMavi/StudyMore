@@ -1,3 +1,6 @@
+// TODO FOR EXPANSION: Implement a leach threshold mechanism to handle the tasks 
+// that are failed couple of times.
+
 package StudyMore.models;
 
 import java.time.LocalDate;
@@ -20,12 +23,8 @@ public class SRSScheduler {
         // Record current state into history before modifying it
         recordHistory(metadata, qualityScore);
 
-        /** 
-         * TODO: Figure out a way to check if the task is not completed at the specified day,
-         * if the interval is bigger than a certain size, then add tolerated delays
-         * also maybe we could make it so that the punishment isnt too harsh and add a 
-         * cooldown mechanism
-         * */ 
+        double newEF = calculateNewEaseFactor(metadata.getCurrentEaseFactor(), qualityScore);
+        metadata.setCurrentEaseFactor(newEF);
 
         // RESET LOGIC (if the user failed - score < 3)
         if (qualityScore < 3) {
@@ -47,22 +46,17 @@ public class SRSScheduler {
     private static void resetTask(SRSMetadata data) {
         data.setRepetitionCount(0);
         data.setCurrentInterval(1);
-        // TODO: (Optional) Decide if I wanna penalize the Ease Factor here
     }
 
     private static void updateSuccessfulTask(SRSMetadata data, int qualityScore, Task task) {
         // 1. Increment repetition count
         data.setRepetitionCount(data.getRepetitionCount() + 1);
-        
-        // 2. Calculate and set the new Ease Factor (EF)
-        double newEF = calculateNewEaseFactor(data.getCurrentEaseFactor(), qualityScore);
-        data.setCurrentEaseFactor(newEF);
 
-        // 3. Calculate and set the next Interval (I)
-        int nextInterval = calculateNextInterval(data, newEF);
+        // 2. Calculate and set the next Interval (I)
+        int nextInterval = calculateNextInterval(data, task.getSrsData().getCurrentEaseFactor());
         data.setCurrentInterval(nextInterval);
 
-        // 4. Update the actual calendar date for the next review
+        // 3. Update the actual calendar date for the next review
         LocalDate nextDate = LocalDate.now().plusDays(nextInterval);
         task.setNextRecallDate(nextDate);
     }
