@@ -22,23 +22,24 @@
             <content>
                 <VBox spacing="32.0" style="-fx-padding: 32; -fx-background-color: transparent;">
 
-                    <VBox style="-fx-background-color: black; -fx-border-color: #262626; -fx-border-width: 1;">
+                    <VBox>
                         
                         <!-- Banner -->
-                        <AnchorPane prefHeight="96.0" style="-fx-background-color: #0a0a0a; -fx-border-color: transparent transparent #262626 transparent; -fx-border-width: 1;">
-                            <Label text="EQUIPPED: VOID MATRIX" 
-                                style="-fx-text-fill: #737373; -fx-font-family: monospace; -fx-background-color: black; -fx-border-color: #262626; -fx-padding: 4 12;" 
-                                AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0" />
+                        <AnchorPane prefHeight="96.0" style=" -fx-border-color: transparent transparent #262626 transparent; -fx-border-width: 1;">
+    
+                            <ImageView fx:id="bannerImageView" fitHeight="94.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" preserveRatio="false" />
+                            
                         </AnchorPane>
                         <!-- Banner -->
 
-                        <AnchorPane prefHeight="120.0" style="-fx-padding: 24 32 32 32;">
+                        <AnchorPane prefHeight="120.0" style="-fx-padding: 24 32 32 32; -fx-background-color: black; -fx-border-color: #262626; -fx-border-width: 1;">
                             
                             <!-- Profile Picture -->
-                            <StackPane style="-fx-background-color: black; -fx-border-color: #262626;" 
+                            <StackPane style="-fx-background-color: black; -fx-border-color: #262626;"
                                     prefWidth="128.0" prefHeight="128.0" 
                                     AnchorPane.topAnchor="-88.0" AnchorPane.leftAnchor="0.0">
-                                <Label text="USER" style="-fx-text-fill: #525252; -fx-font-size: 24;" />
+                                    
+                                <ImageView fx:id="profileImageView" fitWidth="126.0" fitHeight="126.0" preserveRatio="false" />
                             </StackPane>
                             <!-- Profile Picture -->
 
@@ -48,7 +49,7 @@
                                 <HBox spacing="12.0" alignment="CENTER_LEFT">
                                     <!-- title -->
                                     <Label fx:id="title" text="" style="-fx-background-color: white; -fx-text-fill: black; -fx-padding: 4 12; -fx-font-weight: bold; -fx-font-size: 12;" />
-                                    <HBox spacing="8.0" style="-fx-background-color: #171717; -fx-border-color: #262626; -fx-padding: 4 12;">
+                                    <HBox fx:id="medalsContainer" spacing="8.0" style="-fx-background-color: #171717; -fx-border-color: #262626; -fx-padding: 4 12;">
                                         <!-- Medals -->
                                     </HBox>
                                 </HBox>

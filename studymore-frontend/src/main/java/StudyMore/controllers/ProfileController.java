@@ -2,6 +2,8 @@ package StudyMore.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
@@ -39,8 +41,12 @@ public class ProfileController {
     private Label weeklyStudyTime;
     @FXML
     private Label studyStreak;
-    
-    //TODO: profile, banner, medal
+    @FXML 
+    private ImageView profileImageView;
+    @FXML
+    private ImageView bannerImageView;
+    @FXML
+    private HBox medalsContainer;
 
     private static final String[] HEATMAP_COLORS = {
         "-fx-background-color: black; -fx-border-color: #262626; -fx-border-width: 1;", // Level 0: Empty
@@ -52,14 +58,16 @@ public class ProfileController {
 
     public void initialize() {
         username.setText(Main.user.getUsername());
-        multiplier.setText(Main.mngr.getTodaysStudySession(Main.user).getMultiplier().getValue() + "X MULT");
+        multiplier.setText(String.format("%.1fX MULT", Main.mngr.getTodaysStudySession(Main.user).getMultiplier().getValue()));
         coin.setText("" + Main.user.getCoinBalance());
         rating.setText("" + Main.user.getRating());
         rank.setText(Main.user.getRank().toString());
         studyStreak.setText(Main.user.getStudyStreak() + "");
         title.setText(Main.user.getInventory().getEquipped(CosmeticType.TITLE).getName().toUpperCase());
         calculateStudyTimes();
-  
+        bannerImageView.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.BANNER).getImagePath()));
+        profileImageView.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_SKIN).getImagePath()));
+        addMedalImage("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MEDAL).getImagePath());
         loadAndDisplayHeatmap(Main.user);
     }
 
@@ -133,6 +141,24 @@ public class ProfileController {
             }
             heatmapGrid.getChildren().add(weekColumn);
         }
+    }
+
+    private void addMedalImage(String path) {
+        // Create the image container
+        ImageView medalImageView = new ImageView();
+        
+        medalImageView.setFitWidth(24);
+        medalImageView.setFitHeight(24);
+        medalImageView.setPreserveRatio(true);
+
+        try {
+            Image medalIcon = new Image(path);
+            medalImageView.setImage(medalIcon);
+        } catch (NullPointerException e) {
+            System.out.println("Medal image not found! The container will be empty.");
+        }
+
+        medalsContainer.getChildren().add(medalImageView);
     }
 
     private int calculateIntensity(int value, int maxVal) {
