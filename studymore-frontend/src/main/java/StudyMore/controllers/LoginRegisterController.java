@@ -108,6 +108,11 @@ public class LoginRegisterController {
             Main.mngr.insertAchievements(id);
             Main.user = Main.mngr.getUser(id);
 
+            try {
+                ApiClient.postAuth("/auth/users/heartbeat",
+                    "{\"userId\":" + id + "}");
+            } catch (Exception ignored) {}
+
             String syncBody = "{\"userId\":"        + id               + ","
                             + "\"username\":\""     + username         + "\","
                             + "\"email\":\""        + email            + "\","

@@ -43,6 +43,10 @@ public class User {
     private Set<User> friends = new HashSet<>();
 
     private LocalDateTime createdAt;
+    private java.time.LocalDateTime lastSeen;
+
+    public java.time.LocalDateTime getLastSeen() { return lastSeen; }
+    public void setLastSeen(java.time.LocalDateTime lastSeen) { this.lastSeen = lastSeen; }
 
     // Default constructor required by JPA
     public User() {}

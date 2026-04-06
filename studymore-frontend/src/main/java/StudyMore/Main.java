@@ -78,6 +78,15 @@ public class Main extends Application {
     private void startSyncLoop() {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
+            // Heartbeat
+            try {
+                String heartbeatBody = "{\"userId\":" + user.getUserId() + "}";
+                ApiClient.postAuth("/auth/users/heartbeat", heartbeatBody);
+            } catch (Exception e) {
+                System.out.println("Heartbeat failed: " + e.getMessage());
+            }
+
+            // Sync
             JSONObject payload = Main.mngr.loadSyncPayload(user.getUserId());
             try {
                 JSONObject response = ApiClient.sync(user.getUserId(), payload);
@@ -85,7 +94,7 @@ public class Main extends Application {
             } catch (Exception e) {
                 System.out.println("ERROR SYNC");
             }
-        }, 0, 20, TimeUnit.MINUTES);
+        }, 0, 2, TimeUnit.MINUTES);
     }
 }
     

@@ -57,4 +57,15 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+   @PostMapping("/users/heartbeat")
+    public ResponseEntity<?> heartbeat(@RequestBody Map<String, Object> body) {
+        try {
+            Long userId = Long.valueOf(body.get("userId").toString());
+            userService.updateLastSeen(userId);
+            return ResponseEntity.ok(Map.of("status", "ok"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }

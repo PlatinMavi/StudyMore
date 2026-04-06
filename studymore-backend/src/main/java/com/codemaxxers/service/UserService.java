@@ -56,4 +56,11 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
+
+    public void updateLastSeen(Long userId) {
+        userRepository.findById(userId).ifPresent(u -> {
+            u.setLastSeen(java.time.LocalDateTime.now());
+            userRepository.save(u);
+        });
+    }
 }

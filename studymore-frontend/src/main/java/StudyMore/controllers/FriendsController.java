@@ -41,6 +41,7 @@ public class FriendsController {
         String url = keyword == null || keyword.isEmpty()
                 ? "/friends/" + Main.user.getUserId()
                 : "/friends/search?keyword=" + keyword + "&requestingUserId=" + Main.user.getUserId();
+
         String response = ApiClient.get(url);
         JSONArray arr;
         try {
@@ -50,10 +51,33 @@ public class FriendsController {
             arr = new JSONArray();
         }
 
+        int onlineCount = 0;
+
         for (int i = 0; i < arr.length(); i++) {
-            JSONObject u      = arr.getJSONObject(i);
-            String username   = u.optString("username", "?");
-            friendListContainer.getChildren().add(buildFriendRow(username, "OFFLINE", false));
+            JSONObject u       = arr.getJSONObject(i);
+            String username    = u.optString("username", "?");
+            String lastSeenStr = u.optString("lastSeen", null);
+
+            boolean online    = false;
+            String statusText = "OFFLINE";
+
+            if (lastSeenStr != null) {
+                try {
+                    java.time.LocalDateTime lastSeen = java.time.LocalDateTime.parse(lastSeenStr);
+                    long minutesAgo = java.time.Duration.between(lastSeen,
+                            java.time.LocalDateTime.now()).toMinutes();
+
+                    if (minutesAgo <= 2) {
+                        online     = true;
+                        statusText = "ONLINE";
+                    } else if (minutesAgo <= 30) {
+                        statusText = "LAST SEEN " + minutesAgo + "M AGO";
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            if (online) onlineCount++;
+            friendListContainer.getChildren().add(buildFriendRow(username, statusText, online));
         }
 
         if (arr.isEmpty()) {
@@ -63,7 +87,7 @@ public class FriendsController {
             friendListContainer.getChildren().add(l);
         }
 
-        onlineCountLabel.setText("0 ONLINE");
+        onlineCountLabel.setText(onlineCount + " ONLINE");
     }
 
     private String getFriendStatus(long friendId) {
