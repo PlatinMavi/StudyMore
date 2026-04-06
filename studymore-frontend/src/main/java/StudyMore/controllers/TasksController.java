@@ -35,6 +35,10 @@ public class TasksController {
         if (!isInitialized) {
             tempDatabase.add(new Task("Buy Groceries", "Milk, Eggs, Bread", false));
             tempDatabase.add(new Task("Learn JavaFX", "Review lambda capture and UI rendering", true, ReviewIntensity.INTENSE));
+            tempDatabase.clear(); // TODO: remove the placeholders after testing
+            if (Main.user != null && Main.user.getTasks() != null) {
+                tempDatabase.addAll(Main.user.getTasks());
+            }
             refreshTaskDisplay();
             isInitialized = true;
         }
@@ -76,9 +80,9 @@ public class TasksController {
         if (title == null || title.isEmpty()) return;
 
         if (currentlyEditingTask != null){
-            // TODO: update the existing task in database
             currentlyEditingTask.setTitle(title);
             currentlyEditingTask.setContent(content);
+            Main.mngr.updateTask(currentlyEditingTask);
         } else {
             Task taskToAdd;
             if (isSrs){
@@ -94,6 +98,11 @@ public class TasksController {
                 taskToAdd = new Task(title, content, isSrs);
             }
             tempDatabase.add(taskToAdd);
+
+            if (Main.user != null) {
+                Main.user.getTasks().add(taskToAdd);
+                Main.mngr.addTask(Main.user.getUserId(), taskToAdd);
+            }            
         }
 
         refreshTaskDisplay();
@@ -157,7 +166,7 @@ public class TasksController {
         if (!task.isCompleted()) {
             promptConfirmation(() -> {
                 task.complete();
-                // TODO: Update db
+                Main.mngr.updateTask(task);
                 AchievementsController.updateProgress(Main.user.getUserId(), "TASK_BASED", 1);
                 refreshTaskDisplay();
             });
@@ -185,7 +194,12 @@ public class TasksController {
         if (currentlyEditingTask != null) {
             promptConfirmation(() -> {
                 tempDatabase.remove(currentlyEditingTask);
-                // TODO: call delete task (remove task from actual db and remove the pointers)               
+                Main.mngr.deleteTask(currentlyEditingTask);
+                if (Main.user != null) {
+                    Main.user.getTasks().remove(currentlyEditingTask);
+                }
+                // TODO: call delete task (remove the pointers)
+                // TODO: implement task deletion in task class               
                 currentlyEditingTask = null;        
                 closeOverlay();
                 refreshTaskDisplay();

@@ -48,13 +48,31 @@ public class DatabaseManager {
                         user_id INTEGER NOT NULL,
                         title TEXT NOT NULL,
                         content TEXT,
-                        srs_enabled INTEGER NOT NULL DEFAULT 0,
-                        next_recall_date TEXT,
                         is_complete INTEGER NOT NULL DEFAULT 0,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        srs_enabled INTEGER NOT NULL DEFAULT 0,
+                        -- SRS Specific Statistics
+                        repetition_count INTEGER DEFAULT 0,
+                        ease_factor REAL DEFAULT 2.5,
+                        current_interval INTEGER DEFAULT 0,
+                        review_intensity TEXT DEFAULT 'STANDARD',
+                        next_recall_date TEXT,
                         FOREIGN KEY (user_id) REFERENCES users(id)
                     );
                 """;
+        String createTaskHistoryTable = """
+                    CREATE TABLE IF NOT EXISTS task_srs_history (
+                        id INTEGER PRIMARY KEY,
+                        task_id INTEGER NOT NULL,
+                        ease_factor_at_time REAL,
+                        interval_at_time INTEGER,
+                        quality_score INTEGER,
+                        timestamp TIMESTAMP,
+                        FOREIGN KEY (task_id) REFERENCES tasks(id)
+                    );
+                """;
+
+        
 
         String createMultipliersTable = """
                     CREATE TABLE IF NOT EXISTS multipliers (
@@ -241,6 +259,7 @@ public class DatabaseManager {
             stmt.execute(createUserStatsTable);
             stmt.execute(createSessionsTable);
             stmt.execute(createTasksTable);
+            stmt.execute(createTaskHistoryTable);
             stmt.execute(createMultipliersTable);
             stmt.execute(createCosmeticsTable);
             stmt.execute(createInventoryTable);
@@ -300,7 +319,8 @@ public class DatabaseManager {
                 """;
 
         String tasksQuery = """
-                SELECT id, title, content, srs_enabled, is_complete, next_recall_date, created_at
+                SELECT id, title, content, srs_enabled, is_complete, next_recall_date, created_at, 
+                    repetition_count, ease_factor, current_interval, review_intensity
                 FROM tasks WHERE user_id = ?
                 """;
 
@@ -365,12 +385,28 @@ public class DatabaseManager {
                     tasksStmt.setLong(1, id);
                     try (ResultSet tasksRs = tasksStmt.executeQuery()) {
                         while (tasksRs.next()) {
+                            String intensityStr = tasksRs.getString("review_intensity");
+                            ReviewIntensity intensity = (intensityStr != null) ? ReviewIntensity.valueOf(intensityStr) : ReviewIntensity.STANDARD;
+                            String createdAtStr = tasksRs.getString("created_at");
+
                             Task task = new Task(
                                     tasksRs.getString("title"),
                                     tasksRs.getString("content"),
                                     tasksRs.getInt("srs_enabled") == 1,
-                                    null // ReviewIntensity unknown at load time. handle in Task constructor
+                                    intensity
                             );
+
+                            task.setCompleted(tasksRs.getInt("is_complete") == 1);
+                            task.setTaskId(tasksRs.getLong("id"));
+                            task.setCreatedAtFromString(createdAtStr);
+
+                            if (task.isSrsEnabled() && task.getSrsData() != null) {
+                                task.getSrsData().setRepetitionCount(tasksRs.getInt("repetition_count"));
+                                task.getSrsData().setCurrentEaseFactor(tasksRs.getDouble("ease_factor"));
+                                task.getSrsData().setCurrentInterval(tasksRs.getInt("current_interval"));
+                            }
+
+
                             tasks.add(task);
                         }
                     }
@@ -914,5 +950,86 @@ public class DatabaseManager {
 
         return new Settings();
     }
+
+    public void addTask(long userId, Task task) {
+        String sql = """
+            INSERT INTO tasks (id, user_id, title, content, created_at, srs_enabled, 
+                            repetition_count, ease_factor, current_interval, 
+                            review_intensity, is_complete) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+        """;
+
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, task.getID());
+            stmt.setLong(2, userId);
+            stmt.setString(3, task.getTitle());
+            stmt.setString(4, task.getContent());
+            stmt.setString(5, task.getCreatedAtAsString());
+            stmt.setInt(6, task.isSrsEnabled() ? 1 : 0);
+
+            if (task.isSrsEnabled() && task.getSrsData() != null) {
+                SRSMetadata data = task.getSrsData();
+                stmt.setInt(7, data.getRepetitionCount());
+                stmt.setDouble(8, data.getCurrentEaseFactor());
+                stmt.setInt(9, data.getCurrentInterval());
+                stmt.setString(10, data.getIntensity().name());
+            } else {
+                // Setting up defaults to bypass NullPointerException later
+                stmt.setInt(7, 0);
+                stmt.setDouble(8, 2.5);
+                stmt.setInt(9, 0);
+                stmt.setString(10, "STANDARD");
+            }
+
+            stmt.setInt(11, task.isCompleted() ? 1 : 0);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateTask(Task task) {
+        String sql = """
+            UPDATE tasks SET 
+                title = ?, 
+                content = ?,
+                is_complete = ?
+            WHERE id = ?
+        """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, task.getTitle());
+            stmt.setString(2, task.getContent());
+            stmt.setInt(3, task.isCompleted() ? 1 : 0);
+            stmt.setLong(4, task.getID());
+
+            stmt.executeUpdate();
+            System.out.println("Task updated in database!");
+        } catch (SQLException e) {
+            System.err.println("Failed to update task: " + e.getMessage());
+        }
+    }
+    
+    public void deleteTask(Task task) {
+        String deleteHistorySql = "DELETE FROM task_srs_history WHERE task_id = ?";
+        String deleteTaskSql = "DELETE FROM tasks WHERE id = ?";
+
+        try (PreparedStatement historyStmt = connection.prepareStatement(deleteHistorySql);
+            PreparedStatement taskStmt = connection.prepareStatement(deleteTaskSql)) {
+
+            historyStmt.setLong(1, task.getID());
+            historyStmt.executeUpdate();
+
+            taskStmt.setLong(1, task.getID());
+            taskStmt.executeUpdate();
+            
+            System.out.println("Task and its history deleted from the database!");
+        } catch (SQLException e) {
+            System.err.println("Failed to delete task: " + e.getMessage());
+        }
+    }
+
+
 
 }

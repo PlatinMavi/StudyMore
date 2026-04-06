@@ -146,6 +146,10 @@ public class User {
         return friends; 
     }
 
+    public List<Task> getTasks(){
+        return tasks;
+    }
+
     public void setUsername(String username) { 
         this.username = username; 
     }

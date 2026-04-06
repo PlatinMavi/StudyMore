@@ -2,11 +2,15 @@ package StudyMore.models;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import StudyMore.Main;
 import StudyMore.controllers.AchievementsController;
 
 public class Task {
+    // Standard SQL format: "2026-04-05 22:49:53"
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private long taskId;
     private String title;
     private String content;
@@ -112,6 +116,17 @@ public class Task {
         return this.content;
     }
 
+    public long getID(){
+        return this.taskId;
+    }
+
+    public String getCreatedAtAsString(){
+        if (this.createdAt == null) {
+            return LocalDateTime.now().format(TIMESTAMP_FORMAT);
+        }
+        return this.createdAt.format(TIMESTAMP_FORMAT);
+    }
+
     public boolean isCompleted(){
         return this.completed;
     }
@@ -135,6 +150,18 @@ public class Task {
     public void setContent(String content){
         this.content = content;
     }    
+
+    public void setCreatedAtFromString(String timestamp) {
+        this.createdAt = LocalDateTime.parse(timestamp, TIMESTAMP_FORMAT);
+    }
+
+    public void setTaskId(long id) {
+        this.taskId = id;
+    }
+
+    public void setCompleted(boolean isCompleted) {
+        this.completed = isCompleted;
+    }
 
 
 }
