@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.codemaxxers.model.enums.Rank;
 
 @Entity
@@ -39,6 +39,7 @@ public class User {
         joinColumns        = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
+    @JsonIgnore
     private Set<User> friends = new HashSet<>();
 
     private LocalDateTime createdAt;

@@ -199,34 +199,9 @@ public class FriendsController {
             String res = ApiClient.put("/friends/requests/" + reqIds.get(idx) 
                                     + "/accept?receiverId=" + Main.user.getUserId());
             setStatus("Now friends with " + sel + "!");
-            loadFriends(null);
-        });
-    }
-
-    private void acceptRequest(long requestId, String senderName) {
-        try {
-            long senderId;
-            try (PreparedStatement s = Main.mngr.getConnection().prepareStatement(
-                    "SELECT sender_id FROM friend_requests WHERE id = ?")) {
-                s.setLong(1, requestId);
-                try (ResultSet rs = s.executeQuery()) {
-                    if (!rs.next()) return;
-                    senderId = rs.getLong("sender_id");
-                }
-            }
-            try (PreparedStatement s = Main.mngr.getConnection().prepareStatement(
-                    "UPDATE friend_requests SET status='ACCEPTED' WHERE id=?")) {
-                s.setLong(1, requestId); s.executeUpdate();
-            }
-            try (PreparedStatement s = Main.mngr.getConnection().prepareStatement(
-                    "INSERT INTO friends (user_id, friend_id) VALUES (?,?) ON CONFLICT DO NOTHING")) {
-                s.setLong(1, Main.user.getUserId()); s.setLong(2, senderId); s.executeUpdate();
-                s.setLong(1, senderId); s.setLong(2, Main.user.getUserId()); s.executeUpdate();
-            }
-            setStatus("Now friends with " + senderName + "!");
             AchievementsController.updateProgress(Main.user.getUserId(), "SOCIAL", 1);
             loadFriends(null);
-        } catch (SQLException e) { setStatus("Error: " + e.getMessage()); }
+        });
     }
     @FXML
     private void onAddFriend() {
