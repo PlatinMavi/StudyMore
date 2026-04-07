@@ -41,9 +41,7 @@ public class SyncService {
         }
 
         // 1 to 1
-        if (payload.getUserStats() != null && !payload.getUserStats().isEmpty()) {
-            syncRepository.upsertSingleRow("user_stats", "id", payload.getUserStats());
-        }
+
         if (payload.getSettings() != null && !payload.getSettings().isEmpty()) {
             syncRepository.upsertSingleRow("settings", "id", payload.getSettings());
         }
@@ -129,13 +127,13 @@ public class SyncService {
             payload.setUserStats(frontendStats);
         }
 
-        var settings = jdbcTemplate.queryForList("SELECT * FROM settings WHERE id = ?", userId);
+        var settings = jdbcTemplate.queryForList("SELECT * FROM settings WHERE user_id = ?", userId);
         if (!settings.isEmpty()) payload.setSettings(settings.get(0));
 
-        var multipliers = jdbcTemplate.queryForList("SELECT * FROM multipliers WHERE id = ?", userId);
+        var multipliers = jdbcTemplate.queryForList("SELECT * FROM multipliers WHERE user_id = ?", userId);
         if (!multipliers.isEmpty()) payload.setMultipliers(multipliers.get(0));
 
-        var inventory = jdbcTemplate.queryForList("SELECT * FROM inventory WHERE id = ?", userId);
+        var inventory = jdbcTemplate.queryForList("SELECT * FROM inventory WHERE user_id = ?", userId);
         if (!inventory.isEmpty()) payload.setInventory(inventory.get(0));
 
         // 1-to-Many Collections

@@ -52,6 +52,7 @@ public class LoginRegisterController {
                 long serverUserId = userJson.getLong("userId");
                 String email      = userJson.optString("email", "");
 
+                // Ensure base user exists locally
                 try (java.sql.PreparedStatement check = Main.mngr.getConnection().prepareStatement(
                         "SELECT id FROM users WHERE id = ?")) {
                     check.setLong(1, serverUserId);
@@ -65,12 +66,30 @@ public class LoginRegisterController {
                                 ins.setString(4, sha256(password));
                                 ins.executeUpdate();
                             }
+                            // Initialize default fallbacks in case sync fails
                             Main.mngr.initializeNewUserInventory(serverUserId);
                             Main.mngr.insertAchievements(serverUserId);
                             Main.mngr.saveSettings(serverUserId, new StudyMore.models.Settings());
                         }
                     }
                 }
+
+                // --- PULL SYNC DATA FROM SERVER ---
+                try {
+                    System.out.println("Pulling sync data for user " + serverUserId + "...");
+
+                    String syncResponse = ApiClient.get("/sync/pull/" + serverUserId); 
+                    
+                    if (syncResponse != null && !syncResponse.isEmpty() && !syncResponse.contains("\"error\"")) {
+                        org.json.JSONObject syncPayload = new org.json.JSONObject(syncResponse);
+                        Main.mngr.restoreFromSyncPayload(syncPayload);
+                    } else {
+                        System.out.println("No sync data found or error pulling data.");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Could not pull sync data during login: " + e.getMessage());
+                }
+                // ----------------------------------
 
                 Main.user = Main.mngr.getUser(serverUserId);
 

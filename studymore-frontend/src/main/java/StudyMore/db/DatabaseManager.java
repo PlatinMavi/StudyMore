@@ -177,8 +177,7 @@ public class DatabaseManager {
                         study_goal INTEGER NOT NULL DEFAULT 0,
                         max_members INTEGER NOT NULL DEFAULT 10,
                         is_active INTEGER NOT NULL DEFAULT 1,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (host_id) REFERENCES users(id)
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     );
                 """;
 
@@ -187,8 +186,7 @@ public class DatabaseManager {
                         group_id INTEGER NOT NULL,
                         user_id INTEGER NOT NULL,
                         PRIMARY KEY (group_id, user_id),
-                        FOREIGN KEY (group_id) REFERENCES study_groups(id),
-                        FOREIGN KEY (user_id) REFERENCES users(id)
+                        FOREIGN KEY (group_id) REFERENCES study_groups(id)
                     );
                 """;
 
@@ -199,9 +197,7 @@ public class DatabaseManager {
                         receiver_id INTEGER NOT NULL,
                         status TEXT NOT NULL DEFAULT 'PENDING',
                         sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        UNIQUE (sender_id, receiver_id),
-                        FOREIGN KEY (sender_id) REFERENCES users(id),
-                        FOREIGN KEY (receiver_id) REFERENCES users(id)
+                        UNIQUE (sender_id, receiver_id)
                     );
                 """;
 
@@ -210,8 +206,7 @@ public class DatabaseManager {
                         user_id INTEGER NOT NULL,
                         friend_id INTEGER NOT NULL,
                         PRIMARY KEY (user_id, friend_id),
-                        FOREIGN KEY (user_id) REFERENCES users(id),
-                        FOREIGN KEY (friend_id) REFERENCES users(id)
+                        FOREIGN KEY (user_id) REFERENCES users(id)
                     );
                 """;
 
@@ -396,8 +391,8 @@ public class DatabaseManager {
                             
                             task.setCompleted(tasksRs.getInt("is_complete") == 1);
                             task.setTaskId(tasksRs.getLong("id"));
-                            task.setNextRecallDateFromString(tasksRs.getString("next_recall_date"));
-                            task.setCreatedAtFromString(createdAtStr);
+                            task.setNextRecallDateFromString(formatDateForTask(tasksRs.getString("next_recall_date")));
+                            task.setCreatedAtFromString(formatDateForTask(createdAtStr));
 
                             if (task.isSrsEnabled() && task.getSrsData() != null) {
                                 task.getSrsData().setRepetitionCount(tasksRs.getInt("repetition_count"));
@@ -1046,7 +1041,7 @@ public class DatabaseManager {
         try {
             // Base User Data (1-to-1 relationships)
             payload.put("user", fetchSingleRow("SELECT * FROM users WHERE id = ?", userId));
-            payload.put("user_stats", fetchSingleRow("SELECT * FROM user_stats WHERE user_id = ?", userId));
+            payload.put("userStats", fetchSingleRow("SELECT * FROM user_stats WHERE user_id = ?", userId));
             payload.put("settings", fetchSingleRow("SELECT * FROM settings WHERE user_id = ?", userId));
             payload.put("multipliers", fetchSingleRow("SELECT * FROM multipliers WHERE user_id = ?", userId));
             payload.put("inventory", fetchSingleRow("SELECT * FROM inventory WHERE user_id = ?", userId));
@@ -1054,18 +1049,18 @@ public class DatabaseManager {
             // User Data Collections (1-to-Many relationships)
             payload.put("sessions", fetchArray("SELECT * FROM sessions WHERE user_id = ?", userId));
             payload.put("tasks", fetchArray("SELECT * FROM tasks WHERE user_id = ?", userId));
-            payload.put("user_achievements", fetchArray("SELECT * FROM user_achievements WHERE user_id = ?", userId));
+            payload.put("userAchievements", fetchArray("SELECT * FROM user_achievements WHERE user_id = ?", userId));
             
             // Nested Relationships (Joining tables to verify ownership)
-            payload.put("task_srs_history", fetchArray(
+            payload.put("taskSrsHistory", fetchArray(
                 "SELECT tsh.* FROM task_srs_history tsh JOIN tasks t ON tsh.task_id = t.id WHERE t.user_id = ?", 
                 userId));
                 
-            payload.put("inventory_owned_items", fetchArray(
+            payload.put("inventoryOwnedItems", fetchArray(
                 "SELECT ioi.* FROM inventory_owned_items ioi JOIN inventory i ON ioi.inventory_id = i.id WHERE i.user_id = ?", 
                 userId));
                 
-            payload.put("inventory_equipped_items", fetchArray(
+            payload.put("inventoryEquippedItems", fetchArray(
                 "SELECT iei.* FROM inventory_equipped_items iei JOIN inventory i ON iei.inventory_id = i.id WHERE i.user_id = ?", 
                 userId));
 
@@ -1074,12 +1069,12 @@ public class DatabaseManager {
                 "SELECT * FROM friends WHERE user_id = ? OR friend_id = ?", 
                 userId, userId));
                 
-            payload.put("friend_requests", fetchArray(
+            payload.put("friendRequests", fetchArray(
                 "SELECT * FROM friend_requests WHERE sender_id = ? OR receiver_id = ?", 
                 userId, userId));
 
             // Pull study groups where the user is either the host OR a member
-            payload.put("study_groups", fetchArray(
+            payload.put("studyGroups", fetchArray(
                 "SELECT DISTINCT sg.* FROM study_groups sg LEFT JOIN study_group_members sgm ON sg.id = sgm.group_id WHERE sg.host_id = ? OR sgm.user_id = ?", 
                 userId, userId));
 
@@ -1152,6 +1147,12 @@ public class DatabaseManager {
         }
     }
 
+    private String formatDateForTask(String dateStr) {
+        LocalDateTime ldt = safeParseDate(dateStr);
+        if (ldt == null) return null;
+        return ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
     public void wipeAndRebuildDatabase() {
         try {
             if (connection == null || connection.isClosed()) {
@@ -1187,12 +1188,15 @@ public class DatabaseManager {
     }
 
     public void restoreFromSyncPayload(JSONObject payload) {
+        System.out.println("--- INCOMING SYNC PAYLOAD ---");
+        System.out.println(payload.toString(4));
+        System.out.println("-----------------------------");
         try {
             connection.setAutoCommit(false); 
 
-            // Restore 1-to-1 Tables (Objects)
+            //1-1
             restoreSingleRowFromJson("users", payload.optJSONObject("user"));
-            restoreSingleRowFromJson("user_stats", payload.optJSONObject("user_stats"));
+            restoreSingleRowFromJson("user_stats", payload.optJSONObject("userStats")); 
             restoreSingleRowFromJson("settings", payload.optJSONObject("settings"));
             restoreSingleRowFromJson("multipliers", payload.optJSONObject("multipliers"));
             restoreSingleRowFromJson("inventory", payload.optJSONObject("inventory"));
@@ -1200,13 +1204,13 @@ public class DatabaseManager {
             // Restore 1-to-Many Tables (Arrays)
             restoreArrayFromJson("tasks", payload.optJSONArray("tasks"));
             restoreArrayFromJson("sessions", payload.optJSONArray("sessions"));
-            restoreArrayFromJson("user_achievements", payload.optJSONArray("user_achievements"));
-            restoreArrayFromJson("task_srs_history", payload.optJSONArray("task_srs_history"));
-            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventory_owned_items"));
-            restoreArrayFromJson("inventory_equipped_items", payload.optJSONArray("inventory_equipped_items"));
+            restoreArrayFromJson("user_achievements", payload.optJSONArray("userAchievements")); 
+            restoreArrayFromJson("task_srs_history", payload.optJSONArray("taskSrsHistory")); 
+            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventoryOwnedItems")); 
+            restoreArrayFromJson("inventory_equipped_items", payload.optJSONArray("inventoryEquippedItems")); 
             restoreArrayFromJson("friends", payload.optJSONArray("friends"));
-            restoreArrayFromJson("friend_requests", payload.optJSONArray("friend_requests"));
-            restoreArrayFromJson("study_groups", payload.optJSONArray("study_groups"));
+            restoreArrayFromJson("friend_requests", payload.optJSONArray("friendRequests")); 
+            restoreArrayFromJson("study_groups", payload.optJSONArray("studyGroups")); 
 
             connection.commit();
             System.out.println("Local database successfully restored from server payload!");
