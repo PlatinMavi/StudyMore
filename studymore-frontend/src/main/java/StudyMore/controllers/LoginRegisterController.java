@@ -79,6 +79,8 @@ public class LoginRegisterController {
                             "{\"userId\":" + serverUserId + "}");
                 } catch (Exception ignored) {}
 
+                Main.settings = Main.mngr.getSettings(serverUserId);
+
                 Main.startSyncLoop();
                 navigateToMain();
 
