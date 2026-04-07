@@ -300,29 +300,88 @@ public class FriendsController {
 
     @FXML
     private void onAddFriend() {
-        TextInputDialog d = new TextInputDialog();
-        d.setTitle("Add Friend"); d.setHeaderText(null); d.setContentText("Search username:");
-        d.showAndWait().ifPresent(kw -> {
-            if (kw.trim().isEmpty()) return;
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Add Friend");
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+        dialog.getDialogPane().setStyle(
+            "-fx-background-color: #0a0a0a; -fx-border-color: #262626; -fx-border-width: 1;");
+
+        // Style cancel button
+        dialog.getDialogPane().lookupButton(ButtonType.CANCEL).setStyle(
+            "-fx-background-color: transparent; -fx-text-fill: #a3a3a3; " +
+            "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-weight: bold;");
+
+        TextField searchInput = new TextField();
+        searchInput.setPromptText("Type username and press Enter...");
+        searchInput.setStyle(
+            "-fx-background-color: #111111; -fx-text-fill: white; -fx-prompt-text-fill: #404040; " +
+            "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 12;");
+
+        VBox resultsBox = new VBox(6);
+        ScrollPane scrollPane = new ScrollPane(resultsBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(220);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-width: 0;");
+
+        Label titleLbl = new Label("SEARCH FOR A USER");
+        titleLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+
+        Label hintLbl = new Label("Type a username and press Enter");
+        hintLbl.setStyle("-fx-text-fill: #404040; -fx-font-size: 11px;");
+
+        VBox content = new VBox(12, titleLbl, hintLbl, searchInput, scrollPane);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(360);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().setPrefHeight(420);
+
+        searchInput.setOnAction(e -> {
+            String kw = searchInput.getText().trim();
+            if (kw.isEmpty()) return;
+            resultsBox.getChildren().clear();
+
             JSONArray results;
             try {
-                results = new JSONArray(ApiClient.get("/friends/search?keyword=" + kw.trim()
+                results = new JSONArray(ApiClient.get("/friends/search?keyword=" + kw
                         + "&requestingUserId=" + Main.user.getUserId()));
-            } catch (Exception e) { setStatus("Search error."); return; }
+            } catch (Exception ex) { return; }
 
-            List<String> choices = new ArrayList<>();
-            List<Long>   ids     = new ArrayList<>();
+            if (results.isEmpty()) {
+                Label none = new Label("No users found for \"" + kw + "\"");
+                none.setStyle("-fx-text-fill: #404040; -fx-font-size: 11px; -fx-padding: 8;");
+                resultsBox.getChildren().add(none);
+                return;
+            }
+
             for (int i = 0; i < results.length(); i++) {
                 JSONObject u = results.getJSONObject(i);
-                choices.add(u.optString("username", "?"));
-                ids.add(u.optLong("userId", -1));
-            }
-            if (choices.isEmpty()) { setStatus("No users found."); return; }
+                String uname = u.optString("username", "?");
+                long   uid   = u.optLong("userId", -1);
 
-            ChoiceDialog<String> cd = new ChoiceDialog<>(choices.get(0), choices);
-            cd.setTitle("Send Request"); cd.setHeaderText(null); cd.setContentText("Select:");
-            cd.showAndWait().ifPresent(sel -> sendRequest(ids.get(choices.indexOf(sel)), sel));
+                Button userBtn = new Button(uname.toUpperCase());
+                userBtn.setMaxWidth(Double.MAX_VALUE);
+                userBtn.setStyle(
+                    "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
+                    "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;");
+                userBtn.setOnMouseEntered(ev -> userBtn.setStyle(
+                    "-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-border-color: #404040; -fx-border-width: 1; -fx-padding: 12; " +
+                    "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
+                userBtn.setOnMouseExited(ev -> userBtn.setStyle(
+                    "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
+                    "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
+                    "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
+                userBtn.setOnAction(ev -> {
+                    dialog.close();
+                    sendRequest(uid, uname);
+                });
+                resultsBox.getChildren().add(userBtn);
+            }
         });
+
+        dialog.showAndWait();
     }
 
     @FXML
