@@ -477,9 +477,8 @@ public class DatabaseManager {
                 String endStr = rs.getString("end_time");
 
                 // Parse them manually using the formatter
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime startTime = (startStr != null) ? LocalDateTime.parse(startStr, formatter) : null;
-                LocalDateTime endTime = (endStr != null) ? LocalDateTime.parse(endStr, formatter) : null;
+                LocalDateTime startTime = safeParseDate(startStr);
+                LocalDateTime endTime = safeParseDate(endStr);
 
                 StudySession session = new StudySession(user,
                         rs.getLong("id"),
@@ -523,8 +522,8 @@ public class DatabaseManager {
                     String endStr = rs.getString("end_time");
 
                     // Parse them manually to completely bypass JDBC Timestamp crashes
-                    LocalDateTime startTime = (startStr != null) ? LocalDateTime.parse(startStr, formatter) : null;
-                    LocalDateTime endTime = (endStr != null) ? LocalDateTime.parse(endStr, formatter) : null;
+                    LocalDateTime startTime = safeParseDate(startStr);
+                    LocalDateTime endTime = safeParseDate(endStr);
 
                     StudySession session = new StudySession(user,
                             rs.getLong("id"),
@@ -1191,7 +1190,7 @@ public class DatabaseManager {
 
             // Restore 1-to-1 Tables (Objects)
             restoreSingleRowFromJson("users", payload.optJSONObject("user"));
-            restoreSingleRowFromJson("user_stats", payload.optJSONObject("userStats"));
+            restoreSingleRowFromJson("user_stats", payload.optJSONObject("user_stats"));
             restoreSingleRowFromJson("settings", payload.optJSONObject("settings"));
             restoreSingleRowFromJson("multipliers", payload.optJSONObject("multipliers"));
             restoreSingleRowFromJson("inventory", payload.optJSONObject("inventory"));
@@ -1199,13 +1198,13 @@ public class DatabaseManager {
             // Restore 1-to-Many Tables (Arrays)
             restoreArrayFromJson("tasks", payload.optJSONArray("tasks"));
             restoreArrayFromJson("sessions", payload.optJSONArray("sessions"));
-            restoreArrayFromJson("user_achievements", payload.optJSONArray("userAchievements"));
-            restoreArrayFromJson("task_srs_history", payload.optJSONArray("taskSrsHistory"));
-            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventoryOwnedItems"));
-            restoreArrayFromJson("inventory_equipped_items", payload.optJSONArray("inventoryEquippedItems"));
+            restoreArrayFromJson("user_achievements", payload.optJSONArray("user_achievements"));
+            restoreArrayFromJson("task_srs_history", payload.optJSONArray("task_srs_history"));
+            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventory_owned_items"));
+            restoreArrayFromJson("inventory_equipped_items", payload.optJSONArray("inventory_equipped_items"));
             restoreArrayFromJson("friends", payload.optJSONArray("friends"));
-            restoreArrayFromJson("friend_requests", payload.optJSONArray("friendRequests"));
-            restoreArrayFromJson("study_groups", payload.optJSONArray("studyGroups"));
+            restoreArrayFromJson("friend_requests", payload.optJSONArray("friend_requests"));
+            restoreArrayFromJson("study_groups", payload.optJSONArray("study_groups"));
 
             connection.commit();
             System.out.println("Local database successfully restored from server payload!");
@@ -1259,6 +1258,26 @@ public class DatabaseManager {
                 stmt.addBatch();
             }
             stmt.executeBatch();
+        }
+    }
+
+    private LocalDateTime safeParseDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty() || dateStr.equals("null")) {
+            return null;
+        }
+        try {
+            // If it came from the server (ISO-8601 with 'T' and 'Z')
+            if (dateStr.contains("T")) {
+                return LocalDateTime.ofInstant(java.time.Instant.parse(dateStr), java.time.ZoneId.systemDefault());
+            } 
+            // If it was generated locally ("yyyy-MM-dd HH:mm:ss")
+            else {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                return LocalDateTime.parse(dateStr, formatter);
+            }
+        } catch (Exception e) {
+            System.err.println("Warning: Could not parse database date string: " + dateStr);
+            return null;
         }
     }
 

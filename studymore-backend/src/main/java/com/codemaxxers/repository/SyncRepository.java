@@ -110,15 +110,21 @@ public class SyncRepository {
             
             String dateStr = (String) value;
             try {
+                if (dateStr.endsWith("Z")) {
+                    return java.sql.Timestamp.from(java.time.Instant.parse(dateStr));
+                }
+                
                 dateStr = dateStr.replace("T", " ");
                 if (dateStr.length() == 10) {
                     dateStr += " 00:00:00";
                 }
                 return java.sql.Timestamp.valueOf(dateStr);
             } catch (Exception e) {
+                System.err.println("Warning: Could not parse timestamp for key " + key + ": " + dateStr);
                 return value;
             }
         }
+
         return value;
     }
 

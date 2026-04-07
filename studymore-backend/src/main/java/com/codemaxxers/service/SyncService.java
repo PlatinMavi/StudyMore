@@ -83,7 +83,7 @@ public class SyncService {
 
         // Social & Study Groups
         if (payload.getFriends() != null) {
-            syncRepository.upsertMultipleRowsComposite("friends", 
+            syncRepository.upsertMultipleRowsComposite("user_friends",
                 java.util.List.of("user_id", "friend_id"), payload.getFriends());
         }
 
@@ -104,8 +104,28 @@ public class SyncService {
         // 1-to-1 Mappings
         var users = jdbcTemplate.queryForList("SELECT * FROM users WHERE id = ?", userId);
         if (!users.isEmpty()) {
-            payload.setUser(users.get(0)); 
-            payload.setUserStats(users.get(0)); 
+            java.util.Map<String, Object> backendUser = users.get(0);
+            
+            // Build strictly frontend-compatible user object
+            java.util.Map<String, Object> frontendUser = new java.util.HashMap<>();
+            frontendUser.put("id", backendUser.get("id"));
+            frontendUser.put("username", backendUser.get("username"));
+            frontendUser.put("email", backendUser.get("email"));
+            frontendUser.put("password_hash", backendUser.get("password_hash"));
+            frontendUser.put("created_at", backendUser.get("created_at"));
+            
+            // Build strictly frontend-compatible user_stats object
+            java.util.Map<String, Object> frontendStats = new java.util.HashMap<>();
+            frontendStats.put("user_id", backendUser.get("id")); 
+            frontendStats.put("rank", backendUser.get("rank"));
+            frontendStats.put("rating", backendUser.get("rating"));
+            frontendStats.put("coin_balance", backendUser.get("coin_balance"));
+            frontendStats.put("study_streak", backendUser.get("study_streak"));
+            frontendStats.put("total_study_time", backendUser.get("total_study_time"));
+            frontendStats.put("daily_study_time", backendUser.get("daily_study_time"));
+            
+            payload.setUser(frontendUser);
+            payload.setUserStats(frontendStats);
         }
 
         var settings = jdbcTemplate.queryForList("SELECT * FROM settings WHERE id = ?", userId);
@@ -133,7 +153,10 @@ public class SyncService {
             "SELECT iei.* FROM inventory_equipped_items iei JOIN inventory i ON iei.inventory_id = i.id WHERE i.user_id = ?", userId));
 
         // Social
-        payload.setFriends(jdbcTemplate.queryForList("SELECT * FROM friends WHERE user_id = ? OR friend_id = ?", userId, userId));
+        payload.setFriends(jdbcTemplate.queryForList(
+            "SELECT * FROM user_friends WHERE user_id = ? OR friend_id = ?", 
+            userId, userId
+        ));
         payload.setFriendRequests(jdbcTemplate.queryForList("SELECT * FROM friend_requests WHERE sender_id = ? OR receiver_id = ?", userId, userId));
         payload.setStudyGroups(jdbcTemplate.queryForList(
             "SELECT DISTINCT sg.* FROM study_groups sg LEFT JOIN study_group_members sgm ON sg.id = sgm.group_id WHERE sg.host_id = ? OR sgm.user_id = ?", userId, userId));

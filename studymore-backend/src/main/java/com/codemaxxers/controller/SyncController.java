@@ -32,7 +32,7 @@ public class SyncController {
             
         } catch (Exception e) {
             System.err.println("Sync failed: " + e.getMessage());
-
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                 "status", "error",
                 "message", "Failed to synchronize database: " + e.getMessage()
@@ -47,6 +47,7 @@ public class SyncController {
             return ResponseEntity.ok(payload);
         } catch (Exception e) {
             System.err.println("Pull sync failed: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                 "status", "error",
                 "message", "Failed to pull user data: " + e.getMessage()

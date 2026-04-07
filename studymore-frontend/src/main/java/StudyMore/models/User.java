@@ -43,7 +43,7 @@ public class User {
         this.totalStudyTime = 0L;
         this.dailyStudyTime = 0L;
         this.mascotCat = new MascotCat(this.userId);
-        this.inventory = new Inventory(this.userId, this);
+        this.inventory = new Inventory(SnowflakeIDGenerator.generate(), this);
         this.friends = new java.util.ArrayList<>();
         this.tasks = new java.util.ArrayList<>();
     }

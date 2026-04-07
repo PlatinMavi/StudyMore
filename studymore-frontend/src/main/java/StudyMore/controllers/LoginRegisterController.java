@@ -51,12 +51,28 @@ public class LoginRegisterController {
                 long serverUserId = userJson.getLong("userId");
 
                 // Fetch Master Payload
-                String syncResponse = ApiClient.get("/api/sync/pull/" + serverUserId); 
+                String syncResponse = ApiClient.get("/sync/pull/" + serverUserId); 
                 org.json.JSONObject masterPayload = new org.json.JSONObject(syncResponse);
 
                 // WIPE AND REBUILD
                 Main.mngr.wipeAndRebuildDatabase();
                 Main.mngr.restoreFromSyncPayload(masterPayload);
+
+                try {
+                    String invSql = "INSERT OR IGNORE INTO inventory (id, user_id) VALUES (1, ?)";
+                    try (java.sql.PreparedStatement pstmt = Main.mngr.getConnection().prepareStatement(invSql)) {
+                        pstmt.setLong(1, serverUserId);
+                        pstmt.executeUpdate();
+                    }
+                    
+                    if (masterPayload.isNull("settings")) {
+                        Main.mngr.saveSettings(serverUserId, new StudyMore.models.Settings());
+                    }
+
+                    Main.settings = Main.mngr.getSettings(serverUserId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 Main.user = Main.mngr.getUser(serverUserId);
                 
@@ -111,8 +127,8 @@ public class LoginRegisterController {
         try {
             String response = ApiClient.postAuth("/auth/register", requestBody);
 
-            // Basic check to see if the server accepted it
-            if (response == null || response.contains("error") || response.contains("taken") || response.contains("use")) {
+
+            if (response == null || response.contains("\"error\"") || response.contains("taken") || response.contains("already in use")) {
                 showRegisterError("Registration failed. Username or email may already exist.");
                 return;
             }
@@ -139,6 +155,8 @@ public class LoginRegisterController {
                 // Initialize local states
                 Main.mngr.initializeNewUserInventory(generatedId);
                 Main.mngr.insertAchievements(generatedId);
+                Main.mngr.saveSettings(generatedId, new StudyMore.models.Settings());
+                Main.settings = Main.mngr.getSettings(generatedId);
                 Main.user = Main.mngr.getUser(generatedId);
 
                 try {
@@ -159,6 +177,7 @@ public class LoginRegisterController {
     }
 
     private void navigateToMain() throws Exception {
+        Main.startSyncLoop();
         Parent root = FXMLLoader.load(getClass().getResource("../fxml/Index.fxml"));
         Main.primarStageStatic.setTitle("StudyMore");
         Main.primarStageStatic.setScene(new Scene(root, 1200, 800));

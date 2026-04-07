@@ -27,10 +27,18 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> login(String email, String password) {
-        return userRepository.findByEmail(email)
-                .filter(u -> u.getPasswordHash().equals(sha256(password)));
-    }
+        public Optional<User> login(String identifier, String password) {
+            // Check if the identifier is an email first
+            Optional<User> user = userRepository.findByEmail(identifier);
+            
+            // If not found, check if it's a username
+            if (user.isEmpty()) {
+                user = userRepository.findByUsername(identifier);
+            }
+            
+            // Validate password if a user was found
+            return user.filter(u -> u.getPasswordHash().equals(sha256(password)));
+        }
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
