@@ -29,6 +29,11 @@ public class Main extends Application {
         if(check != -1) {
             user = mngr.getUser(check);
             settings = mngr.getSettings(user.getUserId()); 
+
+            if (settings == null) {
+                settings = new Settings();
+                mngr.saveSettings(user.getUserId(), settings);
+            }
             if (user != null) {
                 startSyncLoop();
                 Parent root = FXMLLoader.load(getClass().getResource("fxml/Index.fxml"));

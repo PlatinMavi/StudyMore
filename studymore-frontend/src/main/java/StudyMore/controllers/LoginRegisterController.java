@@ -41,61 +41,48 @@ public class LoginRegisterController {
             return;
         }
 
-        // Authenticate with the backend first
-        String loginBody = "{\"email\":\"" + username + "\", \"password\":\"" + password + "\"}";
+        String loginBody = "{\"username\":\"" + username + "\","
+                        + "\"passwordHash\":\"" + sha256(password) + "\"}";
+
         try {
             String loginResponse = ApiClient.postAuth("/auth/login", loginBody);
 
             if (loginResponse != null && loginResponse.contains("\"userId\"")) {
                 org.json.JSONObject userJson = new org.json.JSONObject(loginResponse);
                 long serverUserId = userJson.getLong("userId");
+                String email      = userJson.optString("email", "");
 
-                // Fetch Master Payload
-                String syncResponse = ApiClient.get("/sync/pull/" + serverUserId); 
-                org.json.JSONObject masterPayload = new org.json.JSONObject(syncResponse);
-
-                // WIPE AND REBUILD
-                Main.mngr.wipeAndRebuildDatabase();
-                Main.mngr.restoreFromSyncPayload(masterPayload);
-
-                try {
-                    String invSql = "INSERT OR IGNORE INTO inventory (id, user_id) VALUES (1, ?)";
-                    try (java.sql.PreparedStatement pstmt = Main.mngr.getConnection().prepareStatement(invSql)) {
-                        pstmt.setLong(1, serverUserId);
-                        pstmt.executeUpdate();
-                    }
-                    
-                    if (masterPayload.isNull("settings")) {
-                        Main.mngr.saveSettings(serverUserId, new StudyMore.models.Settings());
-                    }
-
-                    Main.settings = Main.mngr.getSettings(serverUserId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                Main.user = Main.mngr.getUser(serverUserId);
-                
-                // Start heartbeat/sync loops
-                try {
-                    ApiClient.postAuth("/auth/users/heartbeat", "{\"userId\":" + serverUserId + "}");
-                } catch (Exception ignored) {}
-
-                navigateToMain();
-            } else {
-                // Not found on server, fallback to local check (for offline logins)
-                String sql = "SELECT id FROM users WHERE email = ? AND password_hash = ?";
-                try (java.sql.PreparedStatement pstmt = Main.mngr.getConnection().prepareStatement(sql)) {
-                    pstmt.setString(1, username);
-                    pstmt.setString(2, sha256(password));
-                    try (java.sql.ResultSet rs = pstmt.executeQuery()) {
-                        if (rs.next()) {
-                            Main.user = Main.mngr.getUser(rs.getLong("id"));
-                            navigateToMain();
-                            return;
+                try (java.sql.PreparedStatement check = Main.mngr.getConnection().prepareStatement(
+                        "SELECT id FROM users WHERE id = ?")) {
+                    check.setLong(1, serverUserId);
+                    try (java.sql.ResultSet rs = check.executeQuery()) {
+                        if (!rs.next()) {
+                            try (java.sql.PreparedStatement ins = Main.mngr.getConnection().prepareStatement(
+                                    "INSERT INTO users(id, username, email, password_hash) VALUES(?,?,?,?)")) {
+                                ins.setLong(1, serverUserId);
+                                ins.setString(2, username);
+                                ins.setString(3, email);
+                                ins.setString(4, sha256(password));
+                                ins.executeUpdate();
+                            }
+                            Main.mngr.initializeNewUserInventory(serverUserId);
+                            Main.mngr.insertAchievements(serverUserId);
+                            Main.mngr.saveSettings(serverUserId, new StudyMore.models.Settings());
                         }
                     }
                 }
+
+                Main.user = Main.mngr.getUser(serverUserId);
+
+                try {
+                    ApiClient.postAuth("/auth/users/heartbeat",
+                            "{\"userId\":" + serverUserId + "}");
+                } catch (Exception ignored) {}
+
+                Main.startSyncLoop();
+                navigateToMain();
+
+            } else {
                 showLoginError("Invalid username or password.");
             }
         } catch (Exception e) {

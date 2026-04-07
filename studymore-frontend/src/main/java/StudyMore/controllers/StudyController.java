@@ -43,11 +43,19 @@ public class StudyController {
     private Timeline breakTimeline;
 
     public void initialize() {
-        StudyMore.models.Settings settings = Main.settings; 
-        STUDY_SECONDS = settings.getStudyTime() * 60;
+        StudyMore.models.Settings settings = Main.settings;
+        if (settings == null) {
+            settings = Main.mngr.getSettings(Main.user.getUserId());
+        }
+        if (settings == null) {
+            settings = new StudyMore.models.Settings();
+            Main.mngr.saveSettings(Main.user.getUserId(), settings);
+            Main.settings = settings;
+        }
+
+        STUDY_SECONDS       = settings.getStudyTime() * 60;
         SHORT_BREAK_SECONDS = settings.getShortBreak() * 60;
         LONG_BREAK_SECONDS  = settings.getLongBreak() * 60;
-
 
         catSkin.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_SKIN).getImagePath()));
         catHouse.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_HOUSE).getImagePath()));
@@ -55,7 +63,7 @@ public class StudyController {
         session = new StudySession(Main.user);
         streakLabel.setText(Main.user.getStudyStreak() + " Days");
         updateTimerLabel(session.getDuration());
-        studyTimeline = buildStudyTimeline(); 
+        studyTimeline = buildStudyTimeline();
 
         loadGroupLeaderboard();
     }
