@@ -65,8 +65,8 @@ public class FriendsController {
             if (lastSeenStr != null) {
                 try {
                     java.time.LocalDateTime lastSeen = java.time.LocalDateTime.parse(lastSeenStr);
-                    long minutesAgo = java.time.Duration.between(lastSeen,
-                            java.time.LocalDateTime.now()).toMinutes();
+                    java.time.LocalDateTime utcNow = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
+                    long minutesAgo = java.time.Duration.between(lastSeen, utcNow).toMinutes();
                     if (minutesAgo <= 2) {
                         online     = true;
                         statusText = "ONLINE";
