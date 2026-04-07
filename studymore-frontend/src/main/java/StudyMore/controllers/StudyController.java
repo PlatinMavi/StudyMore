@@ -7,6 +7,7 @@ import StudyMore.models.StudySession;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -33,6 +34,8 @@ public class StudyController {
     @FXML private ImageView catSkin;
     @FXML private ImageView catHouse;
     @FXML private VBox leaderboardContainer;
+    @FXML private VBox studyTasksContainer;
+    @FXML private Label userRankLabel;
 
     private int LONG_BREAK_SECONDS  = 1200; // 20 min
     private int SHORT_BREAK_SECONDS = 600;  // 10 min
@@ -64,8 +67,9 @@ public class StudyController {
         streakLabel.setText(Main.user.getStudyStreak() + " Days");
         updateTimerLabel(session.getDuration());
         studyTimeline = buildStudyTimeline();
-
+        
         loadGroupLeaderboard();
+        loadDueTasks();
     }
 
     // FXML handlers
@@ -139,6 +143,11 @@ public class StudyController {
             long   sec    = u.optLong("totalStudyTime", 0);
             int    hours  = (int)(sec / 3600);
             boolean isMe  = (uid == Main.user.getUserId());
+
+            if (isMe) {
+                userRankLabel.setText((i + 1) + ". You");
+            }
+            
             leaderboardContainer.getChildren().add(
                 buildLeaderboardRow(i + 1, isMe ? "You" : uname, hours, isMe));
         }
@@ -270,5 +279,69 @@ public class StudyController {
 
     private void updateMultiplier(double val) {
         multiplierLabel.setText(String.format("%.1fx", val));
+    }
+
+    private void loadDueTasks() {
+        studyTasksContainer.getChildren().clear();
+
+        if (Main.user == null || Main.user.getTasks() == null) return;
+
+        for (StudyMore.models.Task task : Main.user.getTasks()) {
+            // State 0 = active/due today for both normal and SRS tasks
+            if (task.getCurrentState() == 0) {
+                addTaskToGrid(task);
+            }
+        }
+    }
+
+    private void addTaskToGrid(StudyMore.models.Task task) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../fxml/TaskCard.fxml"));
+            VBox card = loader.load();
+
+            Label titleLabel = (Label) loader.getNamespace().get("taskTitle");
+            Label contentLabel = (Label) loader.getNamespace().get("taskContent");
+            VBox srsBadge = (VBox) loader.getNamespace().get("srsBadgeContainer");
+            Label recallLabel = (Label) loader.getNamespace().get("recallLabel");
+
+            // STRICT READ-ONLY MODE (user is not supposed to interact with the task from study page)
+            Button configBtn = (Button) loader.getNamespace().get("configBtn");
+            Button completeBtn = (Button) loader.getNamespace().get("completeBtn");
+            
+            if (configBtn != null) {
+                configBtn.setVisible(false);
+                configBtn.setManaged(false); // Collapses the space completely
+            }
+            if (completeBtn != null) {
+                completeBtn.setVisible(false);
+                completeBtn.setManaged(false); // Collapses the space completely
+            }
+
+            // Disables the entire card to kill any hover effects or cursor changes
+            card.setFocusTraversable(false);
+            card.setStyle(card.getStyle() + " -fx-cursor: default;");
+
+            // Populate Text
+            if (titleLabel != null) titleLabel.setText(task.getTitle().toUpperCase());
+            if (contentLabel != null) contentLabel.setText(task.getContent());
+
+            // Handle SRS Badge
+            if (task.isSrsEnabled()) {
+                if (srsBadge != null) {
+                    srsBadge.setManaged(true);
+                    srsBadge.setVisible(true);
+                }
+                if (recallLabel != null) recallLabel.setText("DUE NOW"); 
+            } else {
+                if (srsBadge != null) {
+                    srsBadge.setManaged(false);
+                    srsBadge.setVisible(false);
+                }
+            }
+
+            studyTasksContainer.getChildren().add(card);
+        } catch (java.io.IOException e) {
+            System.err.println("Error loading TaskCard in Study page: " + e.getMessage());
+        }
     }
 }
