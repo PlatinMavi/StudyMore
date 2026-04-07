@@ -73,7 +73,7 @@ public class FriendService {
     }
     @Transactional(readOnly = true)
     public List<FriendRequest> getPendingRequests(Long userId) {
-        return friendRequestRepository.findByReceiver_UserIdAndStatus(userId, RequestStatus.PENDING); // ← UserId
+        return friendRequestRepository.findByReceiverUserIdAndStatus(userId, RequestStatus.PENDING);
     }
  
     // helper
