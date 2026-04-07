@@ -31,7 +31,7 @@ public class SettingsController {
     @FXML
     public void initialize() {
         db = new DatabaseManager();
-        settings = db.getSettings(currentUserId);
+        settings = Main.settings;
         loadSettings();
     }
 
@@ -74,6 +74,7 @@ public class SettingsController {
         }
 
         db.saveSettings(currentUserId, settings);
+        applySettingsGlobally(); 
         unsavedLabel.setVisible(false);
         System.out.println("Settings saved successfully.");
     }
@@ -82,9 +83,19 @@ public class SettingsController {
     private void resetDefaults() {
         settings.resetDefaults();
         db.saveSettings(currentUserId, settings);
+        applySettingsGlobally(); 
         loadSettings();
     }
 
+    private void applySettingsGlobally() {
+        javafx.scene.Scene scene = Main.primarStageStatic.getScene();
+        if (settings.isDarkMode()) {
+            scene.getRoot().getStyleClass().add("light-mode");
+        } else {
+            scene.getRoot().getStyleClass().remove("light-mode");
+        }
+    }
+    
     @FXML
     private void handleLogout(javafx.event.ActionEvent event) {
         System.out.println("Initiating logout...");
