@@ -1168,20 +1168,37 @@ public class DatabaseManager {
     }
 
     public void wipeAndRebuildDatabase() {
-        closeConnection();
-        
-        java.io.File dbFile = new java.io.File("studymore_database.db");
-        if (dbFile.exists()) {
-            boolean deleted = dbFile.delete();
-            if (deleted) {
-                System.out.println("Old local database wiped successfully.");
-            } else {
-                System.err.println("Failed to delete the local database file. It might be locked.");
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(DB_URL);
             }
-        }
 
-        initilizeDB(); 
-        insertAssets(); 
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute("PRAGMA foreign_keys = OFF");
+
+                List<String> tables = new ArrayList<>();
+                try (ResultSet rs = stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")) {
+                    while (rs.next()) {
+                        tables.add(rs.getString("name"));
+                    }
+                }
+
+                for (String table : tables) {
+                    stmt.execute("DROP TABLE IF EXISTS " + table);
+                }
+
+                stmt.execute("PRAGMA foreign_keys = ON");
+            }
+
+            System.out.println("All data wiped successfully from the existing database file.");
+
+            // Rebuild the schema and repopulate default assets
+            createTables();
+            insertAssets();
+
+        } catch (SQLException e) {
+            System.err.println("Failed to wipe existing database file: " + e.getMessage());
+        }
     }
 
     public void restoreFromSyncPayload(JSONObject payload) {
