@@ -11,14 +11,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.json.JSONObject;
-
 import StudyMore.models.User;
 
 public class Main extends Application {
     public static DatabaseManager mngr;
     public static Stage primarStageStatic;
     public static User user;
+    private static ScheduledExecutorService syncScheduler;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -86,9 +85,16 @@ public class Main extends Application {
         return -1;
     }
 
-    private void startSyncLoop() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> {
+    public static void startSyncLoop() {
+        // Prevent multiple loops from starting if called twice
+        if (syncScheduler != null && !syncScheduler.isShutdown()) {
+            return; 
+        }
+
+        syncScheduler = Executors.newSingleThreadScheduledExecutor();
+        syncScheduler.scheduleAtFixedRate(() -> {
+            if (user == null) return; // Failsafe
+
             // Heartbeat
             try {
                 String heartbeatBody = "{\"userId\":" + user.getUserId() + "}";
@@ -98,14 +104,21 @@ public class Main extends Application {
             }
 
             // Sync
-            JSONObject payload = Main.mngr.loadSyncPayload(user.getUserId());
+            org.json.JSONObject payload = Main.mngr.loadSyncPayload(user.getUserId());
             try {
-                JSONObject response = ApiClient.sync(user.getUserId(), payload);
-                System.out.println(response.toString(1));
+                org.json.JSONObject response = ApiClient.sync(user.getUserId(), payload); 
+                System.out.println("Auto-sync successful.");
             } catch (Exception e) {
                 System.out.println("ERROR SYNC");
             }
-        }, 0, 2, TimeUnit.MINUTES);
+        }, 0, 20, TimeUnit.MINUTES); 
+    }
+
+    public static void stopSyncLoop() {
+        if (syncScheduler != null && !syncScheduler.isShutdown()) {
+            syncScheduler.shutdownNow();
+            syncScheduler = null;
+        }
     }
 }
     

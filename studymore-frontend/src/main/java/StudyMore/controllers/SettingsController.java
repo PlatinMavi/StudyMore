@@ -1,5 +1,6 @@
 package StudyMore.controllers;
 
+import StudyMore.Main;
 import StudyMore.db.DatabaseManager;
 import StudyMore.models.Settings;
 import javafx.fxml.FXML;
@@ -82,5 +83,22 @@ public class SettingsController {
         settings.resetDefaults();
         db.saveSettings(currentUserId, settings);
         loadSettings();
+    }
+
+    @FXML
+    private void handleLogout(javafx.event.ActionEvent event) {
+        System.out.println("Initiating logout...");
+
+        Main.stopSyncLoop();
+
+        if (Main.mngr != null) {
+            Main.mngr.wipeAndRebuildDatabase();
+        }
+
+        Main.user = null;
+
+        System.out.println("Exiting application...");
+        javafx.application.Platform.exit();
+        System.exit(0);
     }
 }

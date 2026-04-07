@@ -262,7 +262,15 @@
                             text="RESET DEFAULTS">
                             <font><Font name="System Bold" size="11.0" /></font>
                         </Button>
+                        
+                        <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout"
+                            style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-padding: 12 16;"
+                            text="LOGOUT &amp; EXIT">
+                            <font><Font name="System Bold" size="11.0" /></font>
+                        </Button>
+
                         <AnchorPane HBox.hgrow="ALWAYS" />
+                        
                         <Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveSettings"
                             style="-fx-background-color: white; -fx-text-fill: black; -fx-padding: 12 32; -fx-border-color: white;"
                             text="SAVE CHANGES">
