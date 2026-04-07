@@ -23,12 +23,20 @@ public class StudySession {
     private int breakDuration;
     private int breakTimeRemaining;
 
+    private int unrewardedSeconds;
+    private int reportedHours;
+    private int reportedCoins;
+
     public StudySession(User user) {
         this.user = user;
         this.multiplier = new Multiplier();
         this.duration = 0;
         this.coinsEarned = 0;
         this.state = SessionState.IDLE;
+
+        this.unrewardedSeconds = 0;
+        this.reportedHours = 0;
+        this.reportedCoins = 0;
 
         StudySession existing = Main.mngr.getTodaysStudySession(user);
 
@@ -60,6 +68,11 @@ public class StudySession {
         this.duration = duration;
         this.coinsEarned = coinsEarned;
         this.state = (endTime != null) ? SessionState.IDLE : SessionState.STUDYING;
+
+        this.reportedHours = duration / 3600;
+        this.reportedCoins = coinsEarned;
+        this.unrewardedSeconds = duration % 60;
+
         System.out.println("LOG: Restored session ID: " + this.sessionID);
     }
 
@@ -74,15 +87,28 @@ public class StudySession {
     public void end() {
         endTime = LocalDateTime.now();
         
-        int hoursStudied = duration / 3600;
+        int totalHours = duration / 3600;
+        
+        // Delta logic
+        int hoursToReport = totalHours - reportedHours;
+        int coinsToReport = coinsEarned - reportedCoins;
 
-        AchievementsController.updateProgress(user.getUserId(), "TIME_BASED",   hoursStudied);
-        AchievementsController.updateProgress(user.getUserId(), "COIN_BASED",   coinsEarned);
+        if (hoursToReport > 0) {
+            AchievementsController.updateProgress(user.getUserId(), "TIME_BASED", hoursToReport);
+            reportedHours = totalHours;
+        }
+
+        if (coinsToReport > 0) {
+            AchievementsController.updateProgress(user.getUserId(), "COIN_BASED", coinsToReport);
+            reportedCoins = coinsEarned;
+        }
+
         AchievementsController.updateProgress(user.getUserId(), "STREAK_BASED", user.getStudyStreak()); 
     }
 
     public void incrementDuration() {
         duration++; // handles internal duration 
+        unrewardedSeconds++; // handles the delta duration
         multiplier.increment(); // handles multiplier
         updateSession();
     }
@@ -135,7 +161,15 @@ public class StudySession {
     }
 
     public void calculateCoins() {
-        coinsEarned = (int)((duration / 60) * multiplier.getValue());
+        int chunks = unrewardedSeconds / 60;
+        
+        if (chunks > 0) {
+            int newCoins = (int)(chunks * multiplier.getValue());
+            coinsEarned += newCoins;
+            
+            // keeps the remaining seconds after rewarding for each whole minute
+            unrewardedSeconds -= (chunks * 60); 
+        }
     }
 
     public void updateSession() {
