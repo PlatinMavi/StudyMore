@@ -118,7 +118,7 @@ public class Main extends Application {
             } catch (Exception e) {
                 System.out.println("ERROR SYNC");
             }
-        }, 0, 2, TimeUnit.MINUTES); 
+        }, 0, 5, TimeUnit.MINUTES); 
     }
 
     public static void stopSyncLoop() {
