@@ -41,11 +41,14 @@ public class StudyController {
     private int SHORT_BREAK_SECONDS = 600;  // 10 min
     private int STUDY_SECONDS = 1500; 
 
-    private StudySession session;
-    private Timeline studyTimeline;
-    private Timeline breakTimeline;
+    private static StudySession session;
+    private static Timeline studyTimeline;
+    private static Timeline breakTimeline;
+    private static StudyController currentInstance;
 
-    public void initialize() {
+public void initialize() {
+        currentInstance = this;
+
         StudyMore.models.Settings settings = Main.settings;
         if (settings == null) {
             settings = Main.mngr.getSettings(Main.user.getUserId());
@@ -63,17 +66,33 @@ public class StudyController {
         catSkin.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_SKIN).getImagePath()));
         catHouse.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_HOUSE).getImagePath()));
         studyTime.setText(ProfileController.calculateStudyTimes()[1] + "H");
-        session = new StudySession(Main.user);
         streakLabel.setText(Main.user.getStudyStreak() + " Days");
-        updateTimerLabel(session.getDuration());
-        studyTimeline = buildStudyTimeline();
-        
+
+        // Session is created only if it doesnt already exist
+        if (session == null) {
+            session = new StudySession(Main.user);
+            studyTimeline = buildStudyTimeline();
+            breakTimeline = buildBreakTimeline();
+        }
+
+        // Sync the ui with the background state
+        if (session.getState() == SessionState.STUDYING) {
+            timerControlButton.setText("STOP");
+            updateTimerLabel(session.getDuration());
+        } else if (session.getState() == SessionState.ON_BREAK) {
+            timerControlButton.setText("START");
+            updateTimerLabel(session.getBreakTimeRemaining());
+        } else {
+            timerControlButton.setText("START");
+            updateTimerLabel(session.getDuration());
+        }
+
+        updateMultiplier(session.getMultiplier().getValue());
         loadGroupLeaderboard();
         loadDueTasks();
     }
 
     // FXML handlers
-
     @FXML
     private void timerController() {
         if (session.getState() == SessionState.STUDYING) {
@@ -219,21 +238,26 @@ public class StudyController {
         breakTimeline.play();
     }
 
-    private void stopBreakTimeline() {
+    private static void stopBreakTimeline() {
         if (breakTimeline != null) {
             breakTimeline.stop();
         }
     }
 
     // Timeline builders
-
-    private Timeline buildStudyTimeline() {
+    private static Timeline buildStudyTimeline() {
         KeyFrame keyFrame = new KeyFrame(Duration.seconds(1), e -> {
-            session.incrementDuration();
-            updateTimerLabel(session.getDuration());
-
-            if(session.getMultiplier().isUpdated()) {
-                updateMultiplier(session.getMultiplier().getValue());
+            if (session != null) {
+                session.incrementDuration();
+                
+                // Only update UI if the Study page is currently open
+                if (currentInstance != null) {
+                    currentInstance.updateTimerLabel(session.getDuration());
+                    
+                    if(session.getMultiplier().isUpdated()) {
+                        currentInstance.updateMultiplier(session.getMultiplier().getValue());
+                    }
+                }
             }
         });
 
@@ -242,18 +266,29 @@ public class StudyController {
         return tl;
     }
 
-    private Timeline buildBreakTimeline() {
+    private static Timeline buildBreakTimeline() {
         KeyFrame keyFrame = new KeyFrame(Duration.seconds(1), e -> {
-            session.tickBreak();
+            if (session != null) {
+                session.tickBreak();
 
-            if (session.isBreakOver()) {
-                stopBreakTimeline();
-                startTimer();
-            } else {
-                updateTimerLabel(session.getBreakTimeRemaining());
-
-                if(session.getMultiplier().isUpdated()) {
-                    updateMultiplier(session.getMultiplier().getValue());
+                if (session.isBreakOver()) {
+                    if (breakTimeline != null) breakTimeline.stop();
+                    
+                    // Auto-start study in the background
+                    session.start();
+                    if (studyTimeline != null) studyTimeline.play();
+                    
+                    // Update UI button if they are looking at it
+                    if (currentInstance != null) {
+                        currentInstance.timerControlButton.setText("STOP");
+                    }
+                } else {
+                    if (currentInstance != null) {
+                        currentInstance.updateTimerLabel(session.getBreakTimeRemaining());
+                        if(session.getMultiplier().isUpdated()) {
+                            currentInstance.updateMultiplier(session.getMultiplier().getValue());
+                        }
+                    }
                 }
             }
         });
