@@ -146,6 +146,15 @@ public class FriendsController {
         int  studyGoal = group.optInt("studyGoal", 50);
         goalLabel.setText("GOAL: " + studyGoal + "H");
 
+        Button inviteBtn = new Button("+ INVITE FRIEND");
+        inviteBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #fbbf24; " +
+                        "-fx-border-color: #fbbf24; -fx-border-width: 1; -fx-border-radius: 2; " +
+                        "-fx-font-size: 10px; -fx-font-family: monospace; -fx-font-weight: bold; " +
+                        "-fx-padding: 4 10; -fx-cursor: hand;");
+        final long finalGroupId = groupId;
+        inviteBtn.setOnAction(e -> inviteFriendToGroup(finalGroupId));
+        leaderboardContainer.getChildren().add(inviteBtn);
+
         JSONArray members;
         try {
             members = new JSONArray(ApiClient.get("/groups/" + groupId + "/leaderboard"));
@@ -341,5 +350,53 @@ public class FriendsController {
 
     private void setStatus(String msg) {
         if (statusLabel != null) statusLabel.setText(msg);
+    }
+
+    private void inviteFriendToGroup(long groupId) {
+        
+        JSONArray arr;
+        try {
+            arr = new JSONArray(ApiClient.get("/friends/" + Main.user.getUserId()));
+        } catch (Exception e) {
+            setStatus("Error loading friends.");
+            return;
+        }
+
+        if (arr.isEmpty()) {
+            setStatus("No friends to invite.");
+            return;
+        }
+
+        List<String> names = new ArrayList<>();
+        List<Long>   ids   = new ArrayList<>();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject u = arr.getJSONObject(i);
+            names.add(u.optString("username", "?"));
+            ids.add(u.optLong("userId", -1));
+        }
+
+        ChoiceDialog<String> d = new ChoiceDialog<>(names.get(0), names);
+        d.setTitle("Invite to Group");
+        d.setHeaderText(null);
+        d.setContentText("Select friend to invite:");
+        d.showAndWait().ifPresent(sel -> {
+            int idx = names.indexOf(sel);
+            long friendId = ids.get(idx);
+
+            String response = ApiClient.post(
+                "/groups/" + groupId + "/join?userId=" + friendId, "");
+
+            try {
+                JSONObject res = new JSONObject(response);
+                if (res.has("error")) {
+                    setStatus("Could not invite: " + res.getString("error"));
+                } else {
+                    setStatus(sel + " added to group!");
+                    loadGroupLeaderboard();
+                }
+            } catch (Exception e) {
+                setStatus("Error: " + e.getMessage());
+            }
+        });
     }
 }
