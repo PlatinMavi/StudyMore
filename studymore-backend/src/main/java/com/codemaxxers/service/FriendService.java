@@ -1,5 +1,6 @@
 package com.codemaxxers.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,13 +64,12 @@ public class FriendService {
         req.deny();
         return friendRequestRepository.save(req);
     }
+    @Transactional(readOnly = true)
     public List<User> getFriends(Long userId) {
-        return friendRequestRepository.findAcceptedByUserId(userId)
-                .stream()
-                .map(req -> req.getSender().getUserId().equals(userId)  // ← getUserId()
-                        ? req.getReceiver()
-                        : req.getSender())
-                .collect(Collectors.toList());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.getFriends().size();
+        return new ArrayList<>(user.getFriends());
     }
     @Transactional(readOnly = true)
     public List<FriendRequest> getPendingRequests(Long userId) {

@@ -27,12 +27,12 @@ public class FriendController {
             List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
             for (User u : friends) {
                 java.util.Map<String, Object> map = new java.util.HashMap<>();
-                map.put("userId",       u.getUserId());
-                map.put("username",     u.getUsername());
-                map.put("email",        u.getEmail());
-                map.put("coinBalance",  u.getCoinBalance());
-                map.put("rank",         u.getRank());
-                map.put("lastSeen",     u.getLastSeen());
+                map.put("userId",         u.getUserId());
+                map.put("username",       u.getUsername());
+                map.put("email",          u.getEmail());
+                map.put("coinBalance",    u.getCoinBalance());
+                map.put("rank",           u.getRank());
+                map.put("lastSeen",       u.getLastSeen());
                 map.put("totalStudyTime", u.getTotalStudyTime());
                 result.add(map);
             }
