@@ -53,6 +53,14 @@ public class Main extends Application {
     @Override
     public void stop() throws Exception {
         stopSyncLoop();
+
+        org.json.JSONObject payload = Main.mngr.loadSyncPayload(user.getUserId());
+        try {
+            org.json.JSONObject response = ApiClient.sync(user.getUserId(), payload); 
+            System.out.println("Auto-sync successful.");
+        } catch (Exception e) {
+            System.out.println("ERROR SYNC");
+        }
         
         if(mngr != null) {
             mngr.closeConnection();
