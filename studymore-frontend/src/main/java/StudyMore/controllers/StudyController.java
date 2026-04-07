@@ -43,7 +43,7 @@ public class StudyController {
     private Timeline breakTimeline;
 
     public void initialize() {
-        StudyMore.models.Settings settings = Main.mngr.getSettings(Main.user.getUserId());
+        StudyMore.models.Settings settings = Main.settings; 
         STUDY_SECONDS = settings.getStudyTime() * 60;
         SHORT_BREAK_SECONDS = settings.getShortBreak() * 60;
         LONG_BREAK_SECONDS  = settings.getLongBreak() * 60;
