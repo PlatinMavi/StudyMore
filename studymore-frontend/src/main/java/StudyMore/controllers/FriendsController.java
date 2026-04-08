@@ -131,7 +131,9 @@ public class FriendsController {
             try { sg = Integer.parseInt(g.optString("studyGoal", "50")); } catch (NumberFormatException ignored) {}
             studyGoals.add(sg);
         }
-
+        final Label groupNameLbl = new Label(groupTitles.get(0).toUpperCase());
+        groupNameLbl.setStyle(
+            "-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 24 0 24;");
         if (groups.length() > 1) {
             ComboBox<String> groupPicker = new ComboBox<>();
             groupPicker.getItems().addAll(groupTitles);
@@ -147,26 +149,33 @@ public class FriendsController {
             final List<Integer> fGoals = studyGoals;
             groupPicker.setOnAction(e -> {
                 int idx = groupPicker.getSelectionModel().getSelectedIndex();
-                if (idx >= 0) loadGroupById(fIds.get(idx), fGoals.get(idx));
+                if (idx >= 0) {
+                    groupNameLbl.setText(groupTitles.get(idx).toUpperCase());
+                    loadGroupById(fIds.get(idx), fGoals.get(idx));
+                }
             });
             leaderboardContainer.getChildren().add(groupPicker);
         }
-
+        
+        leaderboardContainer.getChildren().add(groupNameLbl);
         loadGroupById(groupIds.get(0), studyGoals.get(0));
     }
 
     private void loadGroupById(long groupId, int studyGoal) {
-        javafx.scene.Node comboBox = null;
-        if (!leaderboardContainer.getChildren().isEmpty() &&
-                leaderboardContainer.getChildren().get(0) instanceof ComboBox) {
-            comboBox = leaderboardContainer.getChildren().get(0);
+        List<javafx.scene.Node> toKeep = new ArrayList<>();
+        for (javafx.scene.Node node : leaderboardContainer.getChildren()) {
+            if (node instanceof ComboBox || node instanceof Label) {
+                toKeep.add(node);
+            } else {
+                break;
+            }
         }
         leaderboardContainer.getChildren().clear();
-        if (comboBox != null) leaderboardContainer.getChildren().add(comboBox);
+        leaderboardContainer.getChildren().addAll(toKeep);
 
         goalLabel.setText("GOAL: " + studyGoal + "H");
 
-        Button inviteBtn = new Button("+ INVITE FRIEND");
+        Button inviteBtn = new Button("+ ADD FRIEND TO GROUP");
         inviteBtn.setStyle(
             "-fx-background-color: transparent; -fx-text-fill: white; " +
             "-fx-border-color: #262626; -fx-border-width: 1; " +
@@ -208,10 +217,15 @@ public class FriendsController {
         for (int i = 0; i < members.length(); i++) {
             memberList.add(members.getJSONObject(i));
         }
-        memberList.sort((a, b) -> Long.compare(
-            b.optLong("totalStudyTime", 0),
-            a.optLong("totalStudyTime", 0)
-        ));
+        memberList.sort((a, b) -> {
+            long diff = b.optLong("totalStudyTime", 0) - a.optLong("totalStudyTime", 0);
+            if (diff != 0) return (int) Math.signum(diff);
+            boolean aIsMe = a.optLong("userId", -1) == Main.user.getUserId();
+            boolean bIsMe = b.optLong("userId", -1) == Main.user.getUserId();
+            if (aIsMe) return -1;
+            if (bIsMe) return 1;
+            return 0;
+        });
 
         long maxSec = 1;
         for (JSONObject u : memberList) {
