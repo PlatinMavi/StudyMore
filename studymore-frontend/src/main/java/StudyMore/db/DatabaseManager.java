@@ -575,7 +575,7 @@ public class DatabaseManager {
 
     public void initializeNewUserInventory(long userId) {
         // Added SQL to insert the base inventory row
-        String createInventorySQL = "INSERT INTO inventory (user_id) VALUES (?) ON CONFLICT DO NOTHING";
+        String createInventorySQL = "INSERT INTO inventory (id, user_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
         String getInventoryId = "SELECT id FROM inventory WHERE user_id = ?";
         String firstCosmeticSQL = "SELECT id FROM cosmetics WHERE type = ? ORDER BY id ASC LIMIT 1";
         String insertOwnedSQL = "INSERT INTO inventory_owned_items (inventory_id, cosmetic_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
@@ -585,6 +585,7 @@ public class DatabaseManager {
             // Create the inventory row for the new user
             try (PreparedStatement createStmt = connection.prepareStatement(createInventorySQL)) {
                 createStmt.setLong(1, userId);
+                createStmt.setLong(2, userId); // Explicitly tie the PK to the User ID
                 createStmt.executeUpdate();
             }
 
@@ -1055,13 +1056,8 @@ public class DatabaseManager {
                 "SELECT tsh.* FROM task_srs_history tsh JOIN tasks t ON tsh.task_id = t.id WHERE t.user_id = ?", 
                 userId));
                 
-            payload.put("inventoryOwnedItems", fetchArray(
-                "SELECT ioi.* FROM inventory_owned_items ioi JOIN inventory i ON ioi.inventory_id = i.id WHERE i.user_id = ?", 
-                userId));
-                
-            payload.put("inventoryEquippedItems", fetchArray(
-                "SELECT iei.* FROM inventory_equipped_items iei JOIN inventory i ON iei.inventory_id = i.id WHERE i.user_id = ?", 
-                userId));
+            payload.put("inventory_owned_items", fetchArray("SELECT ioi.* FROM inventory_owned_items ioi JOIN inventory i ON ioi.inventory_id = i.id WHERE i.user_id = ?", userId));
+            payload.put("inventory_equipped_items", fetchArray("SELECT iei.* FROM inventory_equipped_items iei JOIN inventory i ON iei.inventory_id = i.id WHERE i.user_id = ?", userId));
 
             // Social & Study Groups
             payload.put("friends", fetchArray(
@@ -1205,8 +1201,8 @@ public class DatabaseManager {
             restoreArrayFromJson("sessions", payload.optJSONArray("sessions"));
             restoreArrayFromJson("user_achievements", payload.optJSONArray("userAchievements")); 
             restoreArrayFromJson("task_srs_history", payload.optJSONArray("taskSrsHistory")); 
-            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventoryOwnedItems")); 
-            restoreArrayFromJson("inventory_equipped_items", payload.optJSONArray("inventoryEquippedItems")); 
+            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventory_owned_items")); 
+            restoreArrayFromJson("inventory_equipped_items", payload.optJSONArray("inventory_equipped_items"));
             restoreArrayFromJson("friends", payload.optJSONArray("friends"));
             restoreArrayFromJson("friend_requests", payload.optJSONArray("friendRequests")); 
             restoreArrayFromJson("study_groups", payload.optJSONArray("studyGroups")); 

@@ -1,5 +1,6 @@
 package StudyMore.controllers;
 
+import StudyMore.ApiClient;
 import StudyMore.Main;
 import StudyMore.db.DatabaseManager;
 import StudyMore.models.Settings;
@@ -89,6 +90,14 @@ public class SettingsController {
         System.out.println("Initiating logout...");
 
         Main.stopSyncLoop();
+
+        org.json.JSONObject payload = Main.mngr.loadSyncPayload(Main.user.getUserId());
+        try {
+            org.json.JSONObject response = ApiClient.sync(Main.user.getUserId(), payload);
+            System.out.println("Auto-sync successful.");
+        } catch (Exception e) {
+            System.out.println("ERROR SYNC");
+        }
 
         if (Main.mngr != null) {
             Main.mngr.wipeAndRebuildDatabase();
