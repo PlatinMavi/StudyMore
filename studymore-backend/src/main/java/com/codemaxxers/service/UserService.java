@@ -43,15 +43,18 @@ public class UserService {
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 
-    public Map<String, String> syncUser(Long userId, String username, String email, String passwordHash) {
-        if (userRepository.existsById(userId)) {
-            return Map.of("status", "exists");
-        }
-        User u = new User(username, email, passwordHash);
-        u.setUserId(userId);
-        userRepository.save(u);
-        return Map.of("status", "created");
+    public User syncUser(Long userId, String username, String email, String passwordHash, Integer coinBalance) {
+        User user = userRepository.findById(userId).orElse(new User());
+        user.setUserId(userId);
+        if (username != null) user.setUsername(username);
+        if (email != null) user.setEmail(email);
+        if (passwordHash != null) user.setPasswordHash(passwordHash);
+        if (coinBalance != null) user.setCoinBalance(coinBalance);
+        return userRepository.save(user);
     }
 
     private String sha256(String input) {

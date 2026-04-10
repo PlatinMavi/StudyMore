@@ -123,7 +123,8 @@ public class Main extends Application {
 
             // Heartbeat
             try {
-                String heartbeatBody = "{\"userId\":" + user.getUserId() + "}";
+                String heartbeatBody = "{\"userId\":" + user.getUserId() 
+                                    + ",\"coinBalance\":" + user.getCoinBalance() + "}";
                 ApiClient.postAuth("/auth/users/heartbeat", heartbeatBody);
             } catch (Exception e) {
                 System.out.println("Heartbeat failed: " + e.getMessage());

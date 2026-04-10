@@ -813,7 +813,6 @@ public class DatabaseManager {
     }
 
     public void updateUserCoinBalance(long userId, int newBalance) {
-        // Add a new row if empty or else update the already made row.
         String query = """
                 INSERT INTO user_stats (user_id, coin_balance)
                 VALUES (?, ?)
@@ -821,8 +820,8 @@ public class DatabaseManager {
                 """;
 
         try (java.sql.PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, newBalance);
-            stmt.setLong(2, userId);
+            stmt.setLong(1, userId);
+            stmt.setInt(2, newBalance);
             stmt.executeUpdate();
         } catch (java.sql.SQLException e) {
             System.err.println("Failed to save new coin balance: " + e.getMessage());

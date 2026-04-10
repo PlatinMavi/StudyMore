@@ -52,23 +52,32 @@ public class AuthController {
     @PostMapping("/users/sync")
     public ResponseEntity<?> syncUser(@RequestBody Map<String, Object> body) {
         try {
-            Long   userId   = Long.valueOf(body.get("userId").toString());
-            String username = (String) body.get("username");
-            String email    = (String) body.get("email");
-            String passHash = (String) body.get("passwordHash");
+            Long userId      = Long.valueOf(body.get("userId").toString());
+            String username  = (String) body.get("username");
+            String email     = (String) body.get("email");
+            String passHash  = (String) body.get("passwordHash");
+            Integer coins    = body.containsKey("coinBalance") && body.get("coinBalance") != null
+                            ? ((Number) body.get("coinBalance")).intValue()
+                            : null;
 
-            return ResponseEntity.ok(userService.syncUser(userId, username, email, passHash));
+            User user = userService.syncUser(userId, username, email, passHash, coins);
+            return ResponseEntity.ok(Map.of("userId", user.getUserId(), "status", "ok"));
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-   @PostMapping("/users/heartbeat")
+    @PostMapping("/users/heartbeat")
     public ResponseEntity<?> heartbeat(@RequestBody Map<String, Object> body) {
         try {
             Long userId = Long.valueOf(body.get("userId").toString());
             userService.updateLastSeen(userId);
+            if (body.containsKey("coinBalance") && body.get("coinBalance") != null) {
+                int coins = ((Number) body.get("coinBalance")).intValue();
+                userService.syncUser(userId, null, null, null, coins);
+            }
+
             return ResponseEntity.ok(Map.of("status", "ok"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
