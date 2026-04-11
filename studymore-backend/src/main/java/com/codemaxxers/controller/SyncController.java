@@ -26,17 +26,15 @@ public class SyncController {
             syncService.processSync(payload);
 
             return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "Database synchronized successfully."
-            ));
-            
+                    "status", "success",
+                    "message", "Database synchronized successfully."));
+
         } catch (Exception e) {
             System.err.println("Sync failed: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "status", "error",
-                "message", "Failed to synchronize database: " + e.getMessage()
-            ));
+                    "status", "error",
+                    "message", "Failed to synchronize database: " + e.getMessage()));
         }
     }
 
@@ -49,9 +47,8 @@ public class SyncController {
             System.err.println("Pull sync failed: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "status", "error",
-                "message", "Failed to pull user data: " + e.getMessage()
-            ));
+                    "status", "error",
+                    "message", "Failed to pull user data: " + e.getMessage()));
         }
     }
 }

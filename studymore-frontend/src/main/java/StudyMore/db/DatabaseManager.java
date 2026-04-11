@@ -388,7 +388,7 @@ public class DatabaseManager {
                                     tasksRs.getString("content"),
                                     tasksRs.getInt("srs_enabled") == 1,
                                     intensity);
-                            
+
                             task.setCompleted(tasksRs.getInt("is_complete") == 1);
                             task.setTaskId(tasksRs.getLong("id"));
                             task.setNextRecallDateFromString(formatDateForTask(tasksRs.getString("next_recall_date")));
@@ -449,7 +449,8 @@ public class DatabaseManager {
                     String startStr = rs.getString("start_time");
                     LocalDateTime startTime = safeParseDate(startStr);
 
-                    if (startTime == null) continue;
+                    if (startTime == null)
+                        continue;
 
                     if (startTime.toLocalDate().equals(today)) {
                         String endStr = rs.getString("end_time");
@@ -931,11 +932,11 @@ public class DatabaseManager {
 
     public void addTask(long userId, Task task) {
         String sql = """
-            INSERT INTO tasks (id, user_id, title, content, created_at, srs_enabled, 
-                            repetition_count, ease_factor, current_interval, 
-                            review_intensity, is_complete, next_recall_date) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
-        """;
+                    INSERT INTO tasks (id, user_id, title, content, created_at, srs_enabled,
+                                    repetition_count, ease_factor, current_interval,
+                                    review_intensity, is_complete, next_recall_date)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, task.getID());
@@ -970,11 +971,11 @@ public class DatabaseManager {
     public void updateTask(Task task) {
         String sql = """
                     UPDATE tasks SET
-                        title = ?, 
-                        content = ?, 
-                        srs_enabled = ?, 
-                        review_intensity = ?, 
-                        is_complete = ?, 
+                        title = ?,
+                        content = ?,
+                        srs_enabled = ?,
+                        review_intensity = ?,
+                        is_complete = ?,
                         next_recall_date = ?,
                         repetition_count = ?,
                         ease_factor = ?,
@@ -1002,9 +1003,9 @@ public class DatabaseManager {
                 stmt.setInt(9, task.getSrsData().getCurrentInterval());
             } else {
                 // Bypassing the NullPointerException
-                stmt.setInt(7, 0); 
+                stmt.setInt(7, 0);
                 stmt.setDouble(8, 2.5);
-                stmt.setInt(9, 0); 
+                stmt.setInt(9, 0);
             }
 
             stmt.setLong(10, task.getID());
@@ -1050,28 +1051,32 @@ public class DatabaseManager {
             payload.put("sessions", fetchArray("SELECT * FROM sessions WHERE user_id = ?", userId));
             payload.put("tasks", fetchArray("SELECT * FROM tasks WHERE user_id = ?", userId));
             payload.put("userAchievements", fetchArray("SELECT * FROM user_achievements WHERE user_id = ?", userId));
-            
+
             // Nested Relationships (Joining tables to verify ownership)
             payload.put("taskSrsHistory", fetchArray(
-                "SELECT tsh.* FROM task_srs_history tsh JOIN tasks t ON tsh.task_id = t.id WHERE t.user_id = ?", 
-                userId));
-                
-            payload.put("inventory_owned_items", fetchArray("SELECT ioi.* FROM inventory_owned_items ioi JOIN inventory i ON ioi.inventory_id = i.id WHERE i.user_id = ?", userId));
-            payload.put("inventory_equipped_items", fetchArray("SELECT iei.* FROM inventory_equipped_items iei JOIN inventory i ON iei.inventory_id = i.id WHERE i.user_id = ?", userId));
+                    "SELECT tsh.* FROM task_srs_history tsh JOIN tasks t ON tsh.task_id = t.id WHERE t.user_id = ?",
+                    userId));
+
+            payload.put("inventory_owned_items", fetchArray(
+                    "SELECT ioi.* FROM inventory_owned_items ioi JOIN inventory i ON ioi.inventory_id = i.id WHERE i.user_id = ?",
+                    userId));
+            payload.put("inventory_equipped_items", fetchArray(
+                    "SELECT iei.* FROM inventory_equipped_items iei JOIN inventory i ON iei.inventory_id = i.id WHERE i.user_id = ?",
+                    userId));
 
             // Social & Study Groups
             payload.put("friends", fetchArray(
-                "SELECT * FROM friends WHERE user_id = ? OR friend_id = ?", 
-                userId, userId));
-                
+                    "SELECT * FROM friends WHERE user_id = ? OR friend_id = ?",
+                    userId, userId));
+
             payload.put("friendRequests", fetchArray(
-                "SELECT * FROM friend_requests WHERE sender_id = ? OR receiver_id = ?", 
-                userId, userId));
+                    "SELECT * FROM friend_requests WHERE sender_id = ? OR receiver_id = ?",
+                    userId, userId));
 
             // Pull study groups where the user is either the host OR a member
             payload.put("studyGroups", fetchArray(
-                "SELECT DISTINCT sg.* FROM study_groups sg LEFT JOIN study_group_members sgm ON sg.id = sgm.group_id WHERE sg.host_id = ? OR sgm.user_id = ?", 
-                userId, userId));
+                    "SELECT DISTINCT sg.* FROM study_groups sg LEFT JOIN study_group_members sgm ON sg.id = sgm.group_id WHERE sg.host_id = ? OR sgm.user_id = ?",
+                    userId, userId));
 
         } catch (SQLException e) {
             System.err.println("Error building sync payload: " + e.getMessage());
@@ -1079,7 +1084,6 @@ public class DatabaseManager {
 
         return payload;
     }
-
 
     private JSONObject fetchSingleRow(String query, Object... params) throws SQLException {
         JSONArray array = fetchArray(query, params);
@@ -1089,12 +1093,12 @@ public class DatabaseManager {
 
     private JSONArray fetchArray(String query, Object... params) throws SQLException {
         JSONArray jsonArray = new JSONArray();
-        
+
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             for (int i = 0; i < params.length; i++) {
                 pstmt.setObject(i + 1, params[i]);
             }
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 ResultSetMetaData metaData = rs.getMetaData();
                 int columnCount = metaData.getColumnCount();
@@ -1104,7 +1108,7 @@ public class DatabaseManager {
                     for (int i = 1; i <= columnCount; i++) {
                         String columnName = metaData.getColumnName(i);
                         Object columnValue = rs.getObject(i);
-                        
+
                         // Handle nulls
                         if (columnValue == null) {
                             jsonObject.put(columnName, JSONObject.NULL);
@@ -1123,11 +1127,12 @@ public class DatabaseManager {
         System.out.println("DEBUG");
         // TODO
     }
+
     public void insertTaskHistory(long taskId, SRSHistoryEntry entry) {
         String sql = """
-            INSERT INTO task_srs_history (task_id, ease_factor_at_time, interval_at_time, quality_score, timestamp)
-            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-        """;
+                    INSERT INTO task_srs_history (task_id, ease_factor_at_time, interval_at_time, quality_score, timestamp)
+                    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, taskId);
@@ -1144,7 +1149,8 @@ public class DatabaseManager {
 
     private String formatDateForTask(String dateStr) {
         LocalDateTime ldt = safeParseDate(dateStr);
-        if (ldt == null) return null;
+        if (ldt == null)
+            return null;
         return ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
@@ -1158,7 +1164,8 @@ public class DatabaseManager {
                 stmt.execute("PRAGMA foreign_keys = OFF");
 
                 List<String> tables = new ArrayList<>();
-                try (ResultSet rs = stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")) {
+                try (ResultSet rs = stmt.executeQuery(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")) {
                     while (rs.next()) {
                         tables.add(rs.getString("name"));
                     }
@@ -1187,11 +1194,11 @@ public class DatabaseManager {
         System.out.println(payload.toString(4));
         System.out.println("-----------------------------");
         try {
-            connection.setAutoCommit(false); 
+            connection.setAutoCommit(false);
 
-            //1-1
+            // 1-1
             restoreSingleRowFromJson("users", payload.optJSONObject("user"));
-            restoreSingleRowFromJson("user_stats", payload.optJSONObject("userStats")); 
+            restoreSingleRowFromJson("user_stats", payload.optJSONObject("userStats"));
             restoreSingleRowFromJson("settings", payload.optJSONObject("settings"));
             restoreSingleRowFromJson("multipliers", payload.optJSONObject("multipliers"));
             restoreSingleRowFromJson("inventory", payload.optJSONObject("inventory"));
@@ -1199,38 +1206,47 @@ public class DatabaseManager {
             // Restore 1-to-Many Tables (Arrays)
             restoreArrayFromJson("tasks", payload.optJSONArray("tasks"));
             restoreArrayFromJson("sessions", payload.optJSONArray("sessions"));
-            restoreArrayFromJson("user_achievements", payload.optJSONArray("userAchievements")); 
-            restoreArrayFromJson("task_srs_history", payload.optJSONArray("taskSrsHistory")); 
-            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventory_owned_items")); 
+            restoreArrayFromJson("user_achievements", payload.optJSONArray("userAchievements"));
+            restoreArrayFromJson("task_srs_history", payload.optJSONArray("taskSrsHistory"));
+            restoreArrayFromJson("inventory_owned_items", payload.optJSONArray("inventory_owned_items"));
             restoreArrayFromJson("inventory_equipped_items", payload.optJSONArray("inventory_equipped_items"));
             restoreArrayFromJson("friends", payload.optJSONArray("friends"));
-            restoreArrayFromJson("friend_requests", payload.optJSONArray("friendRequests")); 
-            restoreArrayFromJson("study_groups", payload.optJSONArray("studyGroups")); 
+            restoreArrayFromJson("friend_requests", payload.optJSONArray("friendRequests"));
+            restoreArrayFromJson("study_groups", payload.optJSONArray("studyGroups"));
 
             connection.commit();
             System.out.println("Local database successfully restored from server payload!");
         } catch (SQLException e) {
-            try { connection.rollback(); } catch (SQLException ignored) {}
+            try {
+                connection.rollback();
+            } catch (SQLException ignored) {
+            }
             System.err.println("Failed to restore from sync payload: " + e.getMessage());
         } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException ignored) {}
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ignored) {
+            }
         }
     }
 
     private void restoreSingleRowFromJson(String tableName, JSONObject obj) throws SQLException {
-        if (obj == null || obj.isEmpty()) return;
+        if (obj == null || obj.isEmpty())
+            return;
         JSONArray array = new JSONArray();
         array.put(obj);
         restoreArrayFromJson(tableName, array);
     }
 
     private void restoreArrayFromJson(String tableName, JSONArray array) throws SQLException {
-        if (array == null || array.length() == 0) return;
+        if (array == null || array.length() == 0)
+            return;
 
         // Extract columns from the first object to build the query dynamically
         JSONObject firstObj = array.getJSONObject(0);
         String[] columns = JSONObject.getNames(firstObj);
-        if (columns == null) return;
+        if (columns == null)
+            return;
 
         StringBuilder sql = new StringBuilder("INSERT OR REPLACE INTO ").append(tableName).append(" (");
         StringBuilder placeholders = new StringBuilder(" VALUES (");
@@ -1270,7 +1286,7 @@ public class DatabaseManager {
             // If it came from the server (ISO-8601 with 'T' and 'Z')
             if (dateStr.contains("T")) {
                 return LocalDateTime.ofInstant(java.time.Instant.parse(dateStr), java.time.ZoneId.systemDefault());
-            } 
+            }
             // If it was generated locally ("yyyy-MM-dd HH:mm:ss")
             else {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -1281,6 +1297,5 @@ public class DatabaseManager {
             return null;
         }
     }
-
 
 }

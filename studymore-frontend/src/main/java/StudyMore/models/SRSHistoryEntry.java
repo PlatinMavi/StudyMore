@@ -9,22 +9,22 @@ public class SRSHistoryEntry {
     private int qualityScore;
     private LocalDateTime timeStamp;
 
-    public SRSHistoryEntry(double EF, int interval, int qualityScore){
+    public SRSHistoryEntry(double EF, int interval, int qualityScore) {
         this.easeFactorAtTime = EF;
         this.intervalAtTime = interval;
         this.qualityScore = qualityScore;
         this.timeStamp = LocalDateTime.now();
     }
 
-    public double getEaseFactorAtTime(){
+    public double getEaseFactorAtTime() {
         return this.easeFactorAtTime;
     }
 
-    public int getIntervalAtTime(){
+    public int getIntervalAtTime() {
         return this.intervalAtTime;
     }
 
-    public int getQualityScore(){
+    public int getQualityScore() {
         return this.qualityScore;
     }
 }

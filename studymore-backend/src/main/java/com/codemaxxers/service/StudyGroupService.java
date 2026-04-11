@@ -13,17 +13,17 @@ import java.util.List;
 @Service
 @Transactional
 public class StudyGroupService {
- 
+
     private final StudyGroupRepository studyGroupRepository;
     private final UserRepository userRepository;
- 
+
     public StudyGroupService(StudyGroupRepository studyGroupRepository,
-                             UserRepository userRepository) {
+            UserRepository userRepository) {
         this.studyGroupRepository = studyGroupRepository;
         this.userRepository = userRepository;
     }
- 
-    //  CRUD
+
+    // CRUD
     @Transactional
     public StudyGroup createGroup(String title, String studyGoal, Long hostId, int maxMembers) {
         User host = findUser(hostId);
@@ -32,23 +32,23 @@ public class StudyGroupService {
         saved.getMembers().size(); // initialize
         return saved;
     }
- 
+
     @Transactional(readOnly = true)
     public StudyGroup getGroup(Long groupId) {
         return studyGroupRepository.findById(groupId)
                 .orElseThrow(() -> new IllegalArgumentException("Group not found: " + groupId));
     }
- 
+
     @Transactional(readOnly = true)
     public List<StudyGroup> getActiveGroups() {
         return studyGroupRepository.findByIsActiveTrue();
     }
- 
+
     @Transactional(readOnly = true)
     public List<StudyGroup> searchGroups(String keyword) {
         return studyGroupRepository.searchActiveByTitle(keyword);
     }
- 
+
     @Transactional(readOnly = true)
     public List<StudyGroup> getGroupsForUser(Long userId) {
         List<StudyGroup> groups = studyGroupRepository.findActiveGroupsByMemberId(userId);
@@ -58,7 +58,7 @@ public class StudyGroupService {
         }
         return groups;
     }
- 
+
     public void disbandGroup(Long groupId, Long requestingUserId) {
         StudyGroup group = getGroup(groupId);
         if (!group.getHost().getUserId().equals(requestingUserId)) {
@@ -67,7 +67,7 @@ public class StudyGroupService {
         group.setActive(false);
         studyGroupRepository.save(group);
     }
- 
+
     public StudyGroup joinGroup(Long groupId, Long userId) {
         StudyGroup group = getGroup(groupId);
         User user = findUser(userId);
@@ -76,16 +76,17 @@ public class StudyGroupService {
         broadcastLeaderboard(saved);
         return saved;
     }
- 
+
     public StudyGroup leaveGroup(Long groupId, Long userId) {
         StudyGroup group = getGroup(groupId);
         User user = findUser(userId);
         group.removeMember(user);
         StudyGroup saved = studyGroupRepository.save(group);
-        if (saved.isActive()) broadcastLeaderboard(saved);
+        if (saved.isActive())
+            broadcastLeaderboard(saved);
         return saved;
     }
- 
+
     // leaderboard
     @Transactional(readOnly = true)
     public List<User> getLeaderboard(Long groupId) {
@@ -93,11 +94,11 @@ public class StudyGroupService {
         group.getMembers().size(); // initialize within transaction
         return group.getLeaderboard();
     }
- 
-    
+
     public void broadcastLeaderboard(StudyGroup group) {
         // websocket not used
     }
+
     // helpers
     private User findUser(Long userId) {
         return userRepository.findById(userId)

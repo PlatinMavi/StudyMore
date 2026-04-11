@@ -7,16 +7,16 @@ public enum ReviewIntensity {
 
     private int secondInterval;
 
-    private ReviewIntensity(int secondInterval){
+    private ReviewIntensity(int secondInterval) {
         this.secondInterval = secondInterval;
     }
 
-    public int getSecondInterval(){
+    public int getSecondInterval() {
         return this.secondInterval;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.name().charAt(0) + this.name().substring(1).toLowerCase();
     }
 }

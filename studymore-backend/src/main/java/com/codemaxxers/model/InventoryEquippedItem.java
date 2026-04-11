@@ -60,7 +60,8 @@ public class InventoryEquippedItem {
         private Long inventoryId;
         private String cosmeticType;
 
-        public InventoryEquippedItemId() {}
+        public InventoryEquippedItemId() {
+        }
 
         public InventoryEquippedItemId(Long inventoryId, String cosmeticType) {
             this.inventoryId = inventoryId;
@@ -69,11 +70,13 @@ public class InventoryEquippedItem {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             InventoryEquippedItemId that = (InventoryEquippedItemId) o;
             return Objects.equals(inventoryId, that.inventoryId) &&
-                   Objects.equals(cosmeticType, that.cosmeticType);
+                    Objects.equals(cosmeticType, that.cosmeticType);
         }
 
         @Override

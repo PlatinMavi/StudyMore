@@ -3,21 +3,21 @@ package StudyMore.models;
 import java.time.LocalDateTime;
 
 public class Multiplier {
-    private long multiplierId; 
-    private double currentValue; 
+    private long multiplierId;
+    private double currentValue;
     private final double maxValue = 5.01;
     private final double minValue = 0.99;
     private final int incrementInterval = 10 * 60; // 10 minute
-    private final int cooldownInterval = 60 * 60; // 1 hour 
-    private int incrementIntervalDuration; 
-    private int cooldownIntervalDuration; 
-    private LocalDateTime lastActiveTime; 
+    private final int cooldownInterval = 60 * 60; // 1 hour
+    private int incrementIntervalDuration;
+    private int cooldownIntervalDuration;
+    private LocalDateTime lastActiveTime;
     private boolean isUpdated;
 
     public Multiplier() {
         multiplierId = SnowflakeIDGenerator.generate();
         currentValue = 1;
-        incrementIntervalDuration = incrementInterval; 
+        incrementIntervalDuration = incrementInterval;
         cooldownIntervalDuration = cooldownInterval;
         lastActiveTime = LocalDateTime.now();
         isUpdated = true;
@@ -29,12 +29,12 @@ public class Multiplier {
     }
 
     public void increment() {
-        if(checkIncrementDuration()) {
+        if (checkIncrementDuration()) {
             incrementIntervalDuration--;
             return; // returns if the duration is not 0
         }
 
-        incrementIntervalDuration = incrementInterval; 
+        incrementIntervalDuration = incrementInterval;
         if (currentValue + 0.1 < maxValue) {
             currentValue += 0.1;
             isUpdated = true;
@@ -58,7 +58,8 @@ public class Multiplier {
         lastActiveTime = LocalDateTime.now();
     }
 
-    // when accesed this variable we update the ui so change the isUpdated variable to false before returning it.
+    // when accesed this variable we update the ui so change the isUpdated variable
+    // to false before returning it.
     public double getValue() {
         isUpdated = false;
         return currentValue;

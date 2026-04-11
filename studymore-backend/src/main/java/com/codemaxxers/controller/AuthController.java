@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
@@ -21,14 +20,13 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
         try {
             // Parse the ID sent from the frontend
-            Long userId = Long.valueOf(body.get("userId")); 
-            
+            Long userId = Long.valueOf(body.get("userId"));
+
             User user = userService.register(
-                userId,
-                body.get("username"),
-                body.get("email"),
-                body.get("password")
-            );
+                    userId,
+                    body.get("username"),
+                    body.get("email"),
+                    body.get("password"));
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -37,7 +35,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
-        String username     = body.get("username");
+        String username = body.get("username");
         String passwordHash = body.get("passwordHash");
 
         Optional<User> user = userService.findByUsername(username)
@@ -52,13 +50,13 @@ public class AuthController {
     @PostMapping("/users/sync")
     public ResponseEntity<?> syncUser(@RequestBody Map<String, Object> body) {
         try {
-            Long userId      = Long.valueOf(body.get("userId").toString());
-            String username  = (String) body.get("username");
-            String email     = (String) body.get("email");
-            String passHash  = (String) body.get("passwordHash");
-            Integer coins    = body.containsKey("coinBalance") && body.get("coinBalance") != null
-                            ? ((Number) body.get("coinBalance")).intValue()
-                            : null;
+            Long userId = Long.valueOf(body.get("userId").toString());
+            String username = (String) body.get("username");
+            String email = (String) body.get("email");
+            String passHash = (String) body.get("passwordHash");
+            Integer coins = body.containsKey("coinBalance") && body.get("coinBalance") != null
+                    ? ((Number) body.get("coinBalance")).intValue()
+                    : null;
 
             User user = userService.syncUser(userId, username, email, passHash, coins);
             return ResponseEntity.ok(Map.of("userId", user.getUserId(), "status", "ok"));

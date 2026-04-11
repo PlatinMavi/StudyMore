@@ -11,13 +11,18 @@ import javafx.scene.control.TextField;
 
 public class SettingsController {
 
-    @FXML private CheckBox lockInModeCheck;
-    @FXML private CheckBox mascotCheck;
+    @FXML
+    private CheckBox lockInModeCheck;
+    @FXML
+    private CheckBox mascotCheck;
 
-    @FXML private TextField shortBreakField;
-    @FXML private TextField longBreakField;
+    @FXML
+    private TextField shortBreakField;
+    @FXML
+    private TextField longBreakField;
 
-    @FXML private Label unsavedLabel;
+    @FXML
+    private Label unsavedLabel;
 
     private Settings settings;
     private DatabaseManager db;
@@ -63,7 +68,7 @@ public class SettingsController {
         }
 
         db.saveSettings(currentUserId, settings);
-        applySettingsGlobally(); 
+        applySettingsGlobally();
         unsavedLabel.setVisible(false);
         System.out.println("Settings saved successfully.");
     }
@@ -72,7 +77,7 @@ public class SettingsController {
     private void resetDefaults() {
         settings.resetDefaults();
         db.saveSettings(currentUserId, settings);
-        applySettingsGlobally(); 
+        applySettingsGlobally();
         loadSettings();
     }
 
@@ -84,7 +89,7 @@ public class SettingsController {
             scene.getRoot().getStyleClass().remove("light-mode");
         }
     }
-    
+
     @FXML
     private void handleLogout(javafx.event.ActionEvent event) {
         System.out.println("Initiating logout...");

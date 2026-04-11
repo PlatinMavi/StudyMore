@@ -17,46 +17,42 @@ import java.util.Comparator;
 @Table(name = "study_groups")
 public class StudyGroup {
 
-    
     public static final int DEFAULT_MAX_MEMBERS = 10;
- 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long groupId;
- 
+
     @Column(nullable = false)
     private String title;
 
     @Column(length = 500)
     private String studyGoal;
- 
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "host_id", nullable = false)
     private User host;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "study_group_members",
-        joinColumns = @JoinColumn(name = "group_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
+    @JoinTable(name = "study_group_members", joinColumns = @JoinColumn(name = "group_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     @JsonIgnore
     private Set<User> members = new HashSet<>();
- 
+
     @Column(nullable = false)
     private int maxMembers = DEFAULT_MAX_MEMBERS;
     @Column(nullable = false)
     private long studyCoins = 0;
- 
+
     @Column(nullable = false)
     private boolean isActive = true;
- 
+
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public StudyGroup() {}
- 
+    public StudyGroup() {
+    }
+
     public StudyGroup(String title, String studyGoal, User host, int maxMembers) {
         this.title = title;
         this.studyGoal = studyGoal;
@@ -66,8 +62,10 @@ public class StudyGroup {
     }
 
     public void addMember(User user) {
-        if (!isActive) throw new IllegalStateException("Cannot join an inactive group.");
-        if (isFull())  throw new IllegalStateException("Group is already full.");
+        if (!isActive)
+            throw new IllegalStateException("Cannot join an inactive group.");
+        if (isFull())
+            throw new IllegalStateException("Group is already full.");
         members.add(user);
     }
 
@@ -99,19 +97,63 @@ public class StudyGroup {
                 .collect(Collectors.toList());
     }
 
-    public Long getGroupId()                        { return groupId; }
-    public String getTitle()                        { return title; }
-    public void setTitle(String title)              { this.title = title; }
-    public String getStudyGoal()                    { return studyGoal; }
-    public void setStudyGoal(String studyGoal)      { this.studyGoal = studyGoal; }
-    public User getHost()                           { return host; }
-    public void setHost(User host)                  { this.host = host; }
-    public Set<User> getMembers()                   { return members; }
-    public int getMaxMembers()                      { return maxMembers; }
-    public void setMaxMembers(int maxMembers)       { this.maxMembers = maxMembers; }
-    public long getStudyCoins()                     { return studyCoins; }
-    public boolean isActive()                       { return isActive; }
-    public void setActive(boolean active)           { isActive = active; }
-    public LocalDateTime getCreatedAt()             { return createdAt; }
-    public int getMemberCount()                     { return members.size(); }
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getStudyGoal() {
+        return studyGoal;
+    }
+
+    public void setStudyGoal(String studyGoal) {
+        this.studyGoal = studyGoal;
+    }
+
+    public User getHost() {
+        return host;
+    }
+
+    public void setHost(User host) {
+        this.host = host;
+    }
+
+    public Set<User> getMembers() {
+        return members;
+    }
+
+    public int getMaxMembers() {
+        return maxMembers;
+    }
+
+    public void setMaxMembers(int maxMembers) {
+        this.maxMembers = maxMembers;
+    }
+
+    public long getStudyCoins() {
+        return studyCoins;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public int getMemberCount() {
+        return members.size();
+    }
 }

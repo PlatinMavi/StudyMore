@@ -8,8 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-@Table(name = "friend_requests",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"sender_id", "receiver_id"}))
+@Table(name = "friend_requests", uniqueConstraints = @UniqueConstraint(columnNames = { "sender_id", "receiver_id" }))
 public class FriendRequest {
 
     @Id
@@ -34,10 +33,11 @@ public class FriendRequest {
     @Column(nullable = false)
     private LocalDateTime sentAt = LocalDateTime.now();
 
-    public FriendRequest() {}
+    public FriendRequest() {
+    }
 
     public FriendRequest(User sender, User receiver) {
-        this.sender   = sender;
+        this.sender = sender;
         this.receiver = receiver;
     }
 
@@ -57,32 +57,65 @@ public class FriendRequest {
         this.status = RequestStatus.DENIED;
     }
 
-    public boolean isPending()  { return status == RequestStatus.PENDING; }
-    public boolean isAccepted() { return status == RequestStatus.ACCEPTED; }
+    public boolean isPending() {
+        return status == RequestStatus.PENDING;
+    }
 
-    public Long getRequestId()                  { return requestId; }
+    public boolean isAccepted() {
+        return status == RequestStatus.ACCEPTED;
+    }
+
+    public Long getRequestId() {
+        return requestId;
+    }
 
     @JsonIgnore
-    public User getSender()                     { return sender; }
-    public void setSender(User sender)          { this.sender = sender; }
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
 
     @JsonIgnore
-    public User getReceiver()                   { return receiver; }
-    public void setReceiver(User receiver)      { this.receiver = receiver; }
+    public User getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(User receiver) {
+        this.receiver = receiver;
+    }
 
     @JsonProperty("senderId")
-    public Long getSenderId()                   { return sender   != null ? sender.getUserId()   : null; }
+    public Long getSenderId() {
+        return sender != null ? sender.getUserId() : null;
+    }
 
     @JsonProperty("senderUsername")
-    public String getSenderUsername()           { return sender   != null ? sender.getUsername() : null; }
+    public String getSenderUsername() {
+        return sender != null ? sender.getUsername() : null;
+    }
 
     @JsonProperty("receiverId")
-    public Long getReceiverId()                 { return receiver != null ? receiver.getUserId() : null; }
+    public Long getReceiverId() {
+        return receiver != null ? receiver.getUserId() : null;
+    }
 
     @JsonProperty("receiverUsername")
-    public String getReceiverUsername()         { return receiver != null ? receiver.getUsername() : null; }
+    public String getReceiverUsername() {
+        return receiver != null ? receiver.getUsername() : null;
+    }
 
-    public RequestStatus getStatus()            { return status; }
-    public void setStatus(RequestStatus status) { this.status = status; }
-    public LocalDateTime getSentAt()            { return sentAt; }
+    public RequestStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(RequestStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getSentAt() {
+        return sentAt;
+    }
 }

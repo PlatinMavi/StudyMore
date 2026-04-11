@@ -13,23 +13,23 @@ import javafx.stage.Stage; // Make sure to import Stage
 public class Controller {
     public static Controller instance;
 
-    @FXML 
+    @FXML
     private StackPane contentArea;
 
-    @FXML 
+    @FXML
     private BorderPane mainLayout;
 
-    @FXML 
+    @FXML
     private Button btnStudy;
-    @FXML 
+    @FXML
     private Button btnProfile;
-    @FXML 
+    @FXML
     private Button btnFriends;
-    @FXML 
+    @FXML
     private Button btnInventory;
-    @FXML 
+    @FXML
     private Button btnAchievements;
-    @FXML 
+    @FXML
     private Button btnSettings;
     @FXML
     private Button btnTasks;
@@ -40,9 +40,9 @@ public class Controller {
     private final String INACTIVE_STYLE = "-fx-background-color: transparent; -fx-text-fill: #a3a3a3; -fx-padding: 12 24;";
 
     public void initialize() {
-        instance = this; 
-        refreshBackground(); 
-        handleStudy(); 
+        instance = this;
+        refreshBackground();
+        handleStudy();
     }
 
     // --- NEW FULLSCREEN METHOD ---
@@ -56,7 +56,8 @@ public class Controller {
 
     public void refreshBackground() {
         Cosmetic equippedBg = Main.user.getInventory().getEquipped(CosmeticType.BACKGROUND);
-        mainLayout.setStyle("-fx-background-image: url('/StudyMore/" + equippedBg.getImagePath() + "'); -fx-background-size: cover; -fx-background-position: center; -fx-background-repeat: no-repeat;");  
+        mainLayout.setStyle("-fx-background-image: url('/StudyMore/" + equippedBg.getImagePath()
+                + "'); -fx-background-size: cover; -fx-background-position: center; -fx-background-repeat: no-repeat;");
     }
 
     // helper method to reset all buttons and highlight the active one

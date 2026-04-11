@@ -19,27 +19,28 @@ public class Cosmetic {
         this.description = description;
     }
 
-    public String getName() { 
-        return name; 
+    public String getName() {
+        return name;
     }
-    
-    public CosmeticType getType() { 
-        return type; 
+
+    public CosmeticType getType() {
+        return type;
     }
-    
-    public int getPrice() { 
-        return price; 
+
+    public int getPrice() {
+        return price;
     }
-    
-    public String getImagePath() { 
-        return imagePath; 
+
+    public String getImagePath() {
+        return imagePath;
     }
-    
-    public String getDescription() { 
-        return description; 
+
+    public String getDescription() {
+        return description;
     }
+
     public long getId() {
-        return this.cosmeticId; 
+        return this.cosmeticId;
     }
 
     public boolean obtain(long userId, DatabaseManager db) {

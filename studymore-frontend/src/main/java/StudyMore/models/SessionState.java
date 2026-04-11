@@ -2,6 +2,6 @@ package StudyMore.models;
 
 public enum SessionState {
     STUDYING,
-    ON_BREAK, 
+    ON_BREAK,
     IDLE
 }

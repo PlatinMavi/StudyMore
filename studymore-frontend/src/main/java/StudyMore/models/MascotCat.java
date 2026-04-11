@@ -1,4 +1,5 @@
 package StudyMore.models;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -12,20 +13,20 @@ public class MascotCat {
     public MascotCat(Long catId) {
         this.catId = catId;
         this.quotes = new ArrayList<>(List.of(
-            "You're doing great, keep going!",
-            "One session at a time.",
-            "Focus. You got this.",
-            "Every minute counts!",
-            "Stay locked in!",
-            "You're building something great.",
-            "Rest is part of the process too.",
-            "Consistency beats intensity."
-        ));
+                "You're doing great, keep going!",
+                "One session at a time.",
+                "Focus. You got this.",
+                "Every minute counts!",
+                "Stay locked in!",
+                "You're building something great.",
+                "Rest is part of the process too.",
+                "Consistency beats intensity."));
     }
 
     public String getRandomQuote() {
-        if (quotes.isEmpty()) return "Keep studying!";
-        return quotes.get((int)(Math.random() * quotes.size()));
+        if (quotes.isEmpty())
+            return "Keep studying!";
+        return quotes.get((int) (Math.random() * quotes.size()));
     }
 
     public void congratulate() {
@@ -44,19 +45,23 @@ public class MascotCat {
         this.equippedHouse = newHouse;
     }
 
-    public Long getCatId(){ 
-        return catId; 
+    public Long getCatId() {
+        return catId;
     }
-    public Cosmetic getEquippedSkin(){ 
-        return equippedSkin; 
+
+    public Cosmetic getEquippedSkin() {
+        return equippedSkin;
     }
-    public Cosmetic getEquippedHouse(){
-        return equippedHouse; 
+
+    public Cosmetic getEquippedHouse() {
+        return equippedHouse;
     }
-    public Cosmetic getEquippedHat(){ 
-        return equippedHat; 
+
+    public Cosmetic getEquippedHat() {
+        return equippedHat;
     }
-    public List<String> getQuotes(){
-        return quotes; 
+
+    public List<String> getQuotes() {
+        return quotes;
     }
 }

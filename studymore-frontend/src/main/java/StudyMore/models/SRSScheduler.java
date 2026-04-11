@@ -12,7 +12,7 @@ public class SRSScheduler {
      * records the data history before modification
      * resets the task if quality criteria isnt met
      * updates the task
-    */
+     */
     public static void processReview(Task task, int qualityScore) {
         if (!task.isSrsEnabled() || task.getSrsData() == null) {
             return;
@@ -38,7 +38,8 @@ public class SRSScheduler {
 
     // records the last metadata before modifying it and stores it
     private static void recordHistory(SRSMetadata data, int qualityScore) {
-        SRSHistoryEntry newEntry = new SRSHistoryEntry(data.getCurrentEaseFactor(), data.getCurrentInterval(), qualityScore);
+        SRSHistoryEntry newEntry = new SRSHistoryEntry(data.getCurrentEaseFactor(), data.getCurrentInterval(),
+                qualityScore);
         data.updateHistory(newEntry);
     }
 
@@ -62,7 +63,7 @@ public class SRSScheduler {
     }
 
     // Calculate the new ease factor value
-    private static double calculateNewEaseFactor(double oldEF, int q) {        
+    private static double calculateNewEaseFactor(double oldEF, int q) {
         double newEF = oldEF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
         // Capping it at 1.3
         return Math.max(1.3, newEF);
@@ -70,13 +71,13 @@ public class SRSScheduler {
 
     private static int calculateNextInterval(SRSMetadata data, double easeFactor) {
         int reps = data.getRepetitionCount();
-        if (reps == 1){
+        if (reps == 1) {
             return 1;
-        } else if (reps == 2){
+        } else if (reps == 2) {
             return data.getIntensity().getSecondInterval();
-        } else if (reps > 2){
+        } else if (reps > 2) {
             return (int) Math.round(data.getCurrentInterval() * easeFactor);
-        } 
+        }
 
         return -1;
     }

@@ -18,12 +18,18 @@ import java.util.List;
 
 public class FriendsController {
 
-    @FXML private TextField searchField;
-    @FXML private Label onlineCountLabel;
-    @FXML private VBox friendListContainer;
-    @FXML private VBox leaderboardContainer;
-    @FXML private Label goalLabel;
-    @FXML private Label statusLabel;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Label onlineCountLabel;
+    @FXML
+    private VBox friendListContainer;
+    @FXML
+    private VBox leaderboardContainer;
+    @FXML
+    private Label goalLabel;
+    @FXML
+    private Label statusLabel;
 
     @FXML
     public void initialize() {
@@ -52,8 +58,8 @@ public class FriendsController {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject u = arr.getJSONObject(i);
             String username = u.optString("username", "");
-            if (keyword == null || keyword.isEmpty() || 
-                username.toLowerCase().contains(keyword.toLowerCase())) {
+            if (keyword == null || keyword.isEmpty() ||
+                    username.toLowerCase().contains(keyword.toLowerCase())) {
                 filtered.put(u);
             }
         }
@@ -61,35 +67,37 @@ public class FriendsController {
         int onlineCount = 0;
 
         for (int i = 0; i < filtered.length(); i++) {
-            JSONObject u       = filtered.getJSONObject(i);
-            String username    = u.optString("username", "?");
+            JSONObject u = filtered.getJSONObject(i);
+            String username = u.optString("username", "?");
             String lastSeenStr = u.optString("lastSeen", null);
 
-            boolean online    = false;
+            boolean online = false;
             String statusText = "OFFLINE";
 
             if (lastSeenStr != null) {
                 try {
                     java.time.LocalDateTime lastSeen = java.time.LocalDateTime.parse(lastSeenStr);
-                    java.time.LocalDateTime utcNow   = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
+                    java.time.LocalDateTime utcNow = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC);
                     long minutesAgo = java.time.Duration.between(lastSeen, utcNow).toMinutes();
                     if (minutesAgo <= 6) {
-                        online     = true;
+                        online = true;
                         statusText = "ONLINE";
                     } else if (minutesAgo <= 30) {
                         statusText = "LAST SEEN " + minutesAgo + "M AGO";
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
 
-            if (online) onlineCount++;
+            if (online)
+                onlineCount++;
             friendListContainer.getChildren().add(buildFriendRow(username, statusText, online));
         }
 
         if (filtered.isEmpty()) {
-            Label l = new Label(keyword != null && !keyword.isEmpty() 
-                ? "NO FRIENDS MATCHING \"" + keyword.toUpperCase() + "\""
-                : "NO FRIENDS YET — ADD SOMEONE TO GET STARTED");
+            Label l = new Label(keyword != null && !keyword.isEmpty()
+                    ? "NO FRIENDS MATCHING \"" + keyword.toUpperCase() + "\""
+                    : "NO FRIENDS YET — ADD SOMEONE TO GET STARTED");
             l.setStyle("-fx-text-fill: #404040; -fx-font-size: 11px; -fx-font-weight: bold;");
             l.setPadding(new Insets(32, 16, 0, 16));
             friendListContainer.getChildren().add(l);
@@ -97,7 +105,6 @@ public class FriendsController {
 
         onlineCountLabel.setText(onlineCount + " ONLINE");
     }
-
 
     private void loadGroupLeaderboard() {
         leaderboardContainer.getChildren().clear();
@@ -119,33 +126,36 @@ public class FriendsController {
             return;
         }
 
-        List<String>  groupTitles = new ArrayList<>();
-        List<Long>    groupIds    = new ArrayList<>();
-        List<Integer> studyGoals  = new ArrayList<>();
+        List<String> groupTitles = new ArrayList<>();
+        List<Long> groupIds = new ArrayList<>();
+        List<Integer> studyGoals = new ArrayList<>();
 
         for (int i = 0; i < groups.length(); i++) {
             JSONObject g = groups.getJSONObject(i);
             groupTitles.add(g.optString("title", "Group " + (i + 1)));
             groupIds.add(g.getLong("groupId"));
             int sg = 50;
-            try { sg = Integer.parseInt(g.optString("studyGoal", "50")); } catch (NumberFormatException ignored) {}
+            try {
+                sg = Integer.parseInt(g.optString("studyGoal", "50"));
+            } catch (NumberFormatException ignored) {
+            }
             studyGoals.add(sg);
         }
         final Label groupNameLbl = new Label(groupTitles.get(0).toUpperCase());
         groupNameLbl.setStyle(
-            "-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 24 0 24;");
+                "-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 16 24 0 24;");
         if (groups.length() > 1) {
             ComboBox<String> groupPicker = new ComboBox<>();
             groupPicker.getItems().addAll(groupTitles);
             groupPicker.setValue(groupTitles.get(0));
             groupPicker.setStyle(
-                "-fx-background-color: #111111; -fx-text-fill: white; " +
-                "-fx-border-color: #262626; -fx-border-width: 1; " +
-                "-fx-font-size: 12px; -fx-font-weight: bold;");
+                    "-fx-background-color: #111111; -fx-text-fill: white; " +
+                            "-fx-border-color: #262626; -fx-border-width: 1; " +
+                            "-fx-font-size: 12px; -fx-font-weight: bold;");
             groupPicker.setMaxWidth(Double.MAX_VALUE);
             VBox.setMargin(groupPicker, new Insets(12, 24, 4, 24));
 
-            final List<Long>    fIds   = groupIds;
+            final List<Long> fIds = groupIds;
             final List<Integer> fGoals = studyGoals;
             groupPicker.setOnAction(e -> {
                 int idx = groupPicker.getSelectionModel().getSelectedIndex();
@@ -156,7 +166,7 @@ public class FriendsController {
             });
             leaderboardContainer.getChildren().add(groupPicker);
         }
-        
+
         leaderboardContainer.getChildren().add(groupNameLbl);
         loadGroupById(groupIds.get(0), studyGoals.get(0));
     }
@@ -177,20 +187,20 @@ public class FriendsController {
 
         Button inviteBtn = new Button("+ ADD FRIEND TO GROUP");
         inviteBtn.setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: white; " +
-            "-fx-border-color: #262626; -fx-border-width: 1; " +
-            "-fx-font-size: 12px; -fx-font-weight: bold; " +
-            "-fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 0;");
+                "-fx-background-color: transparent; -fx-text-fill: white; " +
+                        "-fx-border-color: #262626; -fx-border-width: 1; " +
+                        "-fx-font-size: 12px; -fx-font-weight: bold; " +
+                        "-fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 0;");
         inviteBtn.setOnMouseEntered(e -> inviteBtn.setStyle(
-            "-fx-background-color: #1a1a1a; -fx-text-fill: white; " +
-            "-fx-border-color: #404040; -fx-border-width: 1; " +
-            "-fx-font-size: 12px; -fx-font-weight: bold; " +
-            "-fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 0;"));
+                "-fx-background-color: #1a1a1a; -fx-text-fill: white; " +
+                        "-fx-border-color: #404040; -fx-border-width: 1; " +
+                        "-fx-font-size: 12px; -fx-font-weight: bold; " +
+                        "-fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 0;"));
         inviteBtn.setOnMouseExited(e -> inviteBtn.setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: white; " +
-            "-fx-border-color: #262626; -fx-border-width: 1; " +
-            "-fx-font-size: 12px; -fx-font-weight: bold; " +
-            "-fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 0;"));
+                "-fx-background-color: transparent; -fx-text-fill: white; " +
+                        "-fx-border-color: #262626; -fx-border-width: 1; " +
+                        "-fx-font-size: 12px; -fx-font-weight: bold; " +
+                        "-fx-padding: 10 20; -fx-cursor: hand; -fx-background-radius: 0;"));
         inviteBtn.setOnAction(e -> inviteFriendToGroup(groupId));
         VBox.setMargin(inviteBtn, new Insets(16, 24, 0, 24));
         leaderboardContainer.getChildren().add(inviteBtn);
@@ -219,50 +229,59 @@ public class FriendsController {
         }
         memberList.sort((a, b) -> {
             long diff = b.optLong("totalStudyTime", 0) - a.optLong("totalStudyTime", 0);
-            if (diff != 0) return (int) Math.signum(diff);
+            if (diff != 0)
+                return (int) Math.signum(diff);
             boolean aIsMe = a.optLong("userId", -1) == Main.user.getUserId();
             boolean bIsMe = b.optLong("userId", -1) == Main.user.getUserId();
-            if (aIsMe) return -1;
-            if (bIsMe) return 1;
+            if (aIsMe)
+                return -1;
+            if (bIsMe)
+                return 1;
             return 0;
         });
 
         long maxSec = 1;
         for (JSONObject u : memberList) {
             long t = u.optLong("totalStudyTime", 0);
-            if (t > maxSec) maxSec = t;
+            if (t > maxSec)
+                maxSec = t;
         }
 
         for (int i = 0; i < memberList.size(); i++) {
-            JSONObject u  = memberList.get(i);
-            long   uid    = u.optLong("userId", -1);
-            String uname  = u.optString("username", "?");
-            long   sec    = u.optLong("totalStudyTime", 0);
-            int    hours  = (int)(sec / 3600);
-            double prog   = (double) sec / maxSec;
-            boolean isMe  = uid == Main.user.getUserId();
+            JSONObject u = memberList.get(i);
+            long uid = u.optLong("userId", -1);
+            String uname = u.optString("username", "?");
+            long sec = u.optLong("totalStudyTime", 0);
+            int hours = (int) (sec / 3600);
+            double prog = (double) sec / maxSec;
+            boolean isMe = uid == Main.user.getUserId();
             leaderboardContainer.getChildren().add(
-                buildLeaderboardRow(i + 1, isMe ? "YOU" : uname.toUpperCase(), hours, prog, isMe));
+                    buildLeaderboardRow(i + 1, isMe ? "YOU" : uname.toUpperCase(), hours, prog, isMe));
         }
     }
-
 
     private void inviteFriendToGroup(long groupId) {
         JSONArray arr;
         try {
             arr = new JSONArray(ApiClient.get("/friends/" + Main.user.getUserId()));
-        } catch (Exception e) { setStatus("Error loading friends."); return; }
+        } catch (Exception e) {
+            setStatus("Error loading friends.");
+            return;
+        }
 
-        if (arr.isEmpty()) { setStatus("No friends to invite."); return; }
+        if (arr.isEmpty()) {
+            setStatus("No friends to invite.");
+            return;
+        }
 
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Add Friend to Group");
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         dialog.getDialogPane().setStyle(
-            "-fx-background-color: #0a0a0a; -fx-border-color: #262626; -fx-border-width: 1;");
+                "-fx-background-color: #0a0a0a; -fx-border-color: #262626; -fx-border-width: 1;");
         dialog.getDialogPane().lookupButton(ButtonType.CANCEL).setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #a3a3a3; " +
-            "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-weight: bold;");
+                "-fx-background-color: transparent; -fx-text-fill: #a3a3a3; " +
+                        "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-weight: bold;");
 
         Label titleLbl = new Label("SELECT A FRIEND TO ADD");
         titleLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
@@ -272,32 +291,38 @@ public class FriendsController {
 
         VBox friendsBox = new VBox(6);
         for (int i = 0; i < arr.length(); i++) {
-            JSONObject u  = arr.getJSONObject(i);
-            String uname  = u.optString("username", "?");
-            long   uid    = u.optLong("userId", -1);
+            JSONObject u = arr.getJSONObject(i);
+            String uname = u.optString("username", "?");
+            long uid = u.optLong("userId", -1);
 
             Button btn = new Button(uname.toUpperCase());
             btn.setMaxWidth(Double.MAX_VALUE);
             btn.setStyle(
-                "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
-                "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
-                "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;");
+                    "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
+                            "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
+                            "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;");
             btn.setOnMouseEntered(e -> btn.setStyle(
-                "-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-font-weight: bold; " +
-                "-fx-border-color: #404040; -fx-border-width: 1; -fx-padding: 12; " +
-                "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
+                    "-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-font-weight: bold; " +
+                            "-fx-border-color: #404040; -fx-border-width: 1; -fx-padding: 12; " +
+                            "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
             btn.setOnMouseExited(e -> btn.setStyle(
-                "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
-                "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
-                "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
+                    "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
+                            "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
+                            "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
             btn.setOnAction(e -> {
                 dialog.close();
                 String response = ApiClient.post("/groups/" + groupId + "/join?userId=" + uid, "");
                 try {
                     JSONObject res = new JSONObject(response);
-                    if (res.has("error")) setStatus("Could not add: " + res.getString("error"));
-                    else { setStatus(uname + " added to group!"); loadGroupLeaderboard(); }
-                } catch (Exception ex) { setStatus("Error: " + ex.getMessage()); }
+                    if (res.has("error"))
+                        setStatus("Could not add: " + res.getString("error"));
+                    else {
+                        setStatus(uname + " added to group!");
+                        loadGroupLeaderboard();
+                    }
+                } catch (Exception ex) {
+                    setStatus("Error: " + ex.getMessage());
+                }
             });
             friendsBox.getChildren().add(btn);
         }
@@ -316,7 +341,6 @@ public class FriendsController {
         dialog.showAndWait();
     }
 
-
     @FXML
     private void onViewRequests() {
         String raw = ApiClient.get("/friends/requests/pending?userId=" + Main.user.getUserId());
@@ -325,23 +349,28 @@ public class FriendsController {
         JSONArray arr;
         try {
             arr = new JSONArray(raw);
-        } catch (Exception e) { 
-            setStatus("Error loading requests."); 
-            return; 
+        } catch (Exception e) {
+            setStatus("Error loading requests.");
+            return;
         }
 
-        if (arr.isEmpty()) { setStatus("No pending requests."); return; }
+        if (arr.isEmpty()) {
+            setStatus("No pending requests.");
+            return;
+        }
 
-        List<String> names  = new ArrayList<>();
-        List<Long>   reqIds = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        List<Long> reqIds = new ArrayList<>();
         for (int i = 0; i < arr.length(); i++) {
-            JSONObject req    = arr.getJSONObject(i);
+            JSONObject req = arr.getJSONObject(i);
             names.add(req.optString("senderUsername", "?"));
-            reqIds.add(req.getLong("requestId"));   
+            reqIds.add(req.getLong("requestId"));
         }
 
         ChoiceDialog<String> d = new ChoiceDialog<>(names.get(0), names);
-        d.setTitle("Accept Request"); d.setHeaderText(null); d.setContentText("Accept from:");
+        d.setTitle("Accept Request");
+        d.setHeaderText(null);
+        d.setContentText("Accept from:");
         d.showAndWait().ifPresent(sel -> {
             int idx = names.indexOf(sel);
             ApiClient.put("/friends/requests/" + reqIds.get(idx) + "/accept?receiverId=" + Main.user.getUserId());
@@ -358,18 +387,18 @@ public class FriendsController {
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
 
         dialog.getDialogPane().setStyle(
-            "-fx-background-color: #0a0a0a; -fx-border-color: #262626; -fx-border-width: 1;");
+                "-fx-background-color: #0a0a0a; -fx-border-color: #262626; -fx-border-width: 1;");
 
         // Style cancel button
         dialog.getDialogPane().lookupButton(ButtonType.CANCEL).setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #a3a3a3; " +
-            "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-weight: bold;");
+                "-fx-background-color: transparent; -fx-text-fill: #a3a3a3; " +
+                        "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-weight: bold;");
 
         TextField searchInput = new TextField();
         searchInput.setPromptText("Type username and press Enter...");
         searchInput.setStyle(
-            "-fx-background-color: #111111; -fx-text-fill: white; -fx-prompt-text-fill: #404040; " +
-            "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 12;");
+                "-fx-background-color: #111111; -fx-text-fill: white; -fx-prompt-text-fill: #404040; " +
+                        "-fx-border-color: #262626; -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 12;");
 
         VBox resultsBox = new VBox(6);
         ScrollPane scrollPane = new ScrollPane(resultsBox);
@@ -391,14 +420,17 @@ public class FriendsController {
 
         searchInput.setOnAction(e -> {
             String kw = searchInput.getText().trim();
-            if (kw.isEmpty()) return;
+            if (kw.isEmpty())
+                return;
             resultsBox.getChildren().clear();
 
             JSONArray results;
             try {
                 results = new JSONArray(ApiClient.get("/friends/search?keyword=" + kw
                         + "&requestingUserId=" + Main.user.getUserId()));
-            } catch (Exception ex) { return; }
+            } catch (Exception ex) {
+                return;
+            }
 
             if (results.isEmpty()) {
                 Label none = new Label("No users found for \"" + kw + "\"");
@@ -410,22 +442,22 @@ public class FriendsController {
             for (int i = 0; i < results.length(); i++) {
                 JSONObject u = results.getJSONObject(i);
                 String uname = u.optString("username", "?");
-                long   uid   = u.optLong("userId", -1);
+                long uid = u.optLong("userId", -1);
 
                 Button userBtn = new Button(uname.toUpperCase());
                 userBtn.setMaxWidth(Double.MAX_VALUE);
                 userBtn.setStyle(
-                    "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
-                    "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
-                    "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;");
+                        "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
+                                "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
+                                "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;");
                 userBtn.setOnMouseEntered(ev -> userBtn.setStyle(
-                    "-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-font-weight: bold; " +
-                    "-fx-border-color: #404040; -fx-border-width: 1; -fx-padding: 12; " +
-                    "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
+                        "-fx-background-color: #1a1a1a; -fx-text-fill: white; -fx-font-weight: bold; " +
+                                "-fx-border-color: #404040; -fx-border-width: 1; -fx-padding: 12; " +
+                                "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
                 userBtn.setOnMouseExited(ev -> userBtn.setStyle(
-                    "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
-                    "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
-                    "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
+                        "-fx-background-color: #111111; -fx-text-fill: white; -fx-font-weight: bold; " +
+                                "-fx-border-color: #262626; -fx-border-width: 1; -fx-padding: 12; " +
+                                "-fx-cursor: hand; -fx-alignment: CENTER-LEFT;"));
                 userBtn.setOnAction(ev -> {
                     dialog.close();
                     sendRequest(uid, uname);
@@ -440,16 +472,21 @@ public class FriendsController {
     @FXML
     private void onCreateGroup() {
         TextInputDialog d1 = new TextInputDialog();
-        d1.setTitle("Create Group"); d1.setHeaderText(null); d1.setContentText("Group name:");
+        d1.setTitle("Create Group");
+        d1.setHeaderText(null);
+        d1.setContentText("Group name:");
         d1.showAndWait().ifPresent(title -> {
-            if (title.trim().isEmpty()) return;
+            if (title.trim().isEmpty())
+                return;
             TextInputDialog d2 = new TextInputDialog("50");
-            d2.setTitle("Study Goal"); d2.setHeaderText(null); d2.setContentText("Goal (hours):");
+            d2.setTitle("Study Goal");
+            d2.setHeaderText(null);
+            d2.setContentText("Goal (hours):");
             d2.showAndWait().ifPresent(goalStr -> {
                 String body = "{\"title\":\"" + title.trim() + "\","
-                            + "\"studyGoal\":\"" + goalStr.trim() + "\","
-                            + "\"hostId\":" + Main.user.getUserId() + ","
-                            + "\"maxMembers\":10}";
+                        + "\"studyGoal\":\"" + goalStr.trim() + "\","
+                        + "\"hostId\":" + Main.user.getUserId() + ","
+                        + "\"maxMembers\":10}";
                 ApiClient.post("/groups", body);
                 setStatus("Group \"" + title.trim() + "\" created!");
                 AchievementsController.updateProgress(Main.user.getUserId(), "SOCIAL", 1);
@@ -459,27 +496,31 @@ public class FriendsController {
     }
 
     private void sendRequest(long receiverId, String name) {
-        String body     = "{\"senderId\":" + Main.user.getUserId() + ",\"receiverId\":" + receiverId + "}";
+        String body = "{\"senderId\":" + Main.user.getUserId() + ",\"receiverId\":" + receiverId + "}";
         String response = ApiClient.post("/friends/requests", body);
         try {
             JSONObject res = new JSONObject(response);
-            if (res.has("error")) setStatus("Error: " + res.getString("error"));
-            else setStatus("Request sent to " + name + "!");
-        } catch (Exception e) { setStatus("Request sent!"); }
+            if (res.has("error"))
+                setStatus("Error: " + res.getString("error"));
+            else
+                setStatus("Request sent to " + name + "!");
+        } catch (Exception e) {
+            setStatus("Request sent!");
+        }
     }
-
 
     private HBox buildFriendRow(String username, String statusText, boolean online) {
         Circle dot = new Circle(5);
         dot.setFill(online ? Color.web("#4caf50") : Color.web("#262626"));
 
         Label avatar = new Label(username.substring(0, 1).toUpperCase());
-        avatar.setPrefSize(44, 44); avatar.setMinSize(44, 44);
+        avatar.setPrefSize(44, 44);
+        avatar.setMinSize(44, 44);
         avatar.setAlignment(Pos.CENTER);
         avatar.setStyle(
-            "-fx-background-color: #1a1a1a; -fx-border-color: #262626; -fx-border-width: 1; " +
-            "-fx-background-radius: 22; -fx-border-radius: 22; " +
-            "-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+                "-fx-background-color: #1a1a1a; -fx-border-color: #262626; -fx-border-width: 1; " +
+                        "-fx-background-radius: 22; -fx-border-radius: 22; " +
+                        "-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         StackPane avatarStack = new StackPane(avatar, dot);
         StackPane.setAlignment(dot, Pos.BOTTOM_RIGHT);
@@ -497,45 +538,49 @@ public class FriendsController {
 
         Button optBtn = new Button("···");
         optBtn.setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #404040; " +
-            "-fx-cursor: hand; -fx-font-size: 16px; -fx-padding: 4 8;");
+                "-fx-background-color: transparent; -fx-text-fill: #404040; " +
+                        "-fx-cursor: hand; -fx-font-size: 16px; -fx-padding: 4 8;");
         optBtn.setOnMouseEntered(e -> optBtn.setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: white; " +
-            "-fx-cursor: hand; -fx-font-size: 16px; -fx-padding: 4 8;"));
+                "-fx-background-color: transparent; -fx-text-fill: white; " +
+                        "-fx-cursor: hand; -fx-font-size: 16px; -fx-padding: 4 8;"));
         optBtn.setOnMouseExited(e -> optBtn.setStyle(
-            "-fx-background-color: transparent; -fx-text-fill: #404040; " +
-            "-fx-cursor: hand; -fx-font-size: 16px; -fx-padding: 4 8;"));
+                "-fx-background-color: transparent; -fx-text-fill: #404040; " +
+                        "-fx-cursor: hand; -fx-font-size: 16px; -fx-padding: 4 8;"));
 
         HBox row = new HBox(14, avatarStack, textBox, optBtn);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(12, 16, 12, 16));
         row.setStyle("-fx-background-color: #0a0a0a; -fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0;");
-        row.setOnMouseEntered(e -> row.setStyle("-fx-background-color: #111111; -fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0; -fx-cursor: hand;"));
-        row.setOnMouseExited(e  -> row.setStyle("-fx-background-color: #0a0a0a; -fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0;"));
+        row.setOnMouseEntered(e -> row.setStyle(
+                "-fx-background-color: #111111; -fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0; -fx-cursor: hand;"));
+        row.setOnMouseExited(e -> row
+                .setStyle("-fx-background-color: #0a0a0a; -fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0;"));
         return row;
     }
 
     private VBox buildLeaderboardRow(int rank, String username, int hours, double progress, boolean isMe) {
         Label rankLbl = new Label("#" + rank);
         rankLbl.setStyle("-fx-text-fill: " + (isMe ? "white" : "#404040") + "; " +
-                         "-fx-font-size: 18px; -fx-font-weight: bold;");
-        rankLbl.setMinWidth(44); rankLbl.setAlignment(Pos.CENTER);
+                "-fx-font-size: 18px; -fx-font-weight: bold;");
+        rankLbl.setMinWidth(44);
+        rankLbl.setAlignment(Pos.CENTER);
 
         Label avatar = new Label(username.substring(0, 1));
-        avatar.setPrefSize(44, 44); avatar.setMinSize(44, 44);
+        avatar.setPrefSize(44, 44);
+        avatar.setMinSize(44, 44);
         avatar.setAlignment(Pos.CENTER);
         String avStyle = isMe
-            ? "-fx-background-color: #1a1a1a; -fx-border-color: #fbbf24; -fx-border-width: 1; " +
-              "-fx-background-radius: 22; -fx-border-radius: 22; -fx-text-fill: #fbbf24; " +
-              "-fx-font-size: 14px; -fx-font-weight: bold;"
-            : "-fx-background-color: #111111; -fx-border-color: #262626; -fx-border-width: 1; " +
-              "-fx-background-radius: 22; -fx-border-radius: 22; -fx-text-fill: #a3a3a3; " +
-              "-fx-font-size: 14px; -fx-font-weight: bold;";
+                ? "-fx-background-color: #1a1a1a; -fx-border-color: #fbbf24; -fx-border-width: 1; " +
+                        "-fx-background-radius: 22; -fx-border-radius: 22; -fx-text-fill: #fbbf24; " +
+                        "-fx-font-size: 14px; -fx-font-weight: bold;"
+                : "-fx-background-color: #111111; -fx-border-color: #262626; -fx-border-width: 1; " +
+                        "-fx-background-radius: 22; -fx-border-radius: 22; -fx-text-fill: #a3a3a3; " +
+                        "-fx-font-size: 14px; -fx-font-weight: bold;";
         avatar.setStyle(avStyle);
 
         Label nameLbl = new Label(username);
         nameLbl.setStyle("-fx-text-fill: " + (isMe ? "white" : "#a3a3a3") + "; " +
-                         "-fx-font-weight: bold; -fx-font-size: 13px;");
+                "-fx-font-weight: bold; -fx-font-size: 13px;");
 
         ProgressBar bar = new ProgressBar(progress);
         bar.setMaxWidth(Double.MAX_VALUE);
@@ -545,10 +590,10 @@ public class FriendsController {
 
         Label hoursLbl = new Label(String.valueOf(hours));
         hoursLbl.setStyle("-fx-text-fill: " + (isMe ? "white" : "#737373") + "; " +
-                          "-fx-font-size: 24px; -fx-font-weight: bold;");
+                "-fx-font-size: 24px; -fx-font-weight: bold;");
         Label hLbl = new Label("H");
         hLbl.setStyle("-fx-text-fill: " + (isMe ? "#a3a3a3" : "#404040") + "; " +
-                      "-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;");
+                "-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;");
 
         HBox hoursBox = new HBox(2, hoursLbl, hLbl);
         hoursBox.setAlignment(Pos.BASELINE_LEFT);
@@ -565,19 +610,22 @@ public class FriendsController {
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(18, 24, 18, 24));
         row.setStyle(
-            "-fx-background-color: " + (isMe ? "#111100" : "#0a0a0a") + "; " +
-            "-fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0;");
+                "-fx-background-color: " + (isMe ? "#111100" : "#0a0a0a") + "; " +
+                        "-fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0;");
 
         return new VBox(row);
     }
-
 
     private boolean isRecentlyActive(long userId) {
         try (PreparedStatement s = Main.mngr.getConnection().prepareStatement(
                 "SELECT 1 FROM sessions WHERE user_id = ? AND DATE(start_time) = DATE('now','localtime') LIMIT 1")) {
             s.setLong(1, userId);
-            try (ResultSet rs = s.executeQuery()) { return rs.next(); }
-        } catch (SQLException e) { return false; }
+            try (ResultSet rs = s.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     private Label emptyLabel(String text) {
@@ -588,6 +636,7 @@ public class FriendsController {
     }
 
     private void setStatus(String msg) {
-        if (statusLabel != null) statusLabel.setText(msg);
+        if (statusLabel != null)
+            statusLabel.setText(msg);
     }
 }

@@ -17,39 +17,39 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class FriendService {
- 
+
     private final FriendRequestRepository friendRequestRepository;
     private final UserRepository userRepository;
- 
+
     public FriendService(FriendRequestRepository friendRequestRepository,
-                         UserRepository userRepository) {
+            UserRepository userRepository) {
         this.friendRequestRepository = friendRequestRepository;
         this.userRepository = userRepository;
     }
-    
+
     public List<User> searchUsers(String keyword, Long requestingUserId) {
         return userRepository.findByUsernameContainingIgnoreCase(keyword)
                 .stream()
                 .filter(u -> !u.getUserId().equals(requestingUserId))
                 .collect(Collectors.toList());
     }
- 
+
     // sending a requst
     public FriendRequest sendRequest(Long senderId, Long receiverId) {
         if (senderId.equals(receiverId)) {
             throw new IllegalArgumentException("Cannot send a friend request to yourself.");
         }
- 
+
         friendRequestRepository.findBetweenUsers(senderId, receiverId).ifPresent(existing -> {
             throw new IllegalStateException(
-                "A friend request already exists between these users (status: " + existing.getStatus() + ").");
+                    "A friend request already exists between these users (status: " + existing.getStatus() + ").");
         });
- 
-        User sender   = userRepository.findById(senderId)
+
+        User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("Sender not found: " + senderId));
         User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found: " + receiverId));
- 
+
         return friendRequestRepository.save(new FriendRequest(sender, receiver));
     }
 
@@ -59,11 +59,13 @@ public class FriendService {
         req.accept();
         return friendRequestRepository.save(req);
     }
+
     public FriendRequest denyRequest(Long requestId, Long receiverId) {
         FriendRequest req = getRequestForReceiver(requestId, receiverId);
         req.deny();
         return friendRequestRepository.save(req);
     }
+
     @Transactional(readOnly = true)
     public List<User> getFriends(Long userId) {
         User user = userRepository.findById(userId)
@@ -71,11 +73,12 @@ public class FriendService {
         user.getFriends().size();
         return new ArrayList<>(user.getFriends());
     }
+
     @Transactional(readOnly = true)
     public List<FriendRequest> getPendingRequests(Long userId) {
         return friendRequestRepository.findByReceiverUserIdAndStatus(userId, RequestStatus.PENDING);
     }
- 
+
     // helper
     private FriendRequest getRequestForReceiver(Long requestId, Long receiverId) {
         FriendRequest req = friendRequestRepository.findById(requestId)

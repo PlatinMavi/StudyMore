@@ -22,29 +22,44 @@ import javafx.scene.layout.Priority;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 public class StudyController {
 
-    @FXML private Label timerLabel;
-    @FXML private Label streakLabel;
-    @FXML private Label studyTime;
-    @FXML private Label goal;
-    @FXML private Button timerControlButton;
-    @FXML private Button longBreakButton;
-    @FXML private Button shortBreakButton;
-    @FXML private Label multiplierLabel;
-    @FXML private ImageView catSkin;
-    @FXML private ImageView catHouse;
-    @FXML private VBox leaderboardContainer;
-    @FXML private VBox studyTasksContainer;
-    @FXML private Label userRankLabel;
-    @FXML private Label catQuoteLabel;
-    @FXML private AnchorPane mascotContainer;
-    @FXML private VBox timerBox;
+    @FXML
+    private Label timerLabel;
+    @FXML
+    private Label streakLabel;
+    @FXML
+    private Label studyTime;
+    @FXML
+    private Label goal;
+    @FXML
+    private Button timerControlButton;
+    @FXML
+    private Button longBreakButton;
+    @FXML
+    private Button shortBreakButton;
+    @FXML
+    private Label multiplierLabel;
+    @FXML
+    private ImageView catSkin;
+    @FXML
+    private ImageView catHouse;
+    @FXML
+    private VBox leaderboardContainer;
+    @FXML
+    private VBox studyTasksContainer;
+    @FXML
+    private Label userRankLabel;
+    @FXML
+    private Label catQuoteLabel;
+    @FXML
+    private AnchorPane mascotContainer;
+    @FXML
+    private VBox timerBox;
 
-    private int LONG_BREAK_SECONDS  = 1200; // 20 min
-    private int SHORT_BREAK_SECONDS = 600;  // 10 min
-    private int STUDY_SECONDS = 1500; 
+    private int LONG_BREAK_SECONDS = 1200; // 20 min
+    private int SHORT_BREAK_SECONDS = 600; // 10 min
+    private int STUDY_SECONDS = 1500;
 
     private static StudySession session;
     private static Timeline studyTimeline;
@@ -64,19 +79,21 @@ public class StudyController {
             Main.settings = settings;
         }
 
-        STUDY_SECONDS       = settings.getStudyTime() * 60;
+        STUDY_SECONDS = settings.getStudyTime() * 60;
         SHORT_BREAK_SECONDS = settings.getShortBreak() * 60;
-        LONG_BREAK_SECONDS  = settings.getLongBreak() * 60;
+        LONG_BREAK_SECONDS = settings.getLongBreak() * 60;
 
         studyTime.setText(ProfileController.calculateStudyTimes()[1] + "H");
         streakLabel.setText(Main.user.getStudyStreak() + " Days");
 
-        if (settings.isMascotVisible()) { 
+        if (settings.isMascotVisible()) {
             mascotContainer.setVisible(true);
-            
-            catSkin.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_SKIN).getImagePath()));
-            catHouse.setImage(new Image("/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_HOUSE).getImagePath()));
-            
+
+            catSkin.setImage(new Image(
+                    "/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_SKIN).getImagePath()));
+            catHouse.setImage(new Image(
+                    "/StudyMore/" + Main.user.getInventory().getEquipped(CosmeticType.MASCOT_HOUSE).getImagePath()));
+
             StudyMore.models.MascotCat mascot = new StudyMore.models.MascotCat(Main.user.getUserId());
             catQuoteLabel.setText(mascot.getRandomQuote());
         } else {
@@ -95,7 +112,7 @@ public class StudyController {
         if (session.getState() == SessionState.STUDYING) {
             timerControlButton.setText("STOP");
             updateTimerLabel(session.getDuration());
-            setTimerBackgroundStudy(); 
+            setTimerBackgroundStudy();
         } else if (session.getState() == SessionState.ON_BREAK) {
             timerControlButton.setText("START");
             updateTimerLabel(session.getBreakTimeRemaining());
@@ -173,8 +190,10 @@ public class StudyController {
 
         long groupId = bestGroup.getLong("groupId");
         int studyGoal = 50;
-        try { studyGoal = Integer.parseInt(bestGroup.optString("studyGoal", "50")); }
-        catch (NumberFormatException ignored) {}
+        try {
+            studyGoal = Integer.parseInt(bestGroup.optString("studyGoal", "50"));
+        } catch (NumberFormatException ignored) {
+        }
 
         if (userRankLabel != null) {
             userRankLabel.setVisible(true);
@@ -187,31 +206,38 @@ public class StudyController {
         JSONArray members;
         try {
             members = new JSONArray(ApiClient.get("/groups/" + groupId + "/leaderboard"));
-        } catch (Exception e) { return; }
+        } catch (Exception e) {
+            return;
+        }
 
-        if (members.isEmpty()) return;
+        if (members.isEmpty())
+            return;
 
         java.util.List<JSONObject> memberList = new java.util.ArrayList<>();
-        for (int i = 0; i < members.length(); i++) memberList.add(members.getJSONObject(i));
+        for (int i = 0; i < members.length(); i++)
+            memberList.add(members.getJSONObject(i));
         memberList.sort((a, b) -> {
             long diff = b.optLong("totalStudyTime", 0) - a.optLong("totalStudyTime", 0);
-            if (diff != 0) return (int) Math.signum(diff);
+            if (diff != 0)
+                return (int) Math.signum(diff);
             boolean aIsMe = a.optLong("userId", -1) == Main.user.getUserId();
             boolean bIsMe = b.optLong("userId", -1) == Main.user.getUserId();
-            if (aIsMe) return -1;
-            if (bIsMe) return 1;
+            if (aIsMe)
+                return -1;
+            if (bIsMe)
+                return 1;
             return 0;
         });
 
         for (int i = 0; i < memberList.size(); i++) {
-            JSONObject u  = memberList.get(i);
-            long   uid    = u.optLong("userId", -1);
-            String uname  = u.optString("username", "?");
-            long   sec    = u.optLong("totalStudyTime", 0);
-            int    hours  = (int)(sec / 3600);
-            boolean isMe  = (uid == Main.user.getUserId());
+            JSONObject u = memberList.get(i);
+            long uid = u.optLong("userId", -1);
+            String uname = u.optString("username", "?");
+            long sec = u.optLong("totalStudyTime", 0);
+            int hours = (int) (sec / 3600);
+            boolean isMe = (uid == Main.user.getUserId());
             leaderboardContainer.getChildren().add(
-                buildLeaderboardRow(i + 1, isMe ? "You" : uname, hours, isMe));
+                    buildLeaderboardRow(i + 1, isMe ? "You" : uname, hours, isMe));
         }
     }
 
@@ -219,31 +245,32 @@ public class StudyController {
         Label rankLbl = new Label("#" + rank);
         rankLbl.setMinWidth(36);
         rankLbl.setStyle("-fx-text-fill: " + (isMe ? "white" : "#404040") + "; " +
-                        "-fx-font-size: 16px; -fx-font-weight: bold;");
+                "-fx-font-size: 16px; -fx-font-weight: bold;");
         Label avatar = new Label(username.substring(0, 1).toUpperCase());
-        avatar.setPrefSize(36, 36); avatar.setMinSize(36, 36);
+        avatar.setPrefSize(36, 36);
+        avatar.setMinSize(36, 36);
         avatar.setAlignment(javafx.geometry.Pos.CENTER);
         avatar.setStyle(isMe
-            ? "-fx-background-color: #1a1a1a; -fx-border-color: #fbbf24; -fx-border-width: 1; " +
-            "-fx-background-radius: 18; -fx-border-radius: 18; " +
-            "-fx-text-fill: #fbbf24; -fx-font-size: 12px; -fx-font-weight: bold;"
-            : "-fx-background-color: #111111; -fx-border-color: #262626; -fx-border-width: 1; " +
-            "-fx-background-radius: 18; -fx-border-radius: 18; " +
-            "-fx-text-fill: #a3a3a3; -fx-font-size: 12px; -fx-font-weight: bold;");
+                ? "-fx-background-color: #1a1a1a; -fx-border-color: #fbbf24; -fx-border-width: 1; " +
+                        "-fx-background-radius: 18; -fx-border-radius: 18; " +
+                        "-fx-text-fill: #fbbf24; -fx-font-size: 12px; -fx-font-weight: bold;"
+                : "-fx-background-color: #111111; -fx-border-color: #262626; -fx-border-width: 1; " +
+                        "-fx-background-radius: 18; -fx-border-radius: 18; " +
+                        "-fx-text-fill: #a3a3a3; -fx-font-size: 12px; -fx-font-weight: bold;");
 
         Label nameLbl = new Label(username.toUpperCase());
         nameLbl.setStyle("-fx-text-fill: " + (isMe ? "white" : "#737373") + "; " +
-                        "-fx-font-weight: bold; -fx-font-size: 12px;");
+                "-fx-font-weight: bold; -fx-font-size: 12px;");
         HBox.setHgrow(nameLbl, Priority.ALWAYS);
         Label hoursLbl = new Label(hours + "H");
         hoursLbl.setStyle("-fx-text-fill: " + (isMe ? "white" : "#404040") + "; " +
-                        "-fx-font-size: 14px; -fx-font-weight: bold;");
+                "-fx-font-size: 14px; -fx-font-weight: bold;");
 
         HBox row = new HBox(10, rankLbl, avatar, nameLbl, hoursLbl);
         row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         row.setPadding(new Insets(10, 12, 10, 12));
         row.setStyle("-fx-background-color: " + (isMe ? "#111100" : "#0a0a0a") + "; " +
-                    "-fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0;");
+                "-fx-border-color: #1a1a1a; -fx-border-width: 0 0 1 0;");
         return row;
     }
 
@@ -262,7 +289,7 @@ public class StudyController {
         session.start();
         studyTimeline.play();
         timerControlButton.setText("STOP");
-        setTimerBackgroundStudy(); 
+        setTimerBackgroundStudy();
     }
 
     private void startBreak(int seconds) {
@@ -271,7 +298,7 @@ public class StudyController {
 
         session.startBreak(seconds);
         setTimerBackgroundBreak();
-        
+
         breakTimeline = buildBreakTimeline();
         breakTimeline.play();
     }
@@ -287,7 +314,6 @@ public class StudyController {
         session.calculateCoins();
         session.end();
 
-        
         timerControlButton.setText("START");
     }
 
@@ -302,12 +328,12 @@ public class StudyController {
         KeyFrame keyFrame = new KeyFrame(Duration.seconds(1), e -> {
             if (session != null) {
                 session.incrementDuration();
-                
+
                 // Only update UI if the Study page is currently open
                 if (currentInstance != null) {
                     currentInstance.updateTimerLabel(session.getDuration());
-                    
-                    if(session.getMultiplier().isUpdated()) {
+
+                    if (session.getMultiplier().isUpdated()) {
                         currentInstance.updateMultiplier(session.getMultiplier().getValue());
                     }
                 }
@@ -325,21 +351,23 @@ public class StudyController {
                 session.tickBreak();
 
                 if (session.isBreakOver()) {
-                    if (breakTimeline != null) breakTimeline.stop();
-                    
+                    if (breakTimeline != null)
+                        breakTimeline.stop();
+
                     // Auto-start study in the background
                     session.start();
-                    if (studyTimeline != null) studyTimeline.play();
-                    
+                    if (studyTimeline != null)
+                        studyTimeline.play();
+
                     // Update UI button if they are looking at it
                     if (currentInstance != null) {
                         currentInstance.timerControlButton.setText("STOP");
-                        currentInstance.setTimerBackgroundStudy(); 
+                        currentInstance.setTimerBackgroundStudy();
                     }
                 } else {
                     if (currentInstance != null) {
                         currentInstance.updateTimerLabel(session.getBreakTimeRemaining());
-                        if(session.getMultiplier().isUpdated()) {
+                        if (session.getMultiplier().isUpdated()) {
                             currentInstance.updateMultiplier(session.getMultiplier().getValue());
                         }
                     }
@@ -355,13 +383,13 @@ public class StudyController {
     // UI helper
 
     private void updateTimerLabel(int totalSeconds) {
-        int hours   = totalSeconds / 3600;
+        int hours = totalSeconds / 3600;
         int minutes = (totalSeconds % 3600) / 60;
         int seconds = totalSeconds % 60;
 
         String text = hours > 0
-            ? String.format("%02d:%02d", hours, minutes)
-            : String.format("%02d:%02d", minutes, seconds);
+                ? String.format("%02d:%02d", hours, minutes)
+                : String.format("%02d:%02d", minutes, seconds);
 
         timerLabel.setText(text);
     }
@@ -373,7 +401,8 @@ public class StudyController {
     private void loadDueTasks() {
         studyTasksContainer.getChildren().clear();
 
-        if (Main.user == null || Main.user.getTasks() == null) return;
+        if (Main.user == null || Main.user.getTasks() == null)
+            return;
 
         for (StudyMore.models.Task task : Main.user.getTasks()) {
             // State 0 = active/due today for both normal and SRS tasks
@@ -393,10 +422,11 @@ public class StudyController {
             VBox srsBadge = (VBox) loader.getNamespace().get("srsBadgeContainer");
             Label recallLabel = (Label) loader.getNamespace().get("recallLabel");
 
-            // STRICT READ-ONLY MODE (user is not supposed to interact with the task from study page)
+            // STRICT READ-ONLY MODE (user is not supposed to interact with the task from
+            // study page)
             Button configBtn = (Button) loader.getNamespace().get("configBtn");
             Button completeBtn = (Button) loader.getNamespace().get("completeBtn");
-            
+
             if (configBtn != null) {
                 configBtn.setVisible(false);
                 configBtn.setManaged(false); // Collapses the space completely
@@ -411,8 +441,10 @@ public class StudyController {
             card.setStyle(card.getStyle() + " -fx-cursor: default;");
 
             // Populate Text
-            if (titleLabel != null) titleLabel.setText(task.getTitle().toUpperCase());
-            if (contentLabel != null) contentLabel.setText(task.getContent());
+            if (titleLabel != null)
+                titleLabel.setText(task.getTitle().toUpperCase());
+            if (contentLabel != null)
+                contentLabel.setText(task.getContent());
 
             // Handle SRS Badge
             if (task.isSrsEnabled()) {
@@ -420,7 +452,8 @@ public class StudyController {
                     srsBadge.setManaged(true);
                     srsBadge.setVisible(true);
                 }
-                if (recallLabel != null) recallLabel.setText("DUE NOW"); 
+                if (recallLabel != null)
+                    recallLabel.setText("DUE NOW");
             } else {
                 if (srsBadge != null) {
                     srsBadge.setManaged(false);

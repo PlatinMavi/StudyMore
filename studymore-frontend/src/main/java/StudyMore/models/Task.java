@@ -22,18 +22,18 @@ public class Task {
     private boolean srsEnabled;
     private SRSMetadata srsData;
     private LocalDate nextRecallDate;
-    
-    public Task(String title, String content, boolean srsEnabled){
+
+    public Task(String title, String content, boolean srsEnabled) {
         this(title, content, srsEnabled, null);
     }
 
-    public Task(String title, String content, boolean srsEnabled, ReviewIntensity intensity){
+    public Task(String title, String content, boolean srsEnabled, ReviewIntensity intensity) {
         this.taskId = SnowflakeIDGenerator.generate();
         this.title = title;
         this.content = content;
         this.srsEnabled = srsEnabled;
-        if (srsEnabled){
-            if (intensity != null){
+        if (srsEnabled) {
+            if (intensity != null) {
                 this.srsData = new SRSMetadata(intensity);
             } else {
                 this.srsData = new SRSMetadata(ReviewIntensity.STANDARD);
@@ -44,8 +44,8 @@ public class Task {
     }
 
     // sets the isComplete variable to be true, also cant edit a completed task
-    public void complete(){ // basically setter
-        if (!srsEnabled){
+    public void complete() { // basically setter
+        if (!srsEnabled) {
             this.completed = true;
             return;
         }
@@ -56,9 +56,11 @@ public class Task {
         AchievementsController.updateProgress(Main.user.getUserId(), "TASK_BASED", 1);
     }
 
-    // updates the task according to the parameters (only incomplete tasks can be modified)
-    public boolean updateContent(String title, String content, boolean srsEnabled){
-        if (completed) return false;
+    // updates the task according to the parameters (only incomplete tasks can be
+    // modified)
+    public boolean updateContent(String title, String content, boolean srsEnabled) {
+        if (completed)
+            return false;
         this.title = title;
         this.content = content;
         this.srsEnabled = srsEnabled;
@@ -67,7 +69,8 @@ public class Task {
 
     /**
      * Calculates exactly what state the task should be in right now.
-     * Returns 0 = ACTIVE (Due), 1 = INACTIVE (Waiting), 2 = COMPLETED (Done today or permanently)
+     * Returns 0 = ACTIVE (Due), 1 = INACTIVE (Waiting), 2 = COMPLETED (Done today
+     * or permanently)
      */
     public int getCurrentState() {
         // Scenario: Normal task
@@ -84,13 +87,13 @@ public class Task {
         }
 
         // Scenario: Recall date is in the future
-        if (this.nextRecallDate.isAfter(today)) {            
+        if (this.nextRecallDate.isAfter(today)) {
             if (isCompleted()) { // Finished the task recently, will display it as completed for a while
                 return 2; // COMPLETED (Vibrant Green)
             } else { // Finished the task earlier, waiting for the next recall date
                 return 1; // INACTIVE (Gray/Locked)
             }
-        
+
         } else {
             // Fail-safe, should not trigger unless an error occurs
             return 0;
@@ -98,45 +101,46 @@ public class Task {
     }
 
     public String getDaysUntilRecall() {
-        if (nextRecallDate == null || nextRecallDate.isBefore(LocalDate.now()) || nextRecallDate.isEqual(LocalDate.now())) {
+        if (nextRecallDate == null || nextRecallDate.isBefore(LocalDate.now())
+                || nextRecallDate.isEqual(LocalDate.now())) {
             return "DUE NOW";
         }
         long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), nextRecallDate);
         return daysBetween + (daysBetween == 1 ? " DAY" : " DAYS");
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return this.title;
     }
 
-    public String getContent(){
+    public String getContent() {
         return this.content;
     }
 
-    public long getID(){
+    public long getID() {
         return this.taskId;
     }
 
-    public String getCreatedAtAsString(){
+    public String getCreatedAtAsString() {
         if (this.createdAt == null) {
             return LocalDateTime.now().format(TIMESTAMP_FORMAT);
         }
         return this.createdAt.format(TIMESTAMP_FORMAT);
     }
 
-    public boolean isCompleted(){
+    public boolean isCompleted() {
         return this.completed;
     }
 
-    public LocalDateTime getCreationTime(){
+    public LocalDateTime getCreationTime() {
         return this.createdAt;
     }
 
-    public boolean isSrsEnabled(){
+    public boolean isSrsEnabled() {
         return this.srsEnabled;
     }
 
-    public SRSMetadata getSrsData(){
+    public SRSMetadata getSrsData() {
         return this.srsData;
     }
 
@@ -145,17 +149,18 @@ public class Task {
     }
 
     public String getNextRecallDateAsString() {
-        if (this.nextRecallDate == null) return null;
+        if (this.nextRecallDate == null)
+            return null;
         return this.nextRecallDate.format(DATE_FORMAT);
-    }   
+    }
 
-    public void setTitle(String title){
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public void setContent(String content){
+    public void setContent(String content) {
         this.content = content;
-    }    
+    }
 
     public void setCreatedAtFromString(String timestamp) {
         this.createdAt = LocalDateTime.parse(timestamp, TIMESTAMP_FORMAT);
@@ -176,11 +181,10 @@ public class Task {
     public void setNextRecallDateFromString(String dateStr) {
         if (dateStr != null && !dateStr.isEmpty() && !dateStr.equals("null")) {
             // Handles both formats (e.g. turns "2026-04-08 03:00:00" into "2026-04-08")
-            String justTheDate = dateStr.split(" ")[0]; 
-            
+            String justTheDate = dateStr.split(" ")[0];
+
             this.nextRecallDate = LocalDate.parse(justTheDate, DATE_FORMAT);
         }
     }
-
 
 }

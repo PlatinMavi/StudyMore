@@ -19,13 +19,20 @@ import javafx.scene.control.TextField;
 
 public class LoginRegisterController {
 
-    @FXML private TextField loginUsernameField;
-    @FXML private PasswordField loginPasswordField;
-    @FXML private TextField registerUsernameField;
-    @FXML private TextField registerEmailField;
-    @FXML private PasswordField registerPasswordField;
-    @FXML private Label loginErrorLabel;
-    @FXML private Label registerErrorLabel;
+    @FXML
+    private TextField loginUsernameField;
+    @FXML
+    private PasswordField loginPasswordField;
+    @FXML
+    private TextField registerUsernameField;
+    @FXML
+    private TextField registerEmailField;
+    @FXML
+    private PasswordField registerPasswordField;
+    @FXML
+    private Label loginErrorLabel;
+    @FXML
+    private Label registerErrorLabel;
 
     @FXML
     public void initialize() {
@@ -42,7 +49,7 @@ public class LoginRegisterController {
         }
 
         String loginBody = "{\"username\":\"" + username + "\","
-                        + "\"passwordHash\":\"" + sha256(password) + "\"}";
+                + "\"passwordHash\":\"" + sha256(password) + "\"}";
 
         try {
             String loginResponse = ApiClient.postAuth("/auth/login", loginBody);
@@ -50,7 +57,7 @@ public class LoginRegisterController {
             if (loginResponse != null && loginResponse.contains("\"userId\"")) {
                 org.json.JSONObject userJson = new org.json.JSONObject(loginResponse);
                 long serverUserId = userJson.getLong("userId");
-                String email      = userJson.optString("email", "");
+                String email = userJson.optString("email", "");
 
                 // Ensure base user exists locally
                 try (java.sql.PreparedStatement check = Main.mngr.getConnection().prepareStatement(
@@ -78,8 +85,8 @@ public class LoginRegisterController {
                 try {
                     System.out.println("Pulling sync data for user " + serverUserId + "...");
 
-                    String syncResponse = ApiClient.get("/sync/pull/" + serverUserId); 
-                    
+                    String syncResponse = ApiClient.get("/sync/pull/" + serverUserId);
+
                     if (syncResponse != null && !syncResponse.isEmpty() && !syncResponse.contains("\"error\"")) {
                         org.json.JSONObject syncPayload = new org.json.JSONObject(syncResponse);
                         Main.mngr.restoreFromSyncPayload(syncPayload);
@@ -96,7 +103,8 @@ public class LoginRegisterController {
                 try {
                     ApiClient.postAuth("/auth/users/heartbeat",
                             "{\"userId\":" + serverUserId + "}");
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
 
                 Main.settings = Main.mngr.getSettings(serverUserId);
 
@@ -128,30 +136,30 @@ public class LoginRegisterController {
 
         // Send the registration request to the backend including the new ID
         String requestBody = "{\"userId\":\"" + generatedId + "\","
-                           + "\"username\":\"" + username + "\","
-                           + "\"email\":\"" + email + "\","
-                           + "\"password\":\"" + password + "\"}";
+                + "\"username\":\"" + username + "\","
+                + "\"email\":\"" + email + "\","
+                + "\"password\":\"" + password + "\"}";
 
         try {
             String response = ApiClient.postAuth("/auth/register", requestBody);
 
-
-            if (response == null || response.contains("\"error\"") || response.contains("taken") || response.contains("already in use")) {
+            if (response == null || response.contains("\"error\"") || response.contains("taken")
+                    || response.contains("already in use")) {
                 showRegisterError("Registration failed. Username or email may already exist.");
                 return;
             }
 
             // The backend successfully registered the user. Now save locally.
             final String sql = """
-                INSERT INTO users(id, username, email, password_hash)
-                VALUES (?, ?, ?, ?)
-                """;
+                    INSERT INTO users(id, username, email, password_hash)
+                    VALUES (?, ?, ?, ?)
+                    """;
 
             try (java.sql.PreparedStatement pstmt = Main.mngr.getConnection().prepareStatement(sql)) {
                 pstmt.setLong(1, generatedId);
                 pstmt.setString(2, username);
                 pstmt.setString(3, email);
-                pstmt.setString(4, sha256(password)); 
+                pstmt.setString(4, sha256(password));
                 int rows = pstmt.executeUpdate();
 
                 if (rows != 1) {
@@ -159,7 +167,7 @@ public class LoginRegisterController {
                 }
 
                 System.out.println("User successfully registered on server and saved locally.");
-                
+
                 // Initialize local states
                 Main.mngr.initializeNewUserInventory(generatedId);
                 Main.mngr.insertAchievements(generatedId);
@@ -169,7 +177,8 @@ public class LoginRegisterController {
 
                 try {
                     ApiClient.postAuth("/auth/users/heartbeat", "{\"userId\":" + generatedId + "}");
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
 
                 navigateToMain();
 

@@ -15,169 +15,183 @@
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="StudyMore.controllers.SettingsController">
-    <children>
-
-        <VBox spacing="24.0" style="-fx-padding: 32;">
-            <children>
-
-                <!-- Header -->
-                <HBox alignment="CENTER_LEFT" style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 20 24;">
-                    <children>
-                        <VBox spacing="4.0">
-                            <children>
-                                <Label text="SETTINGS" textFill="WHITE">
-                                    <font><Font name="System Bold" size="20.0" /></font>
-                                </Label>
-                                <Label text="Customize your study experience and preferences." textFill="#737373">
-                                    <font><Font size="11.0" /></font>
-                                </Label>
-                            </children>
-                        </VBox>
-                        <AnchorPane HBox.hgrow="ALWAYS" />
-                        <Label fx:id="unsavedLabel" style="-fx-background-color: white; -fx-padding: 8 16;" text="UNSAVED CHANGES" textFill="BLACK" visible="false">
-                            <font><Font name="System Bold" size="11.0" /></font>
+  <children>
+    <VBox spacing="24.0" style="-fx-padding: 32;">
+      <children>
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 20 24;">
+          <children>
+            <VBox spacing="4.0">
+              <children>
+                <Label text="SETTINGS" textFill="WHITE">
+                  <font>
+                    <Font name="System Bold" size="20.0"/>
+                  </font>
+                </Label>
+                <Label text="Customize your study experience and preferences." textFill="#737373">
+                  <font>
+                    <Font size="11.0"/>
+                  </font>
+                </Label>
+              </children>
+            </VBox>
+            <AnchorPane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="unsavedLabel" style="-fx-background-color: white; -fx-padding: 8 16;" text="UNSAVED CHANGES" textFill="BLACK" visible="false">
+              <font>
+                <Font name="System Bold" size="11.0"/>
+              </font>
+            </Label>
+          </children>
+        </HBox>
+        <!-- General -->
+        <VBox style="-fx-background-color: black; -fx-border-color: #262626;">
+          <children>
+            <HBox style="-fx-background-color: #171717; -fx-padding: 16 20; -fx-border-color: transparent transparent #262626 transparent;">
+              <children>
+                <Label text="GENERAL" textFill="WHITE">
+                  <font>
+                    <Font name="System Bold" size="13.0"/>
+                  </font>
+                </Label>
+              </children>
+            </HBox>
+            <HBox spacing="16.0" style="-fx-padding: 20;">
+              <children>
+                <!-- Lock In Mode -->
+                <HBox alignment="CENTER_LEFT" spacing="16.0"
+                                                    style="-fx-background-color: black; -fx-border-color: white; -fx-padding: 16;"
+                                                    HBox.hgrow="ALWAYS">
+                  <children>
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                      <children>
+                        <Label text="LOCK IN MODE" textFill="WHITE">
+                          <font>
+                            <Font name="System Bold" size="11.0"/>
+                          </font>
                         </Label>
-                    </children>
+                        <Label text="Restricts exiting." textFill="#737373">
+                          <font>
+                            <Font size="10.0"/>
+                          </font>
+                        </Label>
+                      </children>
+                    </VBox>
+                    <CheckBox fx:id="lockInModeCheck" mnemonicParsing="false"
+                                                                style="-fx-text-fill: white;" onAction="#onSettingChanged"/>
+                  </children>
                 </HBox>
-
-                <!-- General -->
-                <VBox style="-fx-background-color: black; -fx-border-color: #262626;">
-                    <children>
-                        <HBox style="-fx-background-color: #171717; -fx-padding: 16 20; -fx-border-color: transparent transparent #262626 transparent;">
-                            <children>
-                                <Label text="GENERAL" textFill="WHITE">
-                                    <font><Font name="System Bold" size="13.0" /></font>
-                                </Label>
-                            </children>
-                        </HBox>
-                        <HBox spacing="16.0" style="-fx-padding: 20;">
-                            <children>
-
-                                <!-- Lock In Mode -->
-                                <HBox alignment="CENTER_LEFT" spacing="16.0"
-                                    style="-fx-background-color: black; -fx-border-color: white; -fx-padding: 16;"
-                                    HBox.hgrow="ALWAYS">
-                                    <children>
-                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label text="LOCK IN MODE" textFill="WHITE">
-                                                    <font><Font name="System Bold" size="11.0" /></font>
-                                                </Label>
-                                                <Label text="Restricts exiting." textFill="#737373">
-                                                    <font><Font size="10.0" /></font>
-                                                </Label>
-                                            </children>
-                                        </VBox>
-                                        <CheckBox fx:id="lockInModeCheck" mnemonicParsing="false"
-                                            style="-fx-text-fill: white;" onAction="#onSettingChanged"/>
-                                    </children>
-                                </HBox>
-
-                                <!-- Coach Cat -->
-                                <HBox alignment="CENTER_LEFT" spacing="16.0"
-                                    style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 16;"
-                                    HBox.hgrow="ALWAYS">
-                                    <children>
-                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label text="COACH CAT" textFill="WHITE">
-                                                    <font><Font name="System Bold" size="11.0" /></font>
-                                                </Label>
-                                                <Label text="Show mascot." textFill="#737373">
-                                                    <font><Font size="10.0" /></font>
-                                                </Label>
-                                            </children>
-                                        </VBox>
-                                        <CheckBox fx:id="mascotCheck" mnemonicParsing="false"
-                                            style="-fx-text-fill: white;" onAction="#onSettingChanged"/>
-                                    </children>
-                                </HBox>
-
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
-
-                <!-- Study & Breaks -->
-                <VBox style="-fx-background-color: black; -fx-border-color: #262626;">
-                    <children>
-                        <HBox style="-fx-background-color: #171717; -fx-padding: 16 20; -fx-border-color: transparent transparent #262626 transparent;">
-                            <children>
-                                <Label text="STUDY &amp; BREAK INTERVALS" textFill="WHITE">
-                                    <font><Font name="System Bold" size="13.0" /></font>
-                                </Label>
-                            </children>
-                        </HBox>
-                        <HBox spacing="16.0" style="-fx-padding: 20;">
-                            <children>
-
-                                <HBox alignment="CENTER_LEFT" spacing="12.0"
-                                    style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 16;"
-                                    HBox.hgrow="ALWAYS">
-                                    <children>
-                                        <Label text="SHORT BREAK" textFill="#d4d4d4" HBox.hgrow="ALWAYS">
-                                            <font><Font name="System Bold" size="11.0" /></font>
-                                        </Label>
-                                        <TextField fx:id="shortBreakField" text="5"
-                                            style="-fx-background-color: black; -fx-border-color: #404040; -fx-text-fill: white; -fx-pref-width: 48; -fx-alignment: center;"
-                                            onKeyTyped="#onSettingChanged"/>
-                                        <Label text="MIN" textFill="#737373">
-                                            <font><Font name="System Bold" size="10.0" /></font>
-                                        </Label>
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="12.0"
-                                    style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 16;"
-                                    HBox.hgrow="ALWAYS">
-                                    <children>
-                                        <Label text="LONG BREAK" textFill="#d4d4d4" HBox.hgrow="ALWAYS">
-                                            <font><Font name="System Bold" size="11.0" /></font>
-                                        </Label>
-                                        <TextField fx:id="longBreakField" text="15"
-                                            style="-fx-background-color: black; -fx-border-color: #404040; -fx-text-fill: white; -fx-pref-width: 48; -fx-alignment: center;"
-                                            onKeyTyped="#onSettingChanged"/>
-                                        <Label text="MIN" textFill="#737373">
-                                            <font><Font name="System Bold" size="10.0" /></font>
-                                        </Label>
-                                    </children>
-                                </HBox>
-
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
-
-                <!-- Notifications -->
-                
-
-                <!-- Footer Buttons -->
-                <HBox alignment="CENTER_LEFT">
-                    <children>
-                        <Button fx:id="resetButton" mnemonicParsing="false" onAction="#resetDefaults"
-                            style="-fx-background-color: transparent; -fx-text-fill: #737373; -fx-padding: 12 0;"
-                            text="RESET DEFAULTS">
-                            <font><Font name="System Bold" size="11.0" /></font>
-                        </Button>
-                        
-                        <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout"
-                            style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-padding: 12 16;"
-                            text="LOGOUT &amp; EXIT">
-                            <font><Font name="System Bold" size="11.0" /></font>
-                        </Button>
-
-                        <AnchorPane HBox.hgrow="ALWAYS" />
-                        
-                        <Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveSettings"
-                            style="-fx-background-color: white; -fx-text-fill: black; -fx-padding: 12 32; -fx-border-color: white;"
-                            text="SAVE CHANGES">
-                            <font><Font name="System Bold" size="11.0" /></font>
-                        </Button>
-                    </children>
+                <!-- Coach Cat -->
+                <HBox alignment="CENTER_LEFT" spacing="16.0"
+                                                    style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 16;"
+                                                    HBox.hgrow="ALWAYS">
+                  <children>
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                      <children>
+                        <Label text="COACH CAT" textFill="WHITE">
+                          <font>
+                            <Font name="System Bold" size="11.0"/>
+                          </font>
+                        </Label>
+                        <Label text="Show mascot." textFill="#737373">
+                          <font>
+                            <Font size="10.0"/>
+                          </font>
+                        </Label>
+                      </children>
+                    </VBox>
+                    <CheckBox fx:id="mascotCheck" mnemonicParsing="false"
+                                                                style="-fx-text-fill: white;" onAction="#onSettingChanged"/>
+                  </children>
                 </HBox>
-
-            </children>
+              </children>
+            </HBox>
+          </children>
         </VBox>
-
-    </children>
+        <!-- Study & Breaks -->
+        <VBox style="-fx-background-color: black; -fx-border-color: #262626;">
+          <children>
+            <HBox style="-fx-background-color: #171717; -fx-padding: 16 20; -fx-border-color: transparent transparent #262626 transparent;">
+              <children>
+                <Label text="STUDY &amp; BREAK INTERVALS" textFill="WHITE">
+                  <font>
+                    <Font name="System Bold" size="13.0"/>
+                  </font>
+                </Label>
+              </children>
+            </HBox>
+            <HBox spacing="16.0" style="-fx-padding: 20;">
+              <children>
+                <HBox alignment="CENTER_LEFT" spacing="12.0"
+                                                    style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 16;"
+                                                    HBox.hgrow="ALWAYS">
+                  <children>
+                    <Label text="SHORT BREAK" textFill="#d4d4d4" HBox.hgrow="ALWAYS">
+                      <font>
+                        <Font name="System Bold" size="11.0"/>
+                      </font>
+                    </Label>
+                    <TextField fx:id="shortBreakField" text="5"
+                                                                style="-fx-background-color: black; -fx-border-color: #404040; -fx-text-fill: white; -fx-pref-width: 48; -fx-alignment: center;"
+                                                                onKeyTyped="#onSettingChanged"/>
+                    <Label text="MIN" textFill="#737373">
+                      <font>
+                        <Font name="System Bold" size="10.0"/>
+                      </font>
+                    </Label>
+                  </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="12.0"
+                                                    style="-fx-background-color: black; -fx-border-color: #262626; -fx-padding: 16;"
+                                                    HBox.hgrow="ALWAYS">
+                  <children>
+                    <Label text="LONG BREAK" textFill="#d4d4d4" HBox.hgrow="ALWAYS">
+                      <font>
+                        <Font name="System Bold" size="11.0"/>
+                      </font>
+                    </Label>
+                    <TextField fx:id="longBreakField" text="15"
+                                                                style="-fx-background-color: black; -fx-border-color: #404040; -fx-text-fill: white; -fx-pref-width: 48; -fx-alignment: center;"
+                                                                onKeyTyped="#onSettingChanged"/>
+                    <Label text="MIN" textFill="#737373">
+                      <font>
+                        <Font name="System Bold" size="10.0"/>
+                      </font>
+                    </Label>
+                  </children>
+                </HBox>
+              </children>
+            </HBox>
+          </children>
+        </VBox>
+        <!-- Notifications -->
+        <!-- Footer Buttons -->
+        <HBox alignment="CENTER_LEFT">
+          <children>
+            <Button fx:id="resetButton" mnemonicParsing="false" onAction="#resetDefaults"
+                                        style="-fx-background-color: transparent; -fx-text-fill: #737373; -fx-padding: 12 0;"
+                                        text="RESET DEFAULTS">
+              <font>
+                <Font name="System Bold" size="11.0"/>
+              </font>
+            </Button>
+            <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout"
+                                        style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-padding: 12 16;"
+                                        text="LOGOUT &amp; EXIT">
+              <font>
+                <Font name="System Bold" size="11.0"/>
+              </font>
+            </Button>
+            <AnchorPane HBox.hgrow="ALWAYS"/>
+            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveSettings"
+                                        style="-fx-background-color: white; -fx-text-fill: black; -fx-padding: 12 32; -fx-border-color: white;"
+                                        text="SAVE CHANGES">
+              <font>
+                <Font name="System Bold" size="11.0"/>
+              </font>
+            </Button>
+          </children>
+        </HBox>
+      </children>
+    </VBox>
+  </children>
 </StackPane>

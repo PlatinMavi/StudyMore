@@ -57,9 +57,9 @@ public class StudySession {
     }
 
     // Constructor for restoring a session from the database
-    public StudySession(User user, long sessionID, LocalDateTime startTime, 
-        LocalDateTime endTime, Multiplier multiplier, 
-        int duration, int coinsEarned) {
+    public StudySession(User user, long sessionID, LocalDateTime startTime,
+            LocalDateTime endTime, Multiplier multiplier,
+            int duration, int coinsEarned) {
         this.user = user;
         this.sessionID = sessionID;
         this.startTime = startTime;
@@ -86,9 +86,9 @@ public class StudySession {
 
     public void end() {
         endTime = LocalDateTime.now();
-        
+
         int totalHours = duration / 3600;
-        
+
         // Delta logic
         int hoursToReport = totalHours - reportedHours;
         int coinsToReport = coinsEarned - reportedCoins;
@@ -103,11 +103,11 @@ public class StudySession {
             reportedCoins = coinsEarned;
         }
 
-        AchievementsController.updateProgress(user.getUserId(), "STREAK_BASED", user.getStudyStreak()); 
+        AchievementsController.updateProgress(user.getUserId(), "STREAK_BASED", user.getStudyStreak());
     }
 
     public void incrementDuration() {
-        duration++; // handles internal duration 
+        duration++; // handles internal duration
         unrewardedSeconds++; // handles the delta duration
         multiplier.increment(); // handles multiplier
         updateSession();
@@ -162,24 +162,25 @@ public class StudySession {
 
     public void calculateCoins() {
         int chunks = unrewardedSeconds / 60;
-        
+
         if (chunks > 0) {
-            int newCoins = (int)(chunks * multiplier.getValue());
+            int newCoins = (int) (chunks * multiplier.getValue());
             coinsEarned += newCoins;
-            
+
             // keeps the remaining seconds after rewarding for each whole minute
-            unrewardedSeconds -= (chunks * 60); 
+            unrewardedSeconds -= (chunks * 60);
         }
     }
 
     public void updateSession() {
-        if (sessionID == 0) return; // no session in DB yet to update
+        if (sessionID == 0)
+            return; // no session in DB yet to update
 
         String query = """
-            UPDATE sessions
-            SET duration = ?, coins_earned = ?, multiplier_value = ?, end_time = ?
-            WHERE id = ?
-            """;
+                UPDATE sessions
+                SET duration = ?, coins_earned = ?, multiplier_value = ?, end_time = ?
+                WHERE id = ?
+                """;
 
         try (PreparedStatement stmt = Main.mngr.getConnection().prepareStatement(query)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -187,7 +188,7 @@ public class StudySession {
             stmt.setInt(1, duration);
             stmt.setInt(2, coinsEarned);
             stmt.setDouble(3, multiplier.getValue());
-            stmt.setString(4, endTime != null ? endTime.format(formatter) : null); 
+            stmt.setString(4, endTime != null ? endTime.format(formatter) : null);
             stmt.setLong(5, sessionID);
             stmt.executeUpdate();
             System.out.println("LOG: Updated session ID: " + sessionID);
@@ -198,9 +199,9 @@ public class StudySession {
 
     private void saveSession() {
         String query = """
-            INSERT INTO sessions (id, user_id, start_time, end_time, multiplier_value, coins_earned, duration)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
+                INSERT INTO sessions (id, user_id, start_time, end_time, multiplier_value, coins_earned, duration)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
 
         try (PreparedStatement stmt = Main.mngr.getConnection().prepareStatement(query)) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

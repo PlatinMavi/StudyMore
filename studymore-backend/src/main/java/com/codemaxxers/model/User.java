@@ -34,22 +34,24 @@ public class User {
     private long dailyStudyTime;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "user_friends",
-        joinColumns        = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "friend_id")
-    )
+    @JoinTable(name = "user_friends", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "friend_id"))
     @JsonIgnore
     private Set<User> friends = new HashSet<>();
 
     private LocalDateTime createdAt;
     private java.time.LocalDateTime lastSeen;
 
-    public java.time.LocalDateTime getLastSeen() { return lastSeen; }
-    public void setLastSeen(java.time.LocalDateTime lastSeen) { this.lastSeen = lastSeen; }
+    public java.time.LocalDateTime getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(java.time.LocalDateTime lastSeen) {
+        this.lastSeen = lastSeen;
+    }
 
     // Default constructor required by JPA
-    public User() {}
+    public User() {
+    }
 
     // registration
     public User(String username, String email, String passwordHash) {
@@ -74,40 +76,49 @@ public class User {
         return friends;
     }
 
-    public Long getUserId() { 
-        return userId; 
-    }
-    public String getUsername() { 
-        return username; 
-    }
-    public String getEmail() { 
-        return email; 
-    }
-    public String getPasswordHash() { 
-        return passwordHash; 
-    }
-    public Rank getRank() { 
-        return rank; 
-    }
-    public int getRating() { 
-        return rating; 
-    }
-    public int getCoinBalance() { 
-        return coinBalance; 
-    }
-    public int getStudyStreak() { 
-        return studyStreak; 
-    }
-    public long getTotalStudyTime() { 
-        return totalStudyTime; 
-    }
-    public long getDailyStudyTime() { 
-        return dailyStudyTime; 
-    }
-    public LocalDateTime getCreatedAt() { 
-        return createdAt; 
+    public Long getUserId() {
+        return userId;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public Rank getRank() {
+        return rank;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public int getCoinBalance() {
+        return coinBalance;
+    }
+
+    public int getStudyStreak() {
+        return studyStreak;
+    }
+
+    public long getTotalStudyTime() {
+        return totalStudyTime;
+    }
+
+    public long getDailyStudyTime() {
+        return dailyStudyTime;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
     public void addFriend(User user) {
         this.friends.add(user);
@@ -123,37 +134,47 @@ public class User {
         return this.friends.contains(user);
     }
 
-    public void setUserId(Long userId) { 
-        this.userId = userId; 
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
-    public void setUsername(String username) { 
-        this.username = username; 
+
+    public void setUsername(String username) {
+        this.username = username;
     }
-    public void setEmail(String email) { 
-        this.email = email; 
+
+    public void setEmail(String email) {
+        this.email = email;
     }
-    public void setPasswordHash(String passwordHash) { 
-        this.passwordHash = passwordHash; 
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
-    public void setRank(Rank rank) { 
-        this.rank = rank; 
+
+    public void setRank(Rank rank) {
+        this.rank = rank;
     }
-    public void setRating(int rating) { 
-        this.rating = rating; 
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
-    public void setCoinBalance(int coinBalance) { 
-        this.coinBalance = coinBalance; 
+
+    public void setCoinBalance(int coinBalance) {
+        this.coinBalance = coinBalance;
     }
-    public void setStudyStreak(int studyStreak) { 
-        this.studyStreak = studyStreak; 
+
+    public void setStudyStreak(int studyStreak) {
+        this.studyStreak = studyStreak;
     }
-    public void setTotalStudyTime(long totalStudyTime) { 
-        this.totalStudyTime = totalStudyTime; 
+
+    public void setTotalStudyTime(long totalStudyTime) {
+        this.totalStudyTime = totalStudyTime;
     }
-    public void setDailyStudyTime(long dailyStudyTime) { 
-        this.dailyStudyTime = dailyStudyTime; 
+
+    public void setDailyStudyTime(long dailyStudyTime) {
+        this.dailyStudyTime = dailyStudyTime;
     }
-    public void setCreatedAt(LocalDateTime createdAt) { 
-        this.createdAt = createdAt; 
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

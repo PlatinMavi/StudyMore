@@ -18,22 +18,23 @@ public class SyncRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     public void upsertMultipleRows(String tableName, String pkColumn, List<Map<String, Object>> rows) {
-        if (rows == null || rows.isEmpty()) return;
-        
+        if (rows == null || rows.isEmpty())
+            return;
+
         for (Map<String, Object> row : rows) {
             upsertSingleRow(tableName, pkColumn, row);
         }
     }
 
     public void upsertSingleRow(String tableName, String pkColumn, Map<String, Object> data) {
-        if (data == null || data.isEmpty()) return;
+        if (data == null || data.isEmpty())
+            return;
 
         Object pkValue = data.get(pkColumn);
         if (pkValue == null) {
             System.err.println("Cannot upsert into " + tableName + " without primary key: " + pkColumn);
-            return; 
+            return;
         }
 
         String checkSql = "SELECT COUNT(1) FROM " + tableName + " WHERE " + pkColumn + " = ?";
@@ -51,21 +52,23 @@ public class SyncRepository {
     private void executeUpdate(String tableName, String pkColumn, Object pkValue, Map<String, Object> data) {
         StringBuilder sql = new StringBuilder("UPDATE ").append(tableName).append(" SET ");
         List<Object> args = new ArrayList<>();
-        
+
         int i = 0;
         for (Map.Entry<String, Object> entry : data.entrySet()) {
-            if (entry.getKey().equals(pkColumn)) continue; 
-            
-            if (i > 0) sql.append(", ");
+            if (entry.getKey().equals(pkColumn))
+                continue;
+
+            if (i > 0)
+                sql.append(", ");
             sql.append(entry.getKey()).append(" = ?");
-    
+
             args.add(formatValue(entry.getKey(), entry.getValue()));
             i++;
         }
-        
+
         sql.append(" WHERE ").append(pkColumn).append(" = ?");
         args.add(pkValue);
-        
+
         jdbcTemplate.update(sql.toString(), args.toArray());
     }
 
@@ -73,7 +76,7 @@ public class SyncRepository {
         StringBuilder sql = new StringBuilder("INSERT INTO ").append(tableName).append(" (");
         StringBuilder placeholders = new StringBuilder(" VALUES (");
         List<Object> args = new ArrayList<>();
-        
+
         int i = 0;
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             if (i > 0) {
@@ -86,34 +89,34 @@ public class SyncRepository {
             args.add(formatValue(entry.getKey(), entry.getValue()));
             i++;
         }
-        
+
         sql.append(")");
         placeholders.append(")");
         sql.append(placeholders.toString());
-        
+
         jdbcTemplate.update(sql.toString(), args.toArray());
     }
 
     private Object formatValue(String key, Object value) {
 
-        if (value instanceof Integer && (key.startsWith("is_") || 
-            key.equals("srs_enabled") || key.equals("dark_mode") || 
-            key.equals("lock_in_mode") || key.equals("show_mascot") || 
-            key.equals("start_sound") || key.equals("break_alert") || 
-            key.equals("popups"))) {
-            
+        if (value instanceof Integer && (key.startsWith("is_") ||
+                key.equals("srs_enabled") || key.equals("dark_mode") ||
+                key.equals("lock_in_mode") || key.equals("show_mascot") ||
+                key.equals("start_sound") || key.equals("break_alert") ||
+                key.equals("popups"))) {
+
             return (Integer) value != 0;
         }
 
-        if (value instanceof String && (key.endsWith("_at") || key.endsWith("_time") || 
-            key.endsWith("_date") || key.equals("timestamp"))) {
-            
+        if (value instanceof String && (key.endsWith("_at") || key.endsWith("_time") ||
+                key.endsWith("_date") || key.equals("timestamp"))) {
+
             String dateStr = (String) value;
             try {
                 if (dateStr.endsWith("Z")) {
                     return java.sql.Timestamp.from(java.time.Instant.parse(dateStr));
                 }
-                
+
                 dateStr = dateStr.replace("T", " ");
                 if (dateStr.length() == 10) {
                     dateStr += " 00:00:00";
@@ -129,18 +132,20 @@ public class SyncRepository {
     }
 
     public void upsertMultipleRowsComposite(String tableName, List<String> pkColumns, List<Map<String, Object>> rows) {
-        if (rows == null || rows.isEmpty()) return;
+        if (rows == null || rows.isEmpty())
+            return;
         for (Map<String, Object> row : rows) {
             upsertSingleRowComposite(tableName, pkColumns, row);
         }
     }
 
     public void upsertSingleRowComposite(String tableName, List<String> pkColumns, Map<String, Object> data) {
-        if (data == null || data.isEmpty()) return;
+        if (data == null || data.isEmpty())
+            return;
 
         StringBuilder whereClause = new StringBuilder();
         List<Object> pkValues = new ArrayList<>();
-        
+
         for (int i = 0; i < pkColumns.size(); i++) {
             String col = pkColumns.get(i);
             Object val = data.get(col);
@@ -148,7 +153,8 @@ public class SyncRepository {
                 System.err.println("Missing composite PK component " + col + " for table " + tableName);
                 return;
             }
-            if (i > 0) whereClause.append(" AND ");
+            if (i > 0)
+                whereClause.append(" AND ");
             whereClause.append(col).append(" = ?");
             pkValues.add(val);
         }
@@ -161,8 +167,10 @@ public class SyncRepository {
             List<Object> args = new ArrayList<>();
             int i = 0;
             for (Map.Entry<String, Object> entry : data.entrySet()) {
-                if (pkColumns.contains(entry.getKey())) continue; 
-                if (i > 0) sql.append(", ");
+                if (pkColumns.contains(entry.getKey()))
+                    continue;
+                if (i > 0)
+                    sql.append(", ");
                 sql.append(entry.getKey()).append(" = ?");
                 args.add(formatValue(entry.getKey(), entry.getValue()));
                 i++;
@@ -174,9 +182,8 @@ public class SyncRepository {
                 jdbcTemplate.update(sql.toString(), args.toArray());
             }
         } else {
-            executeInsert(tableName, data); 
+            executeInsert(tableName, data);
         }
     }
 
-    
 }

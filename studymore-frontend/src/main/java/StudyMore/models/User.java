@@ -26,7 +26,7 @@ public class User {
     private List<Task> tasks;
 
     public User(Long userId) {
-        //Friend
+        // Friend
         this.userId = userId;
     }
 
@@ -50,24 +50,23 @@ public class User {
 
     // Constructor for database query
     public User(long id, String username, String email, String passwordHash, Rank rank, int rating,
-        int coinBalance, int studyStreak, long totalStudyTime, long dailyStudyTime, 
-        MascotCat cat, Inventory inventory, ArrayList<User> friends, ArrayList<Task> tasks) {
-            this.userId = id;
-            this.username = username;
-            this.email = email;
-            this.passwordHash = passwordHash;
-            this.rank = rank;
-            this.rating = rating;
-            this.coinBalance = coinBalance;
-            this.studyStreak = studyStreak;
-            this.totalStudyTime = totalStudyTime;
-            this.dailyStudyTime = dailyStudyTime;
-            this.mascotCat = cat;
-            this.inventory = inventory;
-            this.friends = friends;
-            this.tasks = tasks;
+            int coinBalance, int studyStreak, long totalStudyTime, long dailyStudyTime,
+            MascotCat cat, Inventory inventory, ArrayList<User> friends, ArrayList<Task> tasks) {
+        this.userId = id;
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.rank = rank;
+        this.rating = rating;
+        this.coinBalance = coinBalance;
+        this.studyStreak = studyStreak;
+        this.totalStudyTime = totalStudyTime;
+        this.dailyStudyTime = dailyStudyTime;
+        this.mascotCat = cat;
+        this.inventory = inventory;
+        this.friends = friends;
+        this.tasks = tasks;
     }
-    
 
     public void login() {
         System.out.println("User " + username + " logged in.");
@@ -83,48 +82,55 @@ public class User {
         System.out.println("Profile updated for " + username);
     }
 
-    //public Stats getStats() {
-    //    // TODO
-    //    return null;
-    //}
+    // public Stats getStats() {
+    // // TODO
+    // return null;
+    // }
 
-    public Long getUserId() { 
-        return userId; 
+    public Long getUserId() {
+        return userId;
     }
-    
-    public String getUsername() { 
-        return username; 
+
+    public String getUsername() {
+        return username;
     }
+
     public Inventory getInventory() {
         return inventory;
     }
-    public String getEmail() { 
-        return email; 
+
+    public String getEmail() {
+        return email;
     }
-    public String getPasswordHash() { 
-        return passwordHash; 
+
+    public String getPasswordHash() {
+        return passwordHash;
     }
-    public Rank getRank() { 
-        return rank; 
+
+    public Rank getRank() {
+        return rank;
     }
-    public int getRating() { 
-        return rating; 
+
+    public int getRating() {
+        return rating;
     }
-    public int getCoinBalance() { 
-        return coinBalance; 
+
+    public int getCoinBalance() {
+        return coinBalance;
     }
+
     public MascotCat getMascotCat() {
         return mascotCat;
     }
 
     public int getStudyStreak() {
         String query = """
-            SELECT DISTINCT DATE(start_time, 'localtime') as study_date
-            FROM sessions
-            WHERE user_id = ?
-            AND start_time IS NOT NULL
-            ORDER BY study_date DESC
-            """;
+                SELECT DISTINCT DATE(start_time, 'localtime') as study_date
+                FROM sessions
+                WHERE user_id = ?
+                AND start_time IS NOT NULL
+                ORDER BY study_date DESC
+                """;
 
         try (java.sql.PreparedStatement stmt = Main.mngr.getConnection().prepareStatement(query)) {
             stmt.setLong(1, this.userId);
@@ -152,47 +158,57 @@ public class User {
 
         return this.studyStreak;
     }
-    
-    public long getTotalStudyTime() { 
-        return totalStudyTime; 
-    }
-    public long getDailyStudyTime() { 
-        return dailyStudyTime; 
-    }
-    public List<User> getFriends() { 
-        return friends; 
+
+    public long getTotalStudyTime() {
+        return totalStudyTime;
     }
 
-    public List<Task> getTasks(){
+    public long getDailyStudyTime() {
+        return dailyStudyTime;
+    }
+
+    public List<User> getFriends() {
+        return friends;
+    }
+
+    public List<Task> getTasks() {
         return tasks;
     }
 
-    public void setUsername(String username) { 
-        this.username = username; 
+    public void setUsername(String username) {
+        this.username = username;
     }
-    public void setEmail(String email) { 
-        this.email = email; 
+
+    public void setEmail(String email) {
+        this.email = email;
     }
-    public void setPasswordHash(String passwordHash) { 
-        this.passwordHash = passwordHash; 
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
-    public void setRank(Rank rank) { 
-        this.rank = rank; 
+
+    public void setRank(Rank rank) {
+        this.rank = rank;
     }
-    public void setRating(int rating) { 
-        this.rating = rating; 
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
-    public void setCoinBalance(int coinBalance) { 
-        this.coinBalance = coinBalance; 
+
+    public void setCoinBalance(int coinBalance) {
+        this.coinBalance = coinBalance;
     }
-    public void setStudyStreak(int studyStreak) { 
-        this.studyStreak = studyStreak; 
+
+    public void setStudyStreak(int studyStreak) {
+        this.studyStreak = studyStreak;
     }
-    public void setTotalStudyTime(long totalStudyTime) { 
-        this.totalStudyTime = totalStudyTime; 
+
+    public void setTotalStudyTime(long totalStudyTime) {
+        this.totalStudyTime = totalStudyTime;
     }
-    public void setDailyStudyTime(long dailyStudyTime) { 
-        this.dailyStudyTime = dailyStudyTime; 
+
+    public void setDailyStudyTime(long dailyStudyTime) {
+        this.dailyStudyTime = dailyStudyTime;
     }
 
 }

@@ -1,4 +1,4 @@
-[   
+[
     {
         "id": 1,
         "name": "Rookie",
@@ -15,7 +15,6 @@
         "path": "",
         "description": ""
     },
-    
     {
         "id": 3,
         "name": "Master",
@@ -23,7 +22,6 @@
         "price": 500,
         "path": "",
         "description": ""
-
     },
     {
         "id": 4,

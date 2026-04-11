@@ -47,65 +47,83 @@ public class Settings {
         System.out.println("Settings reset to defaults.");
     }
 
-    public boolean isDarkMode() { 
-        return darkMode; 
-    }
-    public boolean isLockInMode() { 
-        return lockInMode; 
-    }
-    public boolean isMascotVisible() { 
-        return mascotVisible; 
-    }
-    public int getStudyTime() { 
-        return studyTime; 
-    }
-    public int getShortBreak() { 
-        return shortBreak; 
-    }
-    public int getLongBreak() { 
-        return longBreak; 
-    }
-    public int getLongBreakAfter() { 
-        return longBreakAfter; 
-    }
-    public boolean isStartSound() { 
-        return startSound; 
-    }
-    public boolean isBreakAlert() { 
-        return breakAlert; 
-    }
-    public boolean isPopups() { 
-        return popups; 
+    public boolean isDarkMode() {
+        return darkMode;
     }
 
-    public void setDarkMode(boolean darkMode) { 
-        this.darkMode = darkMode; 
+    public boolean isLockInMode() {
+        return lockInMode;
     }
-    public void setLockInMode(boolean lockInMode) { 
-        this.lockInMode = lockInMode; 
+
+    public boolean isMascotVisible() {
+        return mascotVisible;
     }
-    public void setMascotVisible(boolean mascotVisible) { 
-        this.mascotVisible = mascotVisible; 
+
+    public int getStudyTime() {
+        return studyTime;
     }
-    public void setStudyTime(int studyTime) { 
-        this.studyTime = studyTime; 
+
+    public int getShortBreak() {
+        return shortBreak;
     }
-    public void setShortBreak(int shortBreak) { 
-        this.shortBreak = shortBreak; 
+
+    public int getLongBreak() {
+        return longBreak;
     }
-    public void setLongBreak(int longBreak) { 
-        this.longBreak = longBreak; 
+
+    public int getLongBreakAfter() {
+        return longBreakAfter;
     }
-    public void setLongBreakAfter(int longBreakAfter) { 
-        this.longBreakAfter = longBreakAfter; 
+
+    public boolean isStartSound() {
+        return startSound;
     }
-    public void setStartSound(boolean startSound) { 
-        this.startSound = startSound; 
+
+    public boolean isBreakAlert() {
+        return breakAlert;
     }
-    public void setBreakAlert(boolean breakAlert) { 
-        this.breakAlert = breakAlert; 
+
+    public boolean isPopups() {
+        return popups;
     }
-    public void setPopups(boolean popups) { 
-        this.popups = popups; 
+
+    public void setDarkMode(boolean darkMode) {
+        this.darkMode = darkMode;
+    }
+
+    public void setLockInMode(boolean lockInMode) {
+        this.lockInMode = lockInMode;
+    }
+
+    public void setMascotVisible(boolean mascotVisible) {
+        this.mascotVisible = mascotVisible;
+    }
+
+    public void setStudyTime(int studyTime) {
+        this.studyTime = studyTime;
+    }
+
+    public void setShortBreak(int shortBreak) {
+        this.shortBreak = shortBreak;
+    }
+
+    public void setLongBreak(int longBreak) {
+        this.longBreak = longBreak;
+    }
+
+    public void setLongBreakAfter(int longBreakAfter) {
+        this.longBreakAfter = longBreakAfter;
+    }
+
+    public void setStartSound(boolean startSound) {
+        this.startSound = startSound;
+    }
+
+    public void setBreakAlert(boolean breakAlert) {
+        this.breakAlert = breakAlert;
+    }
+
+    public void setPopups(boolean popups) {
+        this.popups = popups;
     }
 }

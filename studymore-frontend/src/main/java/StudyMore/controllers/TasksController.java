@@ -23,17 +23,22 @@ public class TasksController {
 
     private Task currentlyEditingTask = null;
     private List<Task> tempDatabase = new ArrayList<>();
-    @FXML private StackPane pageRoot;
-    @FXML private FlowPane normalTasksContainer;
-    @FXML private FlowPane srsTasksContainer;
+    @FXML
+    private StackPane pageRoot;
+    @FXML
+    private FlowPane normalTasksContainer;
+    @FXML
+    private FlowPane srsTasksContainer;
 
-    // This flag is necessary since we are calling initialize more than once, both at start and after closing task overlay.
+    // This flag is necessary since we are calling initialize more than once, both
+    // at start and after closing task overlay.
     private boolean isInitialized = false;
 
     public void initialize() {
         if (!isInitialized) {
             tempDatabase.add(new Task("Buy Groceries", "Milk, Eggs, Bread", false));
-            tempDatabase.add(new Task("Learn JavaFX", "Review lambda capture and UI rendering", true, ReviewIntensity.INTENSE));
+            tempDatabase.add(
+                    new Task("Learn JavaFX", "Review lambda capture and UI rendering", true, ReviewIntensity.INTENSE));
             tempDatabase.clear(); // TODO: remove the placeholders after testing
             if (Main.user != null && Main.user.getTasks() != null) {
                 tempDatabase.addAll(Main.user.getTasks());
@@ -52,7 +57,7 @@ public class TasksController {
     private void showOverlay(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            loader.setController(this); 
+            loader.setController(this);
             Parent overlay = loader.load();
             pageRoot.getChildren().add(overlay);
         } catch (IOException e) {
@@ -69,29 +74,39 @@ public class TasksController {
         CheckBox srsBox = (CheckBox) overlay.lookup("#srsToggle");
         ComboBox<String> intensityDropdown = (ComboBox<String>) overlay.lookup("#intensityDropdown");
 
-        if (titleField == null) return;
+        if (titleField == null)
+            return;
 
         String title = titleField.getText();
         String content = (contentArea != null) ? contentArea.getText() : "";
         boolean isSrs = (srsBox != null) && srsBox.isSelected();
         String intensityString = intensityDropdown.getValue();
 
-        if (title == null || title.isEmpty()) return;
+        if (title == null || title.isEmpty())
+            return;
 
-        if (currentlyEditingTask != null){
+        if (currentlyEditingTask != null) {
             currentlyEditingTask.setTitle(title);
             currentlyEditingTask.setContent(content);
             Main.mngr.updateTask(currentlyEditingTask);
         } else {
             Task taskToAdd;
-            if (isSrs){
+            if (isSrs) {
                 ReviewIntensity intensity;
-                switch(intensityString){
-                    case "Intense": intensity = ReviewIntensity.INTENSE; break;
-                    case "Standard": intensity = ReviewIntensity.STANDARD; break;
-                    case "Relaxed": intensity = ReviewIntensity.RELAXED; break;
-                    default: intensity = ReviewIntensity.STANDARD; break;
-                }            
+                switch (intensityString) {
+                    case "Intense":
+                        intensity = ReviewIntensity.INTENSE;
+                        break;
+                    case "Standard":
+                        intensity = ReviewIntensity.STANDARD;
+                        break;
+                    case "Relaxed":
+                        intensity = ReviewIntensity.RELAXED;
+                        break;
+                    default:
+                        intensity = ReviewIntensity.STANDARD;
+                        break;
+                }
                 taskToAdd = new Task(title, content, isSrs, intensity);
             } else {
                 taskToAdd = new Task(title, content, isSrs);
@@ -101,7 +116,7 @@ public class TasksController {
             if (Main.user != null) {
                 Main.user.getTasks().add(taskToAdd);
                 Main.mngr.addTask(Main.user.getUserId(), taskToAdd);
-            }            
+            }
         }
 
         refreshTaskDisplay();
@@ -110,12 +125,12 @@ public class TasksController {
 
     @FXML
     private void openTaskConfig(Task taskToEdit) {
-        this.currentlyEditingTask = taskToEdit; 
+        this.currentlyEditingTask = taskToEdit;
 
         try {
             // We are using the same overlay for the task creation (via overriding)
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../fxml/CreateTaskOverlay.fxml"));
-            loader.setController(this); 
+            loader.setController(this);
             Parent overlay = loader.load();
 
             // Existing input fields to modify
@@ -123,23 +138,27 @@ public class TasksController {
             TextArea contentArea = (TextArea) loader.getNamespace().get("contentInput");
             CheckBox srsBox = (CheckBox) loader.getNamespace().get("srsToggle");
             ComboBox<String> intensityDropdown = (ComboBox<String>) loader.getNamespace().get("intensityDropdown");
-            
+
             // Elements needed to change into edit mode
             Label overlayTitle = (Label) loader.getNamespace().get("overlayTitle");
             Button deleteTaskBtn = (Button) loader.getNamespace().get("deleteTaskBtn");
             Button saveTaskBtn = (Button) loader.getNamespace().get("saveTaskBtn");
 
-            if (overlayTitle != null) overlayTitle.setText("EDIT TASK");
-            if (saveTaskBtn != null) saveTaskBtn.setText("UPDATE");
+            if (overlayTitle != null)
+                overlayTitle.setText("EDIT TASK");
+            if (saveTaskBtn != null)
+                saveTaskBtn.setText("UPDATE");
             if (deleteTaskBtn != null) {
                 deleteTaskBtn.setVisible(true);
                 deleteTaskBtn.setManaged(true);
             }
 
             // Pre-fill existing data
-            if (titleField != null) titleField.setText(taskToEdit.getTitle());
-            if (contentArea != null) contentArea.setText(taskToEdit.getContent());
-            if (srsBox != null){ 
+            if (titleField != null)
+                titleField.setText(taskToEdit.getTitle());
+            if (contentArea != null)
+                contentArea.setText(taskToEdit.getContent());
+            if (srsBox != null) {
                 srsBox.setSelected(taskToEdit.isSrsEnabled());
                 srsBox.setDisable(true);
             }
@@ -147,17 +166,17 @@ public class TasksController {
                 if (taskToEdit.isSrsEnabled() && taskToEdit.getSrsData() != null) {
                     intensityDropdown.setValue(taskToEdit.getSrsData().getIntensity().toString());
                 }
-                
+
                 // Unbinding is necessary or the program would crash in the case of:
                 // srsToggle is on, the program wants to make the dropdown available
                 intensityDropdown.disableProperty().unbind();
                 intensityDropdown.setDisable(true);
             }
-            
+
             pageRoot.getChildren().add(overlay);
         } catch (IOException e) {
             e.printStackTrace();
-        }        
+        }
     }
 
     @FXML
@@ -175,14 +194,14 @@ public class TasksController {
 
         // SRS TASK LOGIC
         promptQualityScore(task, (qualityScore) -> {
-            
-            SRSScheduler.processReview(task, qualityScore); 
-            
+
+            SRSScheduler.processReview(task, qualityScore);
+
             // Completed recently, will be INACTIVE soon
             task.setCompleted(true);
-        
+
             Main.mngr.updateTask(task);
-            
+
             SRSHistoryEntry latestLog = task.getSrsData().getLatestHistoryEntry();
             if (latestLog != null) {
                 Main.mngr.insertTaskHistory(task.getID(), latestLog);
@@ -190,8 +209,7 @@ public class TasksController {
 
             AchievementsController.updateProgress(Main.user.getUserId(), "TASK_BASED", 1);
             refreshTaskDisplay();
-        });        
-
+        });
 
     }
 
@@ -216,7 +234,7 @@ public class TasksController {
     }
 
     @FXML
-    private void deleteTask(){
+    private void deleteTask() {
         if (currentlyEditingTask != null) {
             promptConfirmation(() -> {
                 tempDatabase.remove(currentlyEditingTask);
@@ -225,8 +243,8 @@ public class TasksController {
                     Main.user.getTasks().remove(currentlyEditingTask);
                 }
                 // TODO: call delete task (remove the pointers)
-                // TODO: implement task deletion in task class               
-                currentlyEditingTask = null;        
+                // TODO: implement task deletion in task class
+                currentlyEditingTask = null;
                 closeOverlay();
                 refreshTaskDisplay();
             });
@@ -247,8 +265,8 @@ public class TasksController {
             }
             if (proceedBtn != null) {
                 proceedBtn.setOnAction(e -> {
-                    closeOverlay(); 
-                    onConfirm.run(); 
+                    closeOverlay();
+                    onConfirm.run();
                 });
             }
 
@@ -273,13 +291,19 @@ public class TasksController {
             Button cancelBtn = (Button) loader.getNamespace().get("cancelReviewBtn");
 
             // QUALITYSCORE LOGIC
-            if (blackoutBtn != null) blackoutBtn.setOnAction(e -> confirmAndSubmit(1, onScoreSelected));
-            if (hardBtn != null)    hardBtn.setOnAction(e -> confirmAndSubmit(2, onScoreSelected));
-            if (mediumBtn != null)  mediumBtn.setOnAction(e -> confirmAndSubmit(3, onScoreSelected));
-            if (goodBtn != null)    goodBtn.setOnAction(e -> confirmAndSubmit(4, onScoreSelected));
-            if (easyBtn != null)    easyBtn.setOnAction(e -> confirmAndSubmit(5, onScoreSelected));
+            if (blackoutBtn != null)
+                blackoutBtn.setOnAction(e -> confirmAndSubmit(1, onScoreSelected));
+            if (hardBtn != null)
+                hardBtn.setOnAction(e -> confirmAndSubmit(2, onScoreSelected));
+            if (mediumBtn != null)
+                mediumBtn.setOnAction(e -> confirmAndSubmit(3, onScoreSelected));
+            if (goodBtn != null)
+                goodBtn.setOnAction(e -> confirmAndSubmit(4, onScoreSelected));
+            if (easyBtn != null)
+                easyBtn.setOnAction(e -> confirmAndSubmit(5, onScoreSelected));
 
-            if (cancelBtn != null) cancelBtn.setOnAction(e -> closeOverlay());
+            if (cancelBtn != null)
+                cancelBtn.setOnAction(e -> closeOverlay());
 
             pageRoot.getChildren().add(overlay);
         } catch (IOException e) {
@@ -291,7 +315,7 @@ public class TasksController {
     private void confirmAndSubmit(int score, Consumer<Integer> onScoreSelected) {
         // Runs if user decides to proceed with the selected qualityScore
         promptConfirmation(() -> {
-            closeOverlay(); 
+            closeOverlay();
             onScoreSelected.accept(score);
         });
     }
@@ -310,15 +334,20 @@ public class TasksController {
             Button configBtn = (Button) loader.getNamespace().get("configBtn");
             Button completeBtn = (Button) loader.getNamespace().get("completeBtn");
 
-            if (titleLabel != null) titleLabel.setText(task.getTitle().toUpperCase());
-            if (contentLabel != null) contentLabel.setText(task.getContent());
+            if (titleLabel != null)
+                titleLabel.setText(task.getTitle().toUpperCase());
+            if (contentLabel != null)
+                contentLabel.setText(task.getContent());
 
             int state = task.getCurrentState();
             switch (state) {
                 case 2: // COMPLETED (Grayed out + vibrant completed button)
-                    if (titleLabel != null) titleLabel.setOpacity(0.4);
-                    if (contentLabel != null) contentLabel.setOpacity(0.4);
-                    if (srsBadge != null) srsBadge.setOpacity(0.4);
+                    if (titleLabel != null)
+                        titleLabel.setOpacity(0.4);
+                    if (contentLabel != null)
+                        contentLabel.setOpacity(0.4);
+                    if (srsBadge != null)
+                        srsBadge.setOpacity(0.4);
                     card.getChildren().get(2).setOpacity(0.1);
 
                     if (configBtn != null) {
@@ -326,15 +355,19 @@ public class TasksController {
                         configBtn.setDisable(true);
                     }
                     if (completeBtn != null) {
-                        completeBtn.setStyle("-fx-background-color: transparent; -fx-border-color: #4CAF50; -fx-text-fill: #4CAF50; -fx-border-radius: 5;");
+                        completeBtn.setStyle(
+                                "-fx-background-color: transparent; -fx-border-color: #4CAF50; -fx-text-fill: #4CAF50; -fx-border-radius: 5;");
                         completeBtn.setDisable(true);
                     }
                     break;
 
                 case 1: // INACTIVE (SRS waiting for future date) - (Grayed out + locked out)
-                    if (titleLabel != null) titleLabel.setOpacity(0.3);
-                    if (contentLabel != null) contentLabel.setOpacity(0.3);
-                    if (srsBadge != null) srsBadge.setOpacity(0.3);
+                    if (titleLabel != null)
+                        titleLabel.setOpacity(0.3);
+                    if (contentLabel != null)
+                        contentLabel.setOpacity(0.3);
+                    if (srsBadge != null)
+                        srsBadge.setOpacity(0.3);
                     card.getChildren().get(2).setOpacity(0.1);
 
                     if (configBtn != null) {
@@ -342,15 +375,19 @@ public class TasksController {
                         configBtn.setOnAction(event -> openTaskConfig(task));
                     }
                     if (completeBtn != null) {
-                        completeBtn.setStyle("-fx-background-color: transparent; -fx-border-color: #262626; -fx-text-fill: #404040; -fx-border-radius: 5;");
-                        completeBtn.setDisable(true); 
+                        completeBtn.setStyle(
+                                "-fx-background-color: transparent; -fx-border-color: #262626; -fx-text-fill: #404040; -fx-border-radius: 5;");
+                        completeBtn.setDisable(true);
                     }
                     break;
 
                 case 0: // ACTIVE (Due now) - (Bright task card + normal completed button)
-                    if (titleLabel != null) titleLabel.setOpacity(1.0);
-                    if (contentLabel != null) contentLabel.setOpacity(1.0);
-                    if (srsBadge != null) srsBadge.setOpacity(1.0);
+                    if (titleLabel != null)
+                        titleLabel.setOpacity(1.0);
+                    if (contentLabel != null)
+                        contentLabel.setOpacity(1.0);
+                    if (srsBadge != null)
+                        srsBadge.setOpacity(1.0);
                     card.getChildren().get(2).setOpacity(0.5);
 
                     if (configBtn != null) {
@@ -358,7 +395,8 @@ public class TasksController {
                         configBtn.setOnAction(event -> openTaskConfig(task));
                     }
                     if (completeBtn != null) {
-                        completeBtn.setStyle("-fx-background-color: transparent; -fx-border-color: #404040; -fx-text-fill: #737373; -fx-border-radius: 5; -fx-cursor: hand;");
+                        completeBtn.setStyle(
+                                "-fx-background-color: transparent; -fx-border-color: #404040; -fx-text-fill: #737373; -fx-border-radius: 5; -fx-cursor: hand;");
                         completeBtn.setOnAction(event -> markTaskAsCompleted(task));
                         completeBtn.setDisable(false);
                     }
@@ -370,8 +408,10 @@ public class TasksController {
                     srsBadge.setManaged(true);
                     srsBadge.setVisible(true);
                 }
-                if (recallLabel != null) recallLabel.setText(recallTime);
-                if (intensityLabel != null) intensityLabel.setText(task.getSrsData().getIntensity().name());
+                if (recallLabel != null)
+                    recallLabel.setText(recallTime);
+                if (intensityLabel != null)
+                    intensityLabel.setText(task.getSrsData().getIntensity().name());
                 srsTasksContainer.getChildren().add(card);
             } else {
                 if (srsBadge != null) {

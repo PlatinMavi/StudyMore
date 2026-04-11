@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Inventory {
     private Long inventoryId;
-    private User user; 
+    private User user;
     private List<Cosmetic> ownedItems;
     private Map<CosmeticType, Cosmetic> equippedItems;
 
@@ -31,7 +31,7 @@ public class Inventory {
     }
 
     public List<Cosmetic> getOwnedItems() {
-        //DEBUG
+        // DEBUG
         System.out.println("DEBUG");
         for (Cosmetic c : ownedItems) {
             System.out.println(c.getName());

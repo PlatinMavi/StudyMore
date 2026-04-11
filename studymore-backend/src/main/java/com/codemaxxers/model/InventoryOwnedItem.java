@@ -48,7 +48,8 @@ public class InventoryOwnedItem {
         private Long inventoryId;
         private Long cosmeticId;
 
-        public InventoryOwnedItemId() {}
+        public InventoryOwnedItemId() {
+        }
 
         public InventoryOwnedItemId(Long inventoryId, Long cosmeticId) {
             this.inventoryId = inventoryId;
@@ -57,11 +58,13 @@ public class InventoryOwnedItem {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             InventoryOwnedItemId that = (InventoryOwnedItemId) o;
             return Objects.equals(inventoryId, that.inventoryId) &&
-                   Objects.equals(cosmeticId, that.cosmeticId);
+                    Objects.equals(cosmeticId, that.cosmeticId);
         }
 
         @Override

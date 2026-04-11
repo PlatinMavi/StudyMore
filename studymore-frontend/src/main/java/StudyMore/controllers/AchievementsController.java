@@ -28,13 +28,16 @@ import java.util.List;
 
 public class AchievementsController {
 
-    @FXML private VBox achievementsContainer;
-    @FXML private Label completedCountLabel; // "COMPLETED: X/Y" — add fx:id to FXML header label
+    @FXML
+    private VBox achievementsContainer;
+    @FXML
+    private Label completedCountLabel; // "COMPLETED: X/Y" — add fx:id to FXML header label
 
     @FXML
     public void initialize() {
         loadFromDatabase();
     }
+
     private void loadFromDatabase() {
         achievementsContainer.getChildren().clear();
 
@@ -49,20 +52,20 @@ public class AchievementsController {
 
         List<StackPane> cards = new ArrayList<>();
         int completed = 0;
-        int total     = 0;
+        int total = 0;
 
         try (PreparedStatement stmt = Main.mngr.getConnection().prepareStatement(query)) {
             stmt.setLong(1, Main.user.getUserId());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    String title       = rs.getString("title");
+                    String title = rs.getString("title");
                     String description = rs.getString("description");
-                    String type        = rs.getString("type");
-                    int    target      = rs.getInt("target_value");
-                    int    reward      = rs.getInt("reward");
-                    int    progress    = rs.getInt("progress");
-                    boolean done       = rs.getInt("is_completed") == 1;
+                    String type = rs.getString("type");
+                    int target = rs.getInt("target_value");
+                    int reward = rs.getInt("reward");
+                    int progress = rs.getInt("progress");
+                    boolean done = rs.getInt("is_completed") == 1;
                     String progressText = formatProgress(progress, target, type);
                     String rewardText = reward + " COINS";
 
@@ -70,7 +73,8 @@ public class AchievementsController {
 
                     cards.add(buildCard(title, description, progressText, rewardText, fraction, done));
                     total++;
-                    if (done) completed++;
+                    if (done)
+                        completed++;
                 }
             }
         } catch (SQLException e) {
@@ -106,16 +110,18 @@ public class AchievementsController {
             achievementsContainer.getChildren().add(empty);
         }
     }
+
     private String formatProgress(int progress, int target, String type) {
         return switch (type) {
-            case "TIME_BASED"   -> progress + " / " + target + " H";   // hours
-            case "STREAK_BASED" -> progress + " / " + target + " D";   // days
-            case "SOCIAL"       -> progress + " / " + target + " G";   // groups/friends
-            default             -> progress + " / " + target;
+            case "TIME_BASED" -> progress + " / " + target + " H"; // hours
+            case "STREAK_BASED" -> progress + " / " + target + " D"; // days
+            case "SOCIAL" -> progress + " / " + target + " G"; // groups/friends
+            default -> progress + " / " + target;
         };
     }
+
     private StackPane buildCard(String title, String description, String progressText,
-                                String rewardText, double progressFraction, boolean isCompleted) {
+            String rewardText, double progressFraction, boolean isCompleted) {
         StackPane card = new StackPane();
         String borderColor = isCompleted ? "white" : "#262626";
         card.setStyle("-fx-background-color: black; -fx-border-color: " + borderColor + ";");
@@ -138,9 +144,11 @@ public class AchievementsController {
 
         Label statusLabel = new Label(isCompleted ? "COMPLETED" : "IN PROGRESS");
         if (isCompleted) {
-            statusLabel.setStyle("-fx-background-color: white; -fx-padding: 4 8; -fx-border-color: white; -fx-text-fill: black;");
+            statusLabel.setStyle(
+                    "-fx-background-color: white; -fx-padding: 4 8; -fx-border-color: white; -fx-text-fill: black;");
         } else {
-            statusLabel.setStyle("-fx-background-color: black; -fx-padding: 4 8; -fx-border-color: #262626; -fx-text-fill: #a3a3a3;");
+            statusLabel.setStyle(
+                    "-fx-background-color: black; -fx-padding: 4 8; -fx-border-color: #262626; -fx-text-fill: #a3a3a3;");
         }
         statusLabel.setFont(Font.font("System", FontWeight.BOLD, 10.0));
         statusLabel.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
@@ -197,6 +205,7 @@ public class AchievementsController {
 
         return card;
     }
+
     public static void updateProgress(long userId, String type, int amount) {
         String update = """
                 UPDATE user_achievements
@@ -217,11 +226,11 @@ public class AchievementsController {
             return;
         }
         String complete = """
-            SELECT ua.id, a.reward, a.title FROM user_achievements ua
-            JOIN achievements a ON ua.achievement_id = a.id
-            WHERE ua.user_id = ? AND a.type = ? AND ua.is_completed = 0
-            AND ua.progress >= a.target_value
-            """;
+                SELECT ua.id, a.reward, a.title FROM user_achievements ua
+                JOIN achievements a ON ua.achievement_id = a.id
+                WHERE ua.user_id = ? AND a.type = ? AND ua.is_completed = 0
+                AND ua.progress >= a.target_value
+                """;
 
         try (PreparedStatement stmt = Main.mngr.getConnection().prepareStatement(complete)) {
             stmt.setLong(1, userId);
@@ -229,7 +238,7 @@ public class AchievementsController {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    long uaId  = rs.getLong("id");
+                    long uaId = rs.getLong("id");
                     int reward = rs.getInt("reward");
                     String achTitle = rs.getString("title");
 
@@ -248,9 +257,10 @@ public class AchievementsController {
                     showUnlockNotification(achTitle, reward);
                     try {
                         String heartbeatBody = "{\"userId\":" + userId
-                                            + ",\"coinBalance\":" + Main.user.getCoinBalance() + "}";
+                                + ",\"coinBalance\":" + Main.user.getCoinBalance() + "}";
                         ApiClient.postAuth("/auth/users/heartbeat", heartbeatBody);
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                     System.out.println("Achievement unlocked! +" + reward + " coins.");
                 }
             }
@@ -258,6 +268,7 @@ public class AchievementsController {
             System.err.println("completion check error: " + e.getMessage());
         }
     }
+
     private static void showUnlockNotification(String title, int reward) {
         Platform.runLater(() -> {
             Label trophy = new Label("🏆");
@@ -282,9 +293,9 @@ public class AchievementsController {
             card.setAlignment(Pos.CENTER_LEFT);
             card.setPadding(new Insets(16, 20, 16, 16));
             card.setStyle("-fx-background-color: #111111; " +
-                        "-fx-border-color: white; " +
-                        "-fx-border-width: 1; " +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0, 0, 4);");
+                    "-fx-border-color: white; " +
+                    "-fx-border-width: 1; " +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0, 0, 4);");
 
             StackPane root = new StackPane(card);
             root.setStyle("-fx-background-color: transparent;");
@@ -295,8 +306,7 @@ public class AchievementsController {
             stage.setScene(new Scene(root, 320, 80));
             stage.getScene().setFill(null);
 
-            javafx.geometry.Rectangle2D screen =
-                    javafx.stage.Screen.getPrimary().getVisualBounds();
+            javafx.geometry.Rectangle2D screen = javafx.stage.Screen.getPrimary().getVisualBounds();
             stage.setX(screen.getMaxX() - 340);
             stage.setY(screen.getMaxY() - 100);
             stage.show();

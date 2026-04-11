@@ -13,13 +13,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/friends")
 public class FriendController {
- 
+
     private final FriendService friendService;
- 
+
     public FriendController(FriendService friendService) {
         this.friendService = friendService;
     }
- 
+
     @GetMapping("/{userId}")
     public ResponseEntity<?> getFriends(@PathVariable Long userId) {
         try {
@@ -27,12 +27,12 @@ public class FriendController {
             List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
             for (User u : friends) {
                 java.util.Map<String, Object> map = new java.util.HashMap<>();
-                map.put("userId",         u.getUserId());
-                map.put("username",       u.getUsername());
-                map.put("email",          u.getEmail());
-                map.put("coinBalance",    u.getCoinBalance());
-                map.put("rank",           u.getRank());
-                map.put("lastSeen",       u.getLastSeen());
+                map.put("userId", u.getUserId());
+                map.put("username", u.getUsername());
+                map.put("email", u.getEmail());
+                map.put("coinBalance", u.getCoinBalance());
+                map.put("rank", u.getRank());
+                map.put("lastSeen", u.getLastSeen());
                 map.put("totalStudyTime", u.getTotalStudyTime());
                 result.add(map);
             }
@@ -41,8 +41,8 @@ public class FriendController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
- 
-    // GET /api/friends/search?keyword= &requestingUserId= 
+
+    // GET /api/friends/search?keyword= &requestingUserId=
     @GetMapping("/search")
     public ResponseEntity<?> search(
             @RequestParam String keyword,
@@ -52,11 +52,11 @@ public class FriendController {
             List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
             for (User u : users) {
                 java.util.Map<String, Object> map = new java.util.HashMap<>();
-                map.put("userId",   u.getUserId());
+                map.put("userId", u.getUserId());
                 map.put("username", u.getUsername());
-                map.put("email",    u.getEmail());
+                map.put("email", u.getEmail());
                 map.put("lastSeen", u.getLastSeen());
-                map.put("rank",     u.getRank());
+                map.put("rank", u.getRank());
                 result.add(map);
             }
             return ResponseEntity.ok(result);
@@ -64,7 +64,7 @@ public class FriendController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
- 
+
     // GET /api/friends/requests/pending?userId=
     @GetMapping("/requests/pending")
     public ResponseEntity<?> getPendingRequests(@RequestParam Long userId) {
@@ -85,7 +85,7 @@ public class FriendController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
- 
+
     // POST /api/friends/requests
     // Body: { "senderId": 1, "receiverId": 2 }
     @PostMapping("/requests")
@@ -98,7 +98,7 @@ public class FriendController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
- 
+
     @PutMapping("/requests/{requestId}/accept")
     public ResponseEntity<?> acceptRequest(
             @PathVariable Long requestId,
@@ -110,7 +110,7 @@ public class FriendController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
- 
+
     // PUT /api/friends/requests/{requestId}/deny?receiverId=
     @PutMapping("/requests/{requestId}/deny")
     public ResponseEntity<?> denyRequest(

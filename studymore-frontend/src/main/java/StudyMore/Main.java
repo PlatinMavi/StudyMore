@@ -18,17 +18,17 @@ public class Main extends Application {
     public static DatabaseManager mngr;
     public static Stage primarStageStatic;
     public static User user;
-    public static Settings settings; 
+    public static Settings settings;
     private static ScheduledExecutorService syncScheduler;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primarStageStatic = primaryStage; 
+        primarStageStatic = primaryStage;
         long check = isUserLoggedIn();
 
-        if(check != -1) {
+        if (check != -1) {
             user = mngr.getUser(check);
-            settings = mngr.getSettings(user.getUserId()); 
+            settings = mngr.getSettings(user.getUserId());
 
             if (settings == null) {
                 settings = new Settings();
@@ -42,7 +42,7 @@ public class Main extends Application {
                 primaryStage.show();
             } else {
                 System.err.println("Local DB corrupted or incomplete. Forcing re-login.");
-                mngr.wipeAndRebuildDatabase(); // Use the wipe method 
+                mngr.wipeAndRebuildDatabase(); // Use the wipe method
                 loadLoginScreen(primaryStage);
             }
         } else {
@@ -56,27 +56,26 @@ public class Main extends Application {
 
         org.json.JSONObject payload = Main.mngr.loadSyncPayload(user.getUserId());
         try {
-            org.json.JSONObject response = ApiClient.sync(user.getUserId(), payload); 
+            org.json.JSONObject response = ApiClient.sync(user.getUserId(), payload);
             System.out.println("Auto-sync successful.");
         } catch (Exception e) {
             System.out.println("ERROR SYNC");
         }
-        
-        if(mngr != null) {
+
+        if (mngr != null) {
             mngr.closeConnection();
         }
 
         super.stop();
     }
 
-    // Helper method 
+    // Helper method
     private void loadLoginScreen(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("fxml/loginRegister.fxml"));
         stage.setTitle("StudyMore - Login");
         stage.setScene(new Scene(root, 1200, 800));
         stage.show();
     }
-
 
     public static void main(String[] args) {
         mngr = new DatabaseManager();
@@ -88,7 +87,7 @@ public class Main extends Application {
         String query = "SELECT * FROM users";
 
         try (Statement stmt = mngr.getConnection().createStatement();
-            ResultSet rs = stmt.executeQuery(query)) {
+                ResultSet rs = stmt.executeQuery(query)) {
 
             int count = 0;
             long userId = -1;
@@ -118,11 +117,12 @@ public class Main extends Application {
 
         syncScheduler = Executors.newSingleThreadScheduledExecutor();
         syncScheduler.scheduleAtFixedRate(() -> {
-            if (user == null) return;
+            if (user == null)
+                return;
 
             try {
-                String heartbeatBody = "{\"userId\":" + user.getUserId() 
-                                    + ",\"coinBalance\":" + user.getCoinBalance() + "}";
+                String heartbeatBody = "{\"userId\":" + user.getUserId()
+                        + ",\"coinBalance\":" + user.getCoinBalance() + "}";
                 ApiClient.postAuth("/auth/users/heartbeat", heartbeatBody);
             } catch (Exception e) {
                 System.out.println("Heartbeat failed: " + e.getMessage());
@@ -146,4 +146,3 @@ public class Main extends Application {
         }
     }
 }
-    

@@ -23,26 +23,27 @@ public class UserService {
             throw new RuntimeException("Username already taken");
         }
         User user = new User(username, email, sha256(password));
-        user.setUserId(userId); 
+        user.setUserId(userId);
         return userRepository.save(user);
     }
 
-        public Optional<User> login(String identifier, String password) {
-            // Check if the identifier is an email first
-            Optional<User> user = userRepository.findByEmail(identifier);
-            
-            // If not found, check if it's a username
-            if (user.isEmpty()) {
-                user = userRepository.findByUsername(identifier);
-            }
-            
-            // Validate password if a user was found
-            return user.filter(u -> u.getPasswordHash().equals(sha256(password)));
+    public Optional<User> login(String identifier, String password) {
+        // Check if the identifier is an email first
+        Optional<User> user = userRepository.findByEmail(identifier);
+
+        // If not found, check if it's a username
+        if (user.isEmpty()) {
+            user = userRepository.findByUsername(identifier);
         }
+
+        // Validate password if a user was found
+        return user.filter(u -> u.getPasswordHash().equals(sha256(password)));
+    }
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
     public User save(User user) {
         return userRepository.save(user);
     }
@@ -50,10 +51,14 @@ public class UserService {
     public User syncUser(Long userId, String username, String email, String passwordHash, Integer coinBalance) {
         User user = userRepository.findById(userId).orElse(new User());
         user.setUserId(userId);
-        if (username != null) user.setUsername(username);
-        if (email != null) user.setEmail(email);
-        if (passwordHash != null) user.setPasswordHash(passwordHash);
-        if (coinBalance != null) user.setCoinBalance(coinBalance);
+        if (username != null)
+            user.setUsername(username);
+        if (email != null)
+            user.setEmail(email);
+        if (passwordHash != null)
+            user.setPasswordHash(passwordHash);
+        if (coinBalance != null)
+            user.setCoinBalance(coinBalance);
         return userRepository.save(user);
     }
 
@@ -62,7 +67,8 @@ public class UserService {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] digest = md.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
-            for (byte b : digest) sb.append(String.format("%02x", b));
+            for (byte b : digest)
+                sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
